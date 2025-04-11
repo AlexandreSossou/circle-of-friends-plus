@@ -5,7 +5,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import PostCard from "@/components/post/PostCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 import { CameraIcon, Edit, MapPin, User, UserPlus } from "lucide-react";
 
 const Profile = () => {

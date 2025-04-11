@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -13,14 +12,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/components/ui/toast";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
 
-  // Track scroll for shadow effect
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
@@ -35,7 +33,6 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    // Will implement actual logout functionality later
     toast({
       title: "Logged out",
       description: "You have been successfully logged out",
@@ -50,7 +47,6 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo and Search */}
           <div className="flex items-center gap-4 flex-1">
             <Link to="/" className="font-bold text-social-blue text-2xl">
               CircleHub
@@ -67,7 +63,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             <Link to="/" className="p-2 text-social-blue hover:bg-social-lightblue rounded-full">
               <Home className="w-6 h-6" />
@@ -83,7 +78,6 @@ const Navbar = () => {
             </Link>
           </nav>
 
-          {/* User Menu */}
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -110,7 +104,6 @@ const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Mobile Menu Toggle */}
             <Button
               variant="ghost"
               size="icon"
@@ -123,7 +116,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-t py-2">
           <div className="container px-4">
