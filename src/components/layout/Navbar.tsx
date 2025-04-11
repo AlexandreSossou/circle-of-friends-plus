@@ -2,7 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Bell, Home, Menu, MessageSquare, Search, Users, X } from "lucide-react";
+import { Bell, Home, Menu, MessageSquare, Plane, Search, Users, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { 
@@ -15,6 +15,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format, isAfter, isBefore, parseISO } from "date-fns";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,6 +25,34 @@ const Navbar = () => {
   const { toast } = useToast();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch current user travels
+  const { data: isCurrentlyTraveling } = useQuery({
+    queryKey: ["currentlyTraveling", user?.id],
+    queryFn: async () => {
+      if (!user) return false;
+      
+      const now = new Date();
+      
+      const { data, error } = await supabase
+        .from("travels")
+        .select("arrival_date, departure_date")
+        .eq("user_id", user.id);
+      
+      if (error) {
+        console.error("Error fetching travels:", error);
+        return false;
+      }
+      
+      // Check if user is currently traveling
+      return data.some(travel => {
+        const arrival = parseISO(travel.arrival_date);
+        const departure = parseISO(travel.departure_date);
+        return isAfter(now, arrival) && isBefore(now, departure);
+      });
+    },
+    enabled: !!user,
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -92,6 +123,16 @@ const Navbar = () => {
             <Link to="/notifications" className="p-2 text-social-textSecondary hover:bg-social-gray rounded-full">
               <Bell className="w-6 h-6" />
             </Link>
+            {isCurrentlyTraveling && (
+              <Link 
+                to="/travels" 
+                className="p-2 text-green-500 hover:bg-social-gray rounded-full relative"
+                title="You are currently traveling!"
+              >
+                <Plane className="w-6 h-6" />
+                <span className="absolute top-0 right-0 w-2 h-2 bg-green-500 rounded-full"></span>
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center gap-2">
@@ -182,6 +223,13 @@ const Navbar = () => {
                 <Bell className="w-5 h-5 mr-3" />
                 <span>Notifications</span>
               </Link>
+              
+              {isCurrentlyTraveling && (
+                <Link to="/travels" className="flex items-center p-3 hover:bg-social-gray rounded-md text-green-500">
+                  <Plane className="w-5 h-5 mr-3" />
+                  <span>Currently Traveling!</span>
+                </Link>
+              )}
               
               {!user && (
                 <>
