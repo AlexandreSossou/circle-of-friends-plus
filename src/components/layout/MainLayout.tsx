@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import RightSidebar from "./RightSidebar";
+import ChatBubble from "../chat/ChatBubble";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -23,6 +24,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </div>
         </div>
       </div>
+      <ChatBubble />
     </div>
   );
 };
