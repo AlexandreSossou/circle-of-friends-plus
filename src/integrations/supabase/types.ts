@@ -197,6 +197,53 @@ export type Database = {
         }
         Relationships: []
       }
+      travels: {
+        Row: {
+          arrival_date: string
+          city: string
+          country: string
+          created_at: string
+          departure_date: string
+          description: string | null
+          id: string
+          looking_for: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          arrival_date: string
+          city: string
+          country: string
+          created_at?: string
+          departure_date: string
+          description?: string | null
+          id?: string
+          looking_for: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          arrival_date?: string
+          city?: string
+          country?: string
+          created_at?: string
+          departure_date?: string
+          description?: string | null
+          id?: string
+          looking_for?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "travels_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
