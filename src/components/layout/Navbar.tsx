@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+
+import { Link, useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Bell, Home, Menu, MessageSquare, Search, Users, X } from "lucide-react";
@@ -13,11 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,11 +36,23 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleLogout = () => {
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out",
-    });
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
+
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user) return "?";
+    
+    const name = user.user_metadata?.full_name || "";
+    if (!name) return user.email?.substring(0, 2).toUpperCase() || "?";
+    
+    const parts = name.split(" ");
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -79,30 +95,48 @@ const Navbar = () => {
           </nav>
 
           <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="rounded-full" size="icon">
-                  <Avatar>
-                    <AvatarImage src="/placeholder.svg" alt="User" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="rounded-full" size="icon">
+                    <Avatar>
+                      <AvatarImage src="/placeholder.svg" alt={user.user_metadata?.full_name || user.email || "User"} />
+                      <AvatarFallback>{getUserInitials()}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings">Settings</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="ghost" 
+                  className="text-social-blue"
+                  onClick={() => navigate('/login')}
+                >
+                  Log In
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/profile">Profile</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to="/settings">Settings</Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <Button 
+                  className="bg-social-blue hover:bg-social-darkblue"
+                  onClick={() => navigate('/register')}
+                >
+                  Sign Up
+                </Button>
+              </div>
+            )}
 
             <Button
               variant="ghost"
@@ -148,6 +182,27 @@ const Navbar = () => {
                 <Bell className="w-5 h-5 mr-3" />
                 <span>Notifications</span>
               </Link>
+              
+              {!user && (
+                <>
+                  <Link to="/login" className="flex items-center p-3 hover:bg-social-gray rounded-md text-social-blue">
+                    <span>Log In</span>
+                  </Link>
+                  <Link to="/register" className="flex items-center p-3 bg-social-blue text-white rounded-md">
+                    <span>Sign Up</span>
+                  </Link>
+                </>
+              )}
+              
+              {user && (
+                <Button
+                  variant="ghost"
+                  className="flex items-center justify-start p-3 hover:bg-social-gray rounded-md w-full"
+                  onClick={handleLogout}
+                >
+                  <span>Log out</span>
+                </Button>
+              )}
             </nav>
           </div>
         </div>

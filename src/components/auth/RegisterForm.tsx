@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 const RegisterForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -11,9 +13,10 @@ const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { signUp, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,17 +39,16 @@ const RegisterForm = () => {
       return;
     }
 
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Account created!",
-        description: "Your account has been created successfully",
-      });
+    try {
+      await signUp(
+        email, 
+        password, 
+        { full_name: `${firstName} ${lastName}` }
+      );
       navigate("/login");
-    }, 1500);
+    } catch (error) {
+      // Error is already handled in the signUp function
+    }
   };
 
   return (
