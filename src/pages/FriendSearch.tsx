@@ -105,7 +105,7 @@ const FriendSearch = () => {
                   <SelectValue placeholder="Any gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any gender</SelectItem>
+                  <SelectItem value="all">Any gender</SelectItem>
                   <SelectItem value="male">Male</SelectItem>
                   <SelectItem value="female">Female</SelectItem>
                   <SelectItem value="non-binary">Non-binary</SelectItem>
@@ -121,7 +121,7 @@ const FriendSearch = () => {
                   <SelectValue placeholder="Any status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any status</SelectItem>
+                  <SelectItem value="all">Any status</SelectItem>
                   <SelectItem value="single">Single</SelectItem>
                   <SelectItem value="married">Married</SelectItem>
                   <SelectItem value="divorced">Divorced</SelectItem>

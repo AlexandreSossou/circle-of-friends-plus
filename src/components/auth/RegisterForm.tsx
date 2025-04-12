@@ -49,7 +49,7 @@ const RegisterForm = () => {
         password, 
         { 
           full_name: `${firstName} ${lastName}`,
-          gender,
+          gender: gender,
           age: parseInt(age),
           marital_status: maritalStatus
         }
