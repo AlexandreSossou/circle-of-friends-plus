@@ -14,6 +14,7 @@ import FriendSearch from "./pages/FriendSearch";
 import Groups from "./pages/Groups";
 import Travels from "./pages/Travels";
 import Events from "./pages/Events";
+import News from "./pages/News";
 import Messages from "./pages/Messages";
 import MessagePreferences from "./pages/MessagePreferences";
 import NotFound from "./pages/NotFound";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/groups" element={<Groups />} />
             <Route path="/travels" element={<Travels />} />
             <Route path="/events" element={<Events />} />
+            <Route path="/news" element={<News />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/message-preferences" element={<MessagePreferences />} />
             <Route path="*" element={<NotFound />} />
