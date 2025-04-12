@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const RegisterForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -13,6 +14,9 @@ const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [gender, setGender] = useState("");
+  const [age, setAge] = useState("");
+  const [maritalStatus, setMaritalStatus] = useState("");
   
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -21,7 +25,7 @@ const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !password || !confirmPassword || !gender || !age || !maritalStatus) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -43,7 +47,12 @@ const RegisterForm = () => {
       await signUp(
         email, 
         password, 
-        { full_name: `${firstName} ${lastName}` }
+        { 
+          full_name: `${firstName} ${lastName}`,
+          gender,
+          age: parseInt(age),
+          marital_status: maritalStatus
+        }
       );
       navigate("/login");
     } catch (error) {
@@ -88,6 +97,52 @@ const RegisterForm = () => {
                   className="social-input"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+              <Select value={gender} onValueChange={setGender} required>
+                <SelectTrigger id="gender">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="non-binary">Non-binary</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="age">Age</Label>
+              <Input
+                id="age"
+                type="number"
+                min="18"
+                max="120"
+                placeholder="30"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                required
+                className="social-input"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maritalStatus">Marital Status</Label>
+              <Select value={maritalStatus} onValueChange={setMaritalStatus} required>
+                <SelectTrigger id="maritalStatus">
+                  <SelectValue placeholder="Select marital status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="single">Single</SelectItem>
+                  <SelectItem value="married">Married</SelectItem>
+                  <SelectItem value="divorced">Divorced</SelectItem>
+                  <SelectItem value="widowed">Widowed</SelectItem>
+                  <SelectItem value="complicated">It's complicated</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

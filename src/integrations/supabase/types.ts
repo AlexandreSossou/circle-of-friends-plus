@@ -129,6 +129,86 @@ export type Database = {
           },
         ]
       }
+      message_preferences: {
+        Row: {
+          allow_gender: string[] | null
+          allow_marital_status: string[] | null
+          allow_messages: boolean
+          created_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allow_gender?: string[] | null
+          allow_marital_status?: string[] | null
+          allow_messages?: boolean
+          created_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allow_gender?: string[] | null
+          allow_marital_status?: string[] | null
+          allow_messages?: boolean
+          created_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          recipient_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           content: string
@@ -166,36 +246,56 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           avatar_url: string | null
           bio: string | null
           created_at: string
           full_name: string | null
+          gender: string | null
           id: string
           location: string | null
+          marital_status: string | null
+          partner_id: string | null
           updated_at: string
           username: string | null
         }
         Insert: {
+          age?: number | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           full_name?: string | null
+          gender?: string | null
           id: string
           location?: string | null
+          marital_status?: string | null
+          partner_id?: string | null
           updated_at?: string
           username?: string | null
         }
         Update: {
+          age?: number | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
           full_name?: string | null
+          gender?: string | null
           id?: string
           location?: string | null
+          marital_status?: string | null
+          partner_id?: string | null
           updated_at?: string
           username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       travels: {
         Row: {

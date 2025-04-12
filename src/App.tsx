@@ -10,8 +10,11 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import Friends from "./pages/Friends";
+import FriendSearch from "./pages/FriendSearch";
 import Groups from "./pages/Groups";
 import Travels from "./pages/Travels";
+import Messages from "./pages/Messages";
+import MessagePreferences from "./pages/MessagePreferences";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,8 +33,11 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/profile/:id" element={<Profile />} />
             <Route path="/friends" element={<Friends />} />
+            <Route path="/friend-search" element={<FriendSearch />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/travels" element={<Travels />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/message-preferences" element={<MessagePreferences />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

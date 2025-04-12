@@ -1,17 +1,77 @@
 
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import PostCard from "@/components/post/PostCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { CameraIcon, Edit, MapPin, User, UserPlus } from "lucide-react";
+import { CameraIcon, Edit, MapPin, MessageCircle, User, UserPlus } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+type ProfileData = {
+  id: string;
+  full_name: string | null;
+  username: string | null;
+  avatar_url: string | null;
+  location: string | null;
+  bio: string | null;
+  gender: string | null;
+  age: number | null;
+  marital_status: string | null;
+  partner_id: string | null;
+  partner?: {
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null;
+};
 
 const Profile = () => {
+  const { id } = useParams();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("posts");
   const { toast } = useToast();
   
+  const isOwnProfile = !id || id === user?.id;
+  const profileId = id || user?.id;
+
+  // Fetch profile data
+  const { data: profileData, isLoading: profileLoading } = useQuery({
+    queryKey: ["profile", profileId],
+    queryFn: async () => {
+      if (!profileId) return null;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", profileId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return null;
+      }
+
+      // If profile has a partner, fetch partner data
+      if (data.partner_id) {
+        const { data: partnerData, error: partnerError } = await supabase
+          .from("profiles")
+          .select("full_name, avatar_url")
+          .eq("id", data.partner_id)
+          .single();
+
+        if (!partnerError) {
+          data.partner = partnerData;
+        }
+      }
+
+      return data as ProfileData;
+    },
+    enabled: !!profileId,
+  });
+
   const handleAddFriend = () => {
     toast({
       title: "Friend request sent",
@@ -19,37 +79,44 @@ const Profile = () => {
     });
   };
 
-  const mockPosts = [
-    {
-      id: "profile-post-1",
-      author: {
-        id: "user-profile",
-        name: "John Doe",
-        avatar: "/placeholder.svg",
-        initials: "JD"
-      },
-      content: "Just finished working on a new project. Super excited to share the results soon!",
-      timestamp: "2 days ago",
-      likes: 15,
-      comments: [],
-      liked: false
+  // Fetch posts data
+  const { data: posts } = useQuery({
+    queryKey: ["profile-posts", profileId],
+    queryFn: async () => {
+      if (!profileId) return [];
+
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .eq("user_id", profileId)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching posts:", error);
+        return [];
+      }
+
+      return data || [];
     },
-    {
-      id: "profile-post-2",
-      author: {
-        id: "user-profile",
-        name: "John Doe",
-        avatar: "/placeholder.svg",
-        initials: "JD"
-      },
-      content: "Attended an amazing tech conference this weekend. Met so many interesting people and learned a lot!",
-      image: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=1000",
-      timestamp: "1 week ago",
-      likes: 32,
-      comments: [],
-      liked: true
-    }
-  ];
+    enabled: !!profileId,
+  });
+
+  // Mock data for UI demonstration
+  const mockPosts = posts?.map(post => ({
+    id: post.id,
+    author: {
+      id: profileId || "",
+      name: profileData?.full_name || "Unknown",
+      avatar: profileData?.avatar_url || "/placeholder.svg",
+      initials: profileData?.full_name?.split(" ").map(n => n[0]).join("") || "??"
+    },
+    content: post.content,
+    image: post.image_url || undefined,
+    timestamp: new Date(post.created_at).toLocaleDateString(),
+    likes: 0,
+    comments: [],
+    liked: false
+  })) || [];
 
   const friendsList = [
     { id: "friend-1", name: "Emma Watson", avatar: "/placeholder.svg", initials: "EW", mutualFriends: 5 },
@@ -69,6 +136,24 @@ const Profile = () => {
     "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?q=80&w=500"
   ];
 
+  if (profileLoading) {
+    return (
+      <MainLayout>
+        <div className="social-card p-6 animate-pulse">
+          <div className="h-48 md:h-64 bg-gray-200 rounded-t-lg"></div>
+          <div className="flex flex-col md:flex-row md:items-end -mt-16 md:-mt-20 mb-4 md:mb-6 gap-4 md:gap-6">
+            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gray-300 border-4 border-white"></div>
+            <div className="flex-1">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/5"></div>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
       <div className="social-card relative mb-6">
@@ -79,12 +164,14 @@ const Profile = () => {
             alt="Cover"
             className="w-full h-full object-cover"
           />
-          <div className="absolute bottom-4 right-4">
-            <Button variant="secondary" size="sm" className="flex items-center gap-1">
-              <CameraIcon className="w-4 h-4" />
-              <span>Edit Cover</span>
-            </Button>
-          </div>
+          {isOwnProfile && (
+            <div className="absolute bottom-4 right-4">
+              <Button variant="secondary" size="sm" className="flex items-center gap-1">
+                <CameraIcon className="w-4 h-4" />
+                <span>Edit Cover</span>
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Profile Info */}
@@ -93,39 +180,94 @@ const Profile = () => {
             <div className="relative z-10">
               <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white bg-white overflow-hidden">
                 <img
-                  src="/placeholder.svg"
+                  src={profileData?.avatar_url || "/placeholder.svg"}
                   alt="Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
-              <Button 
-                variant="secondary" 
-                size="icon"
-                className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white"
-              >
-                <CameraIcon className="w-4 h-4" />
-              </Button>
+              {isOwnProfile && (
+                <Button 
+                  variant="secondary" 
+                  size="icon"
+                  className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white"
+                >
+                  <CameraIcon className="w-4 h-4" />
+                </Button>
+              )}
             </div>
             
             <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold">John Doe</h1>
-                <p className="text-social-textSecondary flex items-center">
-                  <MapPin className="w-4 h-4 mr-1" />
-                  San Francisco, CA
-                </p>
-                <p className="text-social-textSecondary mt-1">568 friends</p>
+                <h1 className="text-2xl md:text-3xl font-bold">{profileData?.full_name}</h1>
+                
+                <div className="flex flex-col space-y-1 mt-1">
+                  {profileData?.location && (
+                    <p className="text-social-textSecondary flex items-center">
+                      <MapPin className="w-4 h-4 mr-1" />
+                      {profileData.location}
+                    </p>
+                  )}
+                  
+                  <div className="flex flex-wrap gap-x-4 text-social-textSecondary text-sm">
+                    {profileData?.age && (
+                      <span className="flex items-center">
+                        <span className="font-medium mr-1">Age:</span> {profileData.age}
+                      </span>
+                    )}
+                    
+                    {profileData?.gender && (
+                      <span className="flex items-center">
+                        <span className="font-medium mr-1">Gender:</span> {profileData.gender}
+                      </span>
+                    )}
+                    
+                    {profileData?.marital_status && (
+                      <span className="flex items-center">
+                        <span className="font-medium mr-1">Status:</span> {profileData.marital_status}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {profileData?.partner && (
+                    <div className="flex items-center mt-1">
+                      <span className="font-medium mr-2">Partner:</span>
+                      <Link to={`/profile/${profileData.partner_id}`} className="flex items-center hover:underline">
+                        <img 
+                          src={profileData.partner.avatar_url || "/placeholder.svg"} 
+                          alt={profileData.partner.full_name || "Partner"} 
+                          className="w-5 h-5 rounded-full mr-1" 
+                        />
+                        {profileData.partner.full_name}
+                      </Link>
+                    </div>
+                  )}
+                  
+                  <p className="text-social-textSecondary">568 friends</p>
+                </div>
               </div>
               
               <div className="flex gap-2">
-                <Button className="bg-social-blue hover:bg-social-darkblue" onClick={handleAddFriend}>
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Add Friend
-                </Button>
-                <Button variant="outline">
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Button>
+                {!isOwnProfile && (
+                  <>
+                    <Button className="bg-social-blue hover:bg-social-darkblue" onClick={handleAddFriend}>
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Add Friend
+                    </Button>
+                    <Link to={`/messages?recipient=${profileId}`}>
+                      <Button variant="outline">
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Message
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                
+                {isOwnProfile && (
+                  <Button variant="outline">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -140,9 +282,22 @@ const Profile = () => {
               
               <TabsContent value="posts">
                 <div className="space-y-4">
-                  {mockPosts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
+                  {mockPosts.length > 0 ? (
+                    mockPosts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-social-textSecondary">
+                      <p>No posts to display.</p>
+                      {isOwnProfile && (
+                        <p className="mt-2">
+                          <Link to="/" className="text-social-blue hover:underline">
+                            Create your first post
+                          </Link>
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </TabsContent>
               
