@@ -1,9 +1,10 @@
 
 import { useState } from "react";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Clock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Friend } from "@/types/friends";
+import { format } from "date-fns";
 
 interface FriendSelectorProps {
   closeFriends: Friend[];
@@ -31,7 +32,16 @@ const FriendSelector = ({ closeFriends, onSelectFriend, onClose }: FriendSelecto
             </Avatar>
             <div>
               <p className="font-medium">{friend.name}</p>
-              <p className="text-xs text-social-textSecondary">{friend.location || "No location set"}</p>
+              <div className="flex items-center">
+                <p className="text-xs text-social-textSecondary">{friend.location || "No location set"}</p>
+                
+                {friend.temporaryUpgradeUntil && (
+                  <div className="flex items-center ml-2 text-xs text-amber-600">
+                    <Clock className="w-3 h-3 mr-1" />
+                    <span>Temp until {format(new Date(friend.temporaryUpgradeUntil), 'h:mm a')}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))

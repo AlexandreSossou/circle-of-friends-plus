@@ -9,9 +9,15 @@ interface FriendsListProps {
   friends: Friend[];
   onViewProfile: (id: string) => void;
   onUpdateRelationshipType?: (id: string, type: 'friend' | 'acquaintance') => void;
+  onTemporaryUpgrade?: (id: string, durationMinutes: number) => void;
 }
 
-const FriendsList = ({ friends, onViewProfile, onUpdateRelationshipType }: FriendsListProps) => {
+const FriendsList = ({ 
+  friends, 
+  onViewProfile, 
+  onUpdateRelationshipType,
+  onTemporaryUpgrade 
+}: FriendsListProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   
   // Filter friends based on search query
@@ -52,6 +58,7 @@ const FriendsList = ({ friends, onViewProfile, onUpdateRelationshipType }: Frien
               friend={friend} 
               onViewProfile={onViewProfile}
               onUpdateRelationshipType={onUpdateRelationshipType}
+              onTemporaryUpgrade={onTemporaryUpgrade}
             />
           ))}
         </div>

@@ -24,7 +24,7 @@ const ChatBubble = () => {
   
   const { allFriends } = useFriends();
 
-  // Filter only close friends (relationship type is 'friend')
+  // Filter only close friends (relationship type is 'friend'), including temporarily upgraded ones
   const closeFriends = allFriends.filter(friend => friend.relationshipType === 'friend');
 
   const handleBackToFriendSelector = () => {

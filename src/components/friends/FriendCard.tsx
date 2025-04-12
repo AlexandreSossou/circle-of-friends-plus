@@ -1,23 +1,35 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { UserCheck, Star, Settings2 } from "lucide-react";
+import { UserCheck, Star, Settings2, Clock } from "lucide-react";
 import { Friend } from "@/types/friends";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 
 interface FriendCardProps {
   friend: Friend;
   onViewProfile: (id: string) => void;
   onUpdateRelationshipType?: (id: string, type: 'friend' | 'acquaintance') => void;
+  onTemporaryUpgrade?: (id: string, durationMinutes: number) => void;
 }
 
-const FriendCard = ({ friend, onViewProfile, onUpdateRelationshipType }: FriendCardProps) => {
+const FriendCard = ({ 
+  friend, 
+  onViewProfile, 
+  onUpdateRelationshipType,
+  onTemporaryUpgrade 
+}: FriendCardProps) => {
   const { toast } = useToast();
 
   const handleRelationshipChange = (type: 'friend' | 'acquaintance') => {
@@ -31,6 +43,17 @@ const FriendCard = ({ friend, onViewProfile, onUpdateRelationshipType }: FriendC
     }
   };
 
+  const handleTemporaryUpgrade = (durationMinutes: number) => {
+    if (onTemporaryUpgrade) {
+      onTemporaryUpgrade(friend.id, durationMinutes);
+    }
+  };
+
+  // Format the expiration time if it exists
+  const expirationText = friend.temporaryUpgradeUntil 
+    ? `Temporary until ${format(new Date(friend.temporaryUpgradeUntil), 'h:mm a')}`
+    : null;
+
   return (
     <div className="social-card p-4 flex items-center">
       <div className="flex items-center flex-1">
@@ -43,6 +66,12 @@ const FriendCard = ({ friend, onViewProfile, onUpdateRelationshipType }: FriendC
             <h3 className="font-medium">{friend.name}</h3>
             {friend.relationshipType === "friend" && (
               <Star className="w-3 h-3 text-yellow-500 ml-1" fill="currentColor" />
+            )}
+            {friend.temporaryUpgradeUntil && (
+              <div className="flex items-center ml-2 text-xs text-amber-600">
+                <Clock className="w-3 h-3 mr-1" />
+                <span>{expirationText}</span>
+              </div>
             )}
           </div>
           <p className="text-xs text-social-textSecondary">{friend.mutualFriends} mutual friends</p>
@@ -61,10 +90,34 @@ const FriendCard = ({ friend, onViewProfile, onUpdateRelationshipType }: FriendC
                 <Star className="w-4 h-4 mr-2 text-yellow-500" fill={friend.relationshipType === 'friend' ? 'currentColor' : 'none'} />
                 <span>Close Friend</span>
               </DropdownMenuItem>
+              
               <DropdownMenuItem onClick={() => handleRelationshipChange('acquaintance')}>
                 <UserCheck className="w-4 h-4 mr-2" />
                 <span>Acquaintance</span>
               </DropdownMenuItem>
+              
+              {friend.relationshipType === 'acquaintance' && onTemporaryUpgrade && (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Clock className="w-4 h-4 mr-2 text-amber-600" />
+                    <span>Temporary Close Friend</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    <DropdownMenuItem onClick={() => handleTemporaryUpgrade(5)}>
+                      For 5 minutes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleTemporaryUpgrade(15)}>
+                      For 15 minutes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleTemporaryUpgrade(30)}>
+                      For 30 minutes
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleTemporaryUpgrade(60)}>
+                      For 1 hour
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}

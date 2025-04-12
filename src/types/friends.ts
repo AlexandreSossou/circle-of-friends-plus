@@ -6,5 +6,6 @@ export type Friend = {
   initials: string;
   mutualFriends: number;
   relationshipType?: 'friend' | 'acquaintance';
+  temporaryUpgradeUntil?: Date | null;
   location?: string;
 };

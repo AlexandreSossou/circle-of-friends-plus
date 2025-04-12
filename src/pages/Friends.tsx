@@ -12,9 +12,9 @@ const Friends = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { allFriends, friendRequests, updateRelationshipType } = useFriends();
+  const { allFriends, friendRequests, updateRelationshipType, temporarilyUpgradeRelationship } = useFriends();
   
-  // Filter friends based on relationship type
+  // Filter friends based on relationship type, including temporary close friends
   const closeFriends = allFriends.filter(friend => friend.relationshipType === 'friend');
   const acquaintances = allFriends.filter(friend => friend.relationshipType === 'acquaintance');
   
@@ -37,6 +37,10 @@ const Friends = () => {
   
   const handleUpdateRelationshipType = (friendId: string, relationshipType: 'friend' | 'acquaintance') => {
     updateRelationshipType(friendId, relationshipType);
+  };
+  
+  const handleTemporaryUpgrade = (friendId: string, durationMinutes: number) => {
+    temporarilyUpgradeRelationship(friendId, durationMinutes);
   };
   
   return (
@@ -64,6 +68,7 @@ const Friends = () => {
               friends={allFriends} 
               onViewProfile={handleViewProfile}
               onUpdateRelationshipType={handleUpdateRelationshipType}
+              onTemporaryUpgrade={handleTemporaryUpgrade}
             />
           </TabsContent>
           
@@ -72,6 +77,7 @@ const Friends = () => {
               friends={closeFriends} 
               onViewProfile={handleViewProfile}
               onUpdateRelationshipType={handleUpdateRelationshipType}
+              onTemporaryUpgrade={handleTemporaryUpgrade}
             />
           </TabsContent>
           
@@ -80,6 +86,7 @@ const Friends = () => {
               friends={acquaintances} 
               onViewProfile={handleViewProfile}
               onUpdateRelationshipType={handleUpdateRelationshipType}
+              onTemporaryUpgrade={handleTemporaryUpgrade}
             />
           </TabsContent>
           
