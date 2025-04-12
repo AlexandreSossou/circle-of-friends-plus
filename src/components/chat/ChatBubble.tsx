@@ -1,5 +1,5 @@
 
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useFriends } from "@/hooks/useFriends";
@@ -8,6 +8,7 @@ import ChatHeader from "./ChatHeader";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import FriendSelector from "./FriendSelector";
+import ModeratorChatSelector from "./ModeratorChatSelector";
 
 const ChatBubble = () => {
   const { 
@@ -16,8 +17,11 @@ const ChatBubble = () => {
     messages, 
     selectedFriend, 
     showFriendSelector,
+    showModeratorSelector,
+    isChatWithModerator,
     handleSelectFriend,
     handleCloseFriendSelector,
+    handleToggleModeratorSelector,
     sendMessage,
     setSelectedFriend
   } = useChat();
@@ -42,8 +46,9 @@ const ChatBubble = () => {
         <Card className="w-80 md:w-96 shadow-lg">
           <ChatHeader 
             selectedFriend={selectedFriend} 
+            isChatWithModerator={isChatWithModerator}
             onClose={toggleChat}
-            onBack={selectedFriend ? handleBackToFriendSelector : undefined}
+            onBack={selectedFriend || isChatWithModerator ? handleBackToFriendSelector : undefined}
           />
           
           {showFriendSelector ? (
@@ -51,12 +56,19 @@ const ChatBubble = () => {
               closeFriends={closeFriends}
               onSelectFriend={handleSelectFriend}
               onClose={handleCloseFriendSelector}
+              onModeratorChat={handleToggleModeratorSelector}
+            />
+          ) : showModeratorSelector ? (
+            <ModeratorChatSelector
+              onStartModeratorChat={handleToggleModeratorSelector}
+              onCancel={handleCloseFriendSelector}
             />
           ) : (
             <>
               <ChatMessages 
                 messages={messages}
                 selectedFriend={selectedFriend}
+                isChatWithModerator={isChatWithModerator}
               />
               <ChatInput onSendMessage={sendMessage} />
             </>

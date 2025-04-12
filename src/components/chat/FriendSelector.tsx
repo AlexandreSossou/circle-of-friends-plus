@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { AlertCircle, Clock } from "lucide-react";
+import { AlertCircle, Clock, Shield } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Friend } from "@/types/friends";
@@ -10,9 +10,10 @@ interface FriendSelectorProps {
   closeFriends: Friend[];
   onSelectFriend: (friend: Friend) => void;
   onClose: () => void;
+  onModeratorChat: () => void;
 }
 
-const FriendSelector = ({ closeFriends, onSelectFriend, onClose }: FriendSelectorProps) => {
+const FriendSelector = ({ closeFriends, onSelectFriend, onClose, onModeratorChat }: FriendSelectorProps) => {
   // Format the expiration time in a human-readable way
   const formatExpirationTime = (date: Date) => {
     if (isToday(date)) {
@@ -28,6 +29,32 @@ const FriendSelector = ({ closeFriends, onSelectFriend, onClose }: FriendSelecto
     <div className="h-80 overflow-y-auto p-3 flex flex-col gap-3 bg-white">
       <div className="p-2 text-center text-social-textSecondary">
         <p>Select a close friend to chat with</p>
+      </div>
+      
+      {/* Moderator option */}
+      <div 
+        onClick={onModeratorChat}
+        className="flex items-center p-2 gap-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer border border-gray-200"
+      >
+        <div className="h-10 w-10 rounded-full bg-social-blue flex items-center justify-center">
+          <Shield className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <p className="font-medium">Chat with a Moderator</p>
+          <p className="text-xs text-social-textSecondary">Get help from our staff</p>
+        </div>
+      </div>
+      
+      {/* Divider */}
+      <div className="relative my-2">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-white px-2 text-xs text-gray-500">
+            YOUR CLOSE FRIENDS
+          </span>
+        </div>
       </div>
       
       {closeFriends.length > 0 ? (

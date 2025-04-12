@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 type Message = {
   id: string;
-  sender: "user" | "friend" | "system";
+  sender: "user" | "friend" | "system" | "moderator";
   content: string;
   timestamp: Date;
 };
@@ -17,6 +17,8 @@ export const useChat = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [showFriendSelector, setShowFriendSelector] = useState(false);
+  const [showModeratorSelector, setShowModeratorSelector] = useState(false);
+  const [isChatWithModerator, setIsChatWithModerator] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -32,13 +34,30 @@ export const useChat = () => {
         },
       ]);
       setShowFriendSelector(false);
+      setIsChatWithModerator(false);
     }
   }, [selectedFriend]);
 
+  useEffect(() => {
+    // Initialize moderator chat with a welcome message
+    if (isChatWithModerator) {
+      setMessages([
+        {
+          id: `welcome-moderator-${Date.now()}`,
+          sender: "system",
+          content: "You are now connected with a moderator. How can we help you today?",
+          timestamp: new Date(),
+        },
+      ]);
+      setShowModeratorSelector(false);
+    }
+  }, [isChatWithModerator]);
+
   const toggleChat = () => {
     setIsOpen(!isOpen);
-    if (!isOpen && !selectedFriend) {
+    if (!isOpen && !selectedFriend && !isChatWithModerator) {
       setShowFriendSelector(true);
+      setShowModeratorSelector(false);
     }
   };
 
@@ -50,6 +69,7 @@ export const useChat = () => {
     }
 
     setSelectedFriend(friend);
+    setIsChatWithModerator(false);
     toast({
       title: "Chat started",
       description: `You can now chat with ${friend.name}.`,
@@ -58,13 +78,30 @@ export const useChat = () => {
 
   const handleCloseFriendSelector = () => {
     setShowFriendSelector(!showFriendSelector);
-    if (!selectedFriend && !showFriendSelector) {
+    setShowModeratorSelector(false);
+    if (!selectedFriend && !isChatWithModerator && !showFriendSelector) {
       setIsOpen(false);
     }
   };
 
+  const handleToggleModeratorSelector = () => {
+    if (showModeratorSelector) {
+      // Start a chat with a moderator
+      setIsChatWithModerator(true);
+      setSelectedFriend(null);
+      toast({
+        title: "Moderator chat started",
+        description: "You are now chatting with a staff moderator.",
+      });
+    } else {
+      // Show the moderator selector
+      setShowModeratorSelector(true);
+      setShowFriendSelector(false);
+    }
+  };
+
   const sendMessage = (content: string) => {
-    if (!selectedFriend) return;
+    if (!selectedFriend && !isChatWithModerator) return;
     
     // Add user message
     const userMessage: Message = {
@@ -76,15 +113,27 @@ export const useChat = () => {
     
     setMessages((prev) => [...prev, userMessage]);
     
-    // Simulate friend response
+    // Simulate response based on conversation type
     setTimeout(() => {
-      const friendMessage: Message = {
-        id: `friend-${Date.now()}`,
-        sender: "friend",
-        content: `Hi from ${selectedFriend.name}! This is a simulated response.`,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, friendMessage]);
+      let responseMessage: Message;
+      
+      if (isChatWithModerator) {
+        responseMessage = {
+          id: `moderator-${Date.now()}`,
+          sender: "moderator",
+          content: "Thank you for contacting our moderation team. How can we assist you today?",
+          timestamp: new Date(),
+        };
+      } else {
+        responseMessage = {
+          id: `friend-${Date.now()}`,
+          sender: "friend",
+          content: `Hi from ${selectedFriend?.name}! This is a simulated response.`,
+          timestamp: new Date(),
+        };
+      }
+      
+      setMessages((prev) => [...prev, responseMessage]);
     }, 1000);
   };
 
@@ -94,8 +143,11 @@ export const useChat = () => {
     messages,
     selectedFriend,
     showFriendSelector,
+    showModeratorSelector,
+    isChatWithModerator,
     handleSelectFriend,
     handleCloseFriendSelector,
+    handleToggleModeratorSelector,
     sendMessage,
     setIsOpen,
     setSelectedFriend,
