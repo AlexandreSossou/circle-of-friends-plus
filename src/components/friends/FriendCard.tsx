@@ -115,6 +115,12 @@ const FriendCard = ({
                     <DropdownMenuItem onClick={() => handleTemporaryUpgrade(60)}>
                       For 1 hour
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleTemporaryUpgrade(10080)}>
+                      For 1 week
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleTemporaryUpgrade(20160)}>
+                      For 2 weeks
+                    </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
               )}
