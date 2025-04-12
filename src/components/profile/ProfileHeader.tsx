@@ -145,6 +145,25 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
             </div>
           </div>
         </div>
+
+        {/* Profile description/bio section */}
+        {profileData?.bio && (
+          <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
+            <h2 className="text-lg font-semibold mb-2">About Me</h2>
+            <p className="text-gray-700 whitespace-pre-line">{profileData.bio}</p>
+          </div>
+        )}
+        
+        {isOwnProfile && !profileData?.bio && (
+          <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200 border-dashed text-center">
+            <h2 className="text-lg font-semibold mb-2">About Me</h2>
+            <p className="text-gray-500 mb-3">Add a description to tell people more about yourself and what you're looking for.</p>
+            <Button variant="outline" className="mx-auto">
+              <Edit className="w-4 h-4 mr-2" />
+              Add Description
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
