@@ -1,5 +1,4 @@
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import MainLayout from "@/components/layout/MainLayout";
 import ContactList from "@/components/messages/ContactList";
 import ChatInterface from "@/components/messages/ChatInterface";

@@ -27,9 +27,8 @@ const ContactList = ({
   selectedContact,
   onSelectContact,
 }: ContactListProps) => {
-  const filteredContacts = contacts?.filter((contact) =>
-    contact.full_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // We'll display either search results when searching or contacts when not searching
+  const displayContacts = searchTerm && searchResults ? searchResults : contacts;
 
   return (
     <div className="border-r border-gray-200 overflow-y-auto">
@@ -48,12 +47,14 @@ const ContactList = ({
 
       <div className="divide-y divide-gray-200">
         {searchTerm && searchResults && searchResults.length > 0 ? (
-          <div className="p-2 bg-gray-100">
-            <h3 className="text-xs font-medium text-social-textSecondary px-2 py-1">SEARCH RESULTS</h3>
+          <div>
+            <h3 className="text-xs font-medium text-social-textSecondary px-4 py-2 bg-gray-50">SEARCH RESULTS</h3>
             {searchResults.map((result) => (
               <div
                 key={result.id}
-                className="flex items-center gap-3 p-2 hover:bg-social-gray rounded-lg cursor-pointer"
+                className={`flex items-center gap-3 p-3 cursor-pointer ${
+                  selectedContact?.id === result.id ? "bg-social-lightblue" : "hover:bg-social-gray"
+                }`}
                 onClick={() => onSelectContact(result)}
               >
                 <Avatar>
@@ -64,38 +65,39 @@ const ContactList = ({
                 </Avatar>
                 <div>
                   <p className="font-medium">{result.full_name}</p>
-                  <p className="text-xs text-social-textSecondary">Start a new conversation</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          filteredContacts && filteredContacts.map((contact) => (
-            <div
-              key={contact.id}
-              className={`flex items-center gap-3 p-3 cursor-pointer ${
-                selectedContact?.id === contact.id ? "bg-social-lightblue" : "hover:bg-social-gray"
-              }`}
-              onClick={() => onSelectContact(contact)}
-            >
-              <Avatar>
-                <AvatarImage src={contact.avatar_url || "/placeholder.svg"} />
-                <AvatarFallback>
-                  {contact.full_name.split(" ").map(n => n[0]).join("")}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="font-medium">{contact.full_name}</p>
+          <>
+            {displayContacts && displayContacts.length > 0 ? (
+              displayContacts.map((contact) => (
+                <div
+                  key={contact.id}
+                  className={`flex items-center gap-3 p-3 cursor-pointer ${
+                    selectedContact?.id === contact.id ? "bg-social-lightblue" : "hover:bg-social-gray"
+                  }`}
+                  onClick={() => onSelectContact(contact)}
+                >
+                  <Avatar>
+                    <AvatarImage src={contact.avatar_url || "/placeholder.svg"} />
+                    <AvatarFallback>
+                      {contact.full_name.split(" ").map(n => n[0]).join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{contact.full_name}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-6 text-center text-social-textSecondary">
+                <p>No conversations yet</p>
+                <p className="text-sm mt-1">Search for friends to start messaging</p>
               </div>
-            </div>
-          ))
-        )}
-
-        {!searchTerm && (!contacts || contacts.length === 0) && (
-          <div className="p-6 text-center text-social-textSecondary">
-            <p>No conversations yet</p>
-            <p className="text-sm mt-1">Search for friends to start messaging</p>
-          </div>
+            )}
+          </>
         )}
 
         {searchTerm && (!searchResults || searchResults.length === 0) && (

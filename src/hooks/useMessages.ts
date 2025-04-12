@@ -117,14 +117,14 @@ export const useMessages = () => {
   const { data: searchResults } = useQuery({
     queryKey: ["messageSearch", searchTerm],
     queryFn: async () => {
-      if (!searchTerm || !user) return [];
+      if (!searchTerm || !user || searchTerm.length < 2) return [];
 
       const { data, error } = await supabase
         .from("profiles")
         .select("id, full_name, avatar_url")
         .neq("id", user.id)
         .ilike("full_name", `%${searchTerm}%`)
-        .limit(5);
+        .limit(10);
 
       if (error) {
         console.error("Error searching users:", error);
@@ -133,7 +133,7 @@ export const useMessages = () => {
 
       return data || [];
     },
-    enabled: !!searchTerm && !!user,
+    enabled: !!searchTerm && searchTerm.length >= 2 && !!user,
   });
 
   // Send a message
