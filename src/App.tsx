@@ -16,6 +16,7 @@ import Travels from "./pages/Travels";
 import Messages from "./pages/Messages";
 import MessagePreferences from "./pages/MessagePreferences";
 import NotFound from "./pages/NotFound";
+import ChatBubble from "./components/chat/ChatBubble";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/message-preferences" element={<MessagePreferences />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <ChatBubble />
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
