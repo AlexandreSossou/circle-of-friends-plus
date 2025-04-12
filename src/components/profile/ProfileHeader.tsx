@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CameraIcon, Edit, MapPin, MessageCircle, UserPlus } from "lucide-react";
@@ -116,19 +115,24 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
             
             <div className="flex gap-2">
               {!isOwnProfile && (
-                <>
-                  <Button className="bg-social-blue hover:bg-social-darkblue" onClick={handleAddFriend}>
+                <div className="flex flex-col gap-2">
+                  <Button 
+                    className="bg-social-blue hover:bg-social-darkblue" 
+                    onClick={handleAddFriend}
+                  >
                     <UserPlus className="w-4 h-4 mr-2" />
                     Add Friend
                   </Button>
-                  <Link to={`/messages?recipient=${profileData.id}`}>
-                    <Button variant="outline">
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Message
-                    </Button>
-                  </Link>
-                  <WinkButton recipientId={profileData.id} />
-                </>
+                  <div className="flex gap-2">
+                    <Link to={`/messages?recipient=${profileData.id}`}>
+                      <Button variant="outline">
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Message
+                      </Button>
+                    </Link>
+                    <WinkButton recipientId={profileData.id} />
+                  </div>
+                </div>
               )}
               
               {isOwnProfile && (

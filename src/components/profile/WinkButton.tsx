@@ -12,7 +12,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 type WinkButtonProps = {
@@ -32,7 +31,6 @@ const WinkButton = ({ recipientId }: WinkButtonProps) => {
     setIsLoading(true);
     
     try {
-      // Create a post on the recipient's profile to notify them of the wink
       await supabase.from('posts').insert({
         user_id: recipientId,
         content: `${user.email} sent you a wink! 😉`,
@@ -66,12 +64,16 @@ const WinkButton = ({ recipientId }: WinkButtonProps) => {
     <>
       <Button 
         variant="outline" 
+        size="sm"  // Added small size
         onClick={handleWinkButtonClick} 
         disabled={winkSent || isLoading}
-        className={winkSent ? "bg-pink-100" : ""}
+        className={`
+          ${winkSent ? "bg-pink-100" : ""} 
+          text-xs px-2 py-1  // Make button smaller
+        `}
       >
-        <Heart className={`w-4 h-4 mr-2 ${winkSent ? "text-pink-500 fill-pink-500" : ""}`} />
-        {isLoading ? "Sending..." : winkSent ? "Winked" : "Wink"}
+        <Heart className={`w-3 h-3 mr-1 ${winkSent ? "text-pink-500 fill-pink-500" : ""}`} />
+        {isLoading ? "..." : winkSent ? "Winked" : "Wink"}
       </Button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -83,11 +85,11 @@ const WinkButton = ({ recipientId }: WinkButtonProps) => {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+            <Button variant="outline" size="sm" onClick={() => setDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSendWink} disabled={isLoading}>
-              {isLoading ? "Sending..." : "Yes, Send Wink"}
+            <Button size="sm" onClick={handleSendWink} disabled={isLoading}>
+              {isLoading ? "..." : "Send Wink"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -97,3 +99,4 @@ const WinkButton = ({ recipientId }: WinkButtonProps) => {
 };
 
 export default WinkButton;
+
