@@ -12,6 +12,7 @@ export interface LiveSession {
   scheduledFor: Date;
   isLive: boolean;
   viewerCount: number;
+  language: string;
 }
 
 interface LiveSessionCardProps {

@@ -12,7 +12,8 @@ const mockSessions: LiveSession[] = [
     hostName: 'Sarah Johnson',
     scheduledFor: new Date(Date.now() + 1000 * 60 * 5), // 5 minutes from now
     isLive: true,
-    viewerCount: 42
+    viewerCount: 42,
+    language: 'en' // English
   },
   {
     id: 'upcoming-1',
@@ -21,7 +22,8 @@ const mockSessions: LiveSession[] = [
     hostName: 'Alex Rivera',
     scheduledFor: new Date(Date.now() + 1000 * 60 * 60 * 24), // Tomorrow
     isLive: false,
-    viewerCount: 0
+    viewerCount: 0,
+    language: 'es' // Spanish
   },
   {
     id: 'upcoming-2',
@@ -30,7 +32,28 @@ const mockSessions: LiveSession[] = [
     hostName: 'Moderator Team',
     scheduledFor: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3), // 3 days from now
     isLive: false,
-    viewerCount: 0
+    viewerCount: 0,
+    language: 'fr' // French
+  },
+  {
+    id: 'live-2',
+    title: 'Tech Support Live',
+    description: 'Get help with your technical issues in real-time from our support team.',
+    hostName: 'Mike Chen',
+    scheduledFor: new Date(Date.now() - 1000 * 60 * 30), // Started 30 minutes ago
+    isLive: true,
+    viewerCount: 28,
+    language: 'zh' // Chinese
+  },
+  {
+    id: 'live-3',
+    title: 'Wellness Wednesday',
+    description: 'Join our wellness coach for tips on staying healthy and balanced.',
+    hostName: 'Luisa Fernandez',
+    scheduledFor: new Date(Date.now() - 1000 * 60 * 15), // Started 15 minutes ago
+    isLive: true,
+    viewerCount: 35,
+    language: 'pt' // Portuguese
   }
 ];
 
@@ -123,6 +146,7 @@ export const useLiveSessions = () => {
     activeSession,
     isViewingLive,
     joinSession,
-    leaveSession
+    leaveSession,
+    liveSessions: sessions.filter(session => session.isLive)
   };
 };
