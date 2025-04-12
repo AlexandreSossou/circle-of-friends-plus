@@ -260,6 +260,7 @@ export type Database = {
           created_at: string
           id: string
           image_url: string | null
+          is_global: boolean
           updated_at: string
           user_id: string
         }
@@ -268,6 +269,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          is_global?: boolean
           updated_at?: string
           user_id: string
         }
@@ -276,6 +278,7 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string | null
+          is_global?: boolean
           updated_at?: string
           user_id?: string
         }

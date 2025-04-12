@@ -10,6 +10,22 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/hooks/use-toast";
 
+// Define type for post returned from Supabase
+interface SupabasePost {
+  id: string;
+  content: string;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  is_global: boolean;
+  profiles?: {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+  };
+}
+
 const Index = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
@@ -84,7 +100,8 @@ const Index = () => {
           throw error;
         }
         
-        return data.map((post) => ({
+        // Transform the data to match the PostData type
+        return (data as SupabasePost[]).map((post) => ({
           id: post.id,
           author: {
             id: post.user_id,
