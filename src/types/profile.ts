@@ -6,6 +6,14 @@ export interface ProfileData {
   avatar_url: string;
   bio?: string;
   location?: string;
+  gender?: string;
+  age?: number;
+  marital_status?: string;
+  partner_id?: string;
+  partner?: {
+    full_name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 export interface Post {
