@@ -6,17 +6,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import FriendsList from "@/components/friends/FriendsList";
 import FriendRequests from "@/components/friends/FriendRequests";
-import FriendSuggestions from "@/components/friends/FriendSuggestions";
 import { useFriends } from "@/hooks/useFriends";
 
 const Friends = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { allFriends, friendRequests, suggestions, updateRelationshipType } = useFriends();
+  const { allFriends, friendRequests, updateRelationshipType } = useFriends();
   
   const handleViewProfile = (id: string) => {
-    // Navigate to the friend's profile page using proper UUID
     navigate(`/profile/${id}`);
   };
   
@@ -33,13 +31,6 @@ const Friends = () => {
     });
   };
   
-  const handleAddFriend = (id: string, name: string) => {
-    toast({
-      title: "Friend request sent",
-      description: `Friend request sent to ${name}`,
-    });
-  };
-
   const handleUpdateRelationshipType = (friendId: string, relationshipType: 'friend' | 'acquaintance') => {
     updateRelationshipType(friendId, relationshipType);
   };
@@ -60,7 +51,6 @@ const Friends = () => {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="suggestions">Suggestions</TabsTrigger>
           </TabsList>
           
           <TabsContent value="all-friends">
@@ -76,13 +66,6 @@ const Friends = () => {
               requests={friendRequests}
               onAccept={handleAcceptRequest}
               onDecline={handleDeclineRequest}
-            />
-          </TabsContent>
-          
-          <TabsContent value="suggestions">
-            <FriendSuggestions 
-              suggestions={suggestions}
-              onAddFriend={handleAddFriend}
             />
           </TabsContent>
         </Tabs>
