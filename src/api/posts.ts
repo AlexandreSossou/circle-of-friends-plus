@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { PostData } from "@/components/post/PostCard";
+import { PostData } from "@/types/post";
 
 // Define type for post returned from Supabase
 export interface SupabasePost {

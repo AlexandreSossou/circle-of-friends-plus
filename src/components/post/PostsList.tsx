@@ -1,9 +1,10 @@
 
 import React from "react";
-import PostCard, { PostData } from "./PostCard";
+import PostCard from "./PostCard";
 import PostsLoading from "./PostsLoading";
 import EmptyPostsState from "./EmptyPostsState";
 import { FeedType } from "./FeedFilter";
+import { PostData } from "@/types/post";
 
 interface PostsListProps {
   posts: PostData[];
