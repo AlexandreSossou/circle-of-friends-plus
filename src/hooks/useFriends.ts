@@ -34,7 +34,7 @@ export const useFriends = () => {
           });
           return { 
             ...friend, 
-            relationshipType: 'acquaintance', 
+            relationshipType: 'acquaintance' as const, 
             temporaryUpgradeUntil: null 
           };
         }
@@ -85,7 +85,7 @@ export const useFriends = () => {
         friend.id === friendId 
           ? { 
               ...friend, 
-              relationshipType: 'friend', 
+              relationshipType: 'friend' as const, 
               temporaryUpgradeUntil: expiresAt 
             } 
           : friend
