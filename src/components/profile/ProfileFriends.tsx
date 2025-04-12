@@ -1,15 +1,8 @@
 
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
-
-type Friend = {
-  id: string;
-  name: string;
-  avatar: string;
-  initials: string;
-  mutualFriends: number;
-};
+import { Friend } from "@/types/profile";
 
 type ProfileFriendsProps = {
   friends: Friend[];
@@ -19,6 +12,7 @@ const ProfileFriends = ({ friends }: ProfileFriendsProps) => {
   const navigate = useNavigate();
 
   const handleViewProfile = (id: string) => {
+    // Navigate to the friend's profile using the proper UUID
     navigate(`/profile/${id}`);
   };
 

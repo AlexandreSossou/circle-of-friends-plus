@@ -1,15 +1,13 @@
-
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, UserCheck, UserPlus, UserX } from "lucide-react";
+import { Search, UserCheck, UserPlus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 // Define types for friend data
 type Friend = {
@@ -26,7 +24,7 @@ const Friends = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  // Use static friends list for demo purposes
+  // Use the same UUIDs as our database
   const allFriends = [
     { id: "f8f8f8f8-f8f8-f8f8-f8f8-f8f8f8f8f8f8", name: "Emma Watson", avatar: "/placeholder.svg", initials: "EW", mutualFriends: 5 },
     { id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1", name: "James Smith", avatar: "/placeholder.svg", initials: "JS", mutualFriends: 3 },
@@ -49,7 +47,7 @@ const Friends = () => {
   ];
   
   const handleViewProfile = (id: string) => {
-    // Navigate to the friend's profile page
+    // Navigate to the friend's profile page using proper UUID
     navigate(`/profile/${id}`);
   };
   
