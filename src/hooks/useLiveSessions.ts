@@ -1,0 +1,128 @@
+
+import { useState, useEffect } from 'react';
+import { LiveSession } from '@/components/live/LiveSessionCard';
+import { useToast } from '@/hooks/use-toast';
+
+// Mock data for demo purposes
+const mockSessions: LiveSession[] = [
+  {
+    id: 'live-1',
+    title: 'Community Guidelines Q&A',
+    description: 'Join our moderators to learn about community guidelines and ask any questions about content policies.',
+    hostName: 'Sarah Johnson',
+    scheduledFor: new Date(Date.now() + 1000 * 60 * 5), // 5 minutes from now
+    isLive: true,
+    viewerCount: 42
+  },
+  {
+    id: 'upcoming-1',
+    title: 'New Features Walkthrough',
+    description: 'A detailed overview of upcoming platform features and improvements. Learn how to make the most of new tools.',
+    hostName: 'Alex Rivera',
+    scheduledFor: new Date(Date.now() + 1000 * 60 * 60 * 24), // Tomorrow
+    isLive: false,
+    viewerCount: 0
+  },
+  {
+    id: 'upcoming-2',
+    title: 'Meet the Moderators',
+    description: 'Get to know our moderation team and learn about how we keep the platform safe and welcoming for everyone.',
+    hostName: 'Moderator Team',
+    scheduledFor: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3), // 3 days from now
+    isLive: false,
+    viewerCount: 0
+  }
+];
+
+export const useLiveSessions = () => {
+  const [sessions, setSessions] = useState<LiveSession[]>(mockSessions);
+  const [activeSession, setActiveSession] = useState<LiveSession | null>(null);
+  const [isViewingLive, setIsViewingLive] = useState(false);
+  const { toast } = useToast();
+  
+  // In a real app, this would fetch from an API
+  useEffect(() => {
+    // Simulate session updates
+    const timer = setInterval(() => {
+      setSessions(prev => 
+        prev.map(session => {
+          // Update live session viewer count
+          if (session.isLive) {
+            return {
+              ...session,
+              viewerCount: session.viewerCount + Math.floor(Math.random() * 3)
+            };
+          }
+          
+          // Make upcoming sessions go live when their time comes
+          if (!session.isLive && new Date(session.scheduledFor) <= new Date()) {
+            toast({
+              title: "New Live Session",
+              description: `"${session.title}" with ${session.hostName} is now live!`,
+            });
+            
+            return {
+              ...session,
+              isLive: true,
+              viewerCount: Math.floor(Math.random() * 20) + 10
+            };
+          }
+          
+          return session;
+        })
+      );
+    }, 30000);
+    
+    return () => clearInterval(timer);
+  }, [toast]);
+  
+  const joinSession = (sessionId: string) => {
+    const session = sessions.find(s => s.id === sessionId);
+    
+    if (session) {
+      if (session.isLive) {
+        setActiveSession(session);
+        setIsViewingLive(true);
+        
+        // Update session with one more viewer
+        setSessions(prev => 
+          prev.map(s => 
+            s.id === sessionId 
+              ? { ...s, viewerCount: s.viewerCount + 1 } 
+              : s
+          )
+        );
+      } else {
+        // Set reminder functionality would go here
+        toast({
+          title: "Reminder Set",
+          description: `We'll notify you when "${session.title}" goes live.`,
+        });
+      }
+    }
+  };
+  
+  const leaveSession = () => {
+    if (activeSession) {
+      // Update session with one less viewer
+      setSessions(prev => 
+        prev.map(s => 
+          s.id === activeSession.id
+            ? { ...s, viewerCount: Math.max(0, s.viewerCount - 1) } 
+            : s
+        )
+      );
+      
+      setActiveSession(null);
+      setIsViewingLive(false);
+    }
+  };
+  
+  return {
+    sessions,
+    activeSession,
+    isViewingLive,
+    joinSession,
+    leaveSession
+  };
+};

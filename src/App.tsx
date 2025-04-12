@@ -20,6 +20,7 @@ import MessagePreferences from "./pages/MessagePreferences";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import ChatBubble from "./components/chat/ChatBubble";
+import LiveSessions from "./pages/LiveSessions";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/message-preferences" element={<MessagePreferences />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/live-sessions" element={<LiveSessions />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
           <ChatBubble />
