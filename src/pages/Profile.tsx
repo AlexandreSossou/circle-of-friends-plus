@@ -5,10 +5,12 @@ import PostCard from "@/components/post/PostCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { CameraIcon, Edit, MapPin, MessageCircle, User, UserPlus, Heart } from "lucide-react";
+import { CameraIcon, Edit, MapPin, MessageCircle, User, UserPlus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import PhotoAlbum from "@/components/profile/PhotoAlbum";
+import WinkButton from "@/components/profile/WinkButton";
 
 type ProfileData = {
   id: string;
@@ -32,12 +34,10 @@ const Profile = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("posts");
   const { toast } = useToast();
-  const [winkSent, setWinkSent] = useState(false);
   
   const isOwnProfile = !id || id === user?.id;
   const profileId = id || user?.id;
 
-  // Fetch profile data
   const { data: profileData, isLoading: profileLoading } = useQuery({
     queryKey: ["profile", profileId],
     queryFn: async () => {
@@ -54,7 +54,6 @@ const Profile = () => {
         return null;
       }
 
-      // If profile has a partner, fetch partner data
       if (data.partner_id) {
         const { data: partnerData, error: partnerError } = await supabase
           .from("profiles")
@@ -63,7 +62,10 @@ const Profile = () => {
           .single();
 
         if (!partnerError) {
-          data.partner = partnerData;
+          return {
+            ...data,
+            partner: partnerData
+          } as ProfileData;
         }
       }
 
@@ -103,7 +105,6 @@ const Profile = () => {
     }
   };
 
-  // Fetch posts data
   const { data: posts } = useQuery({
     queryKey: ["profile-posts", profileId],
     queryFn: async () => {
@@ -125,7 +126,6 @@ const Profile = () => {
     enabled: !!profileId,
   });
 
-  // Mock data for UI demonstration
   const mockPosts = posts?.map(post => ({
     id: post.id,
     author: {
@@ -186,7 +186,6 @@ const Profile = () => {
   return (
     <MainLayout>
       <div className="social-card relative mb-6">
-        {/* Cover Photo */}
         <div className="h-48 md:h-64 lg:h-80 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-lg overflow-hidden relative">
           <img
             src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=1000"
@@ -203,7 +202,6 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Profile Info */}
         <div className="p-4 md:p-6 pt-0 md:pt-0">
           <div className="flex flex-col md:flex-row md:items-end -mt-16 md:-mt-20 mb-4 md:mb-6 gap-4 md:gap-6">
             <div className="relative z-10">
@@ -288,15 +286,7 @@ const Profile = () => {
                         Message
                       </Button>
                     </Link>
-                    <Button 
-                      variant="outline" 
-                      onClick={handleSendWink} 
-                      disabled={winkSent}
-                      className={winkSent ? "bg-pink-100" : ""}
-                    >
-                      <Heart className={`w-4 h-4 mr-2 ${winkSent ? "text-pink-500 fill-pink-500" : ""}`} />
-                      {winkSent ? "Winked" : "Wink"}
-                    </Button>
+                    <WinkButton recipientId={profileId} />
                   </>
                 )}
                 
@@ -366,52 +356,13 @@ const Profile = () => {
               </TabsContent>
               
               <TabsContent value="photos">
-                {albums.map((album, albumIndex) => (
-                  <div key={album.id} className="mb-8">
-                    <div className="flex justify-between items-center mb-3">
-                      <h3 className="text-lg font-semibold">{album.name}</h3>
-                      {isOwnProfile && albumIndex > 0 && (
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            const updatedAlbums = [...albums];
-                            updatedAlbums[albumIndex].isPrivate = !album.isPrivate;
-                            setAlbums(updatedAlbums);
-                          }}
-                        >
-                          {album.isPrivate ? "Make Public" : "Make Private"}
-                        </Button>
-                      )}
-                    </div>
-                    
-                    {(isOwnProfile || !album.isPrivate || (album.isPrivate && album.allowedUsers.includes("friend-1"))) ? (
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {album.photos.map((photo, index) => (
-                          <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                            <img 
-                              src={photo} 
-                              alt={`Photo ${index + 1}`} 
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="bg-gray-100 rounded-lg p-8 text-center">
-                        <p className="text-social-textSecondary mb-4">This album is private</p>
-                        <Button variant="outline">Request Access</Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                
-                {isOwnProfile && (
-                  <Button className="mt-4">
-                    <CameraIcon className="w-4 h-4 mr-2" />
-                    Create New Album
-                  </Button>
-                )}
+                <PhotoAlbum 
+                  albums={albums}
+                  friends={friendsList}
+                  isOwnProfile={isOwnProfile}
+                  currentUserId={user?.id}
+                  onAlbumChange={setAlbums}
+                />
               </TabsContent>
             </Tabs>
           </div>
