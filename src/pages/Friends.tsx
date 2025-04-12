@@ -14,6 +14,10 @@ const Friends = () => {
   const navigate = useNavigate();
   const { allFriends, friendRequests, updateRelationshipType } = useFriends();
   
+  // Filter friends based on relationship type
+  const closeFriends = allFriends.filter(friend => friend.relationshipType === 'friend');
+  const acquaintances = allFriends.filter(friend => friend.relationshipType === 'acquaintance');
+  
   const handleViewProfile = (id: string) => {
     navigate(`/profile/${id}`);
   };
@@ -43,6 +47,8 @@ const Friends = () => {
         <Tabs defaultValue="all-friends">
           <TabsList className="mb-6">
             <TabsTrigger value="all-friends">All Friends</TabsTrigger>
+            <TabsTrigger value="close-friends">Close Friends</TabsTrigger>
+            <TabsTrigger value="acquaintances">Acquaintances</TabsTrigger>
             <TabsTrigger value="requests">
               Requests
               {friendRequests.length > 0 && (
@@ -56,6 +62,22 @@ const Friends = () => {
           <TabsContent value="all-friends">
             <FriendsList 
               friends={allFriends} 
+              onViewProfile={handleViewProfile}
+              onUpdateRelationshipType={handleUpdateRelationshipType}
+            />
+          </TabsContent>
+          
+          <TabsContent value="close-friends">
+            <FriendsList 
+              friends={closeFriends} 
+              onViewProfile={handleViewProfile}
+              onUpdateRelationshipType={handleUpdateRelationshipType}
+            />
+          </TabsContent>
+          
+          <TabsContent value="acquaintances">
+            <FriendsList 
+              friends={acquaintances} 
               onViewProfile={handleViewProfile}
               onUpdateRelationshipType={handleUpdateRelationshipType}
             />
@@ -75,4 +97,3 @@ const Friends = () => {
 };
 
 export default Friends;
-
