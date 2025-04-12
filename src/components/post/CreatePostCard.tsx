@@ -1,9 +1,11 @@
+
 import { useState, ChangeEvent } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Camera, Send, X } from "lucide-react";
+import { Camera, Send, X, Plane } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const CreatePostCard = () => {
   const [postText, setPostText] = useState("");
@@ -78,7 +80,7 @@ const CreatePostCard = () => {
           )}
           
           <div className="flex items-center justify-between mt-3">
-            <div>
+            <div className="flex space-x-2">
               <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild>
                 <label>
                   <Camera className="w-5 h-5 mr-1" />
@@ -90,6 +92,13 @@ const CreatePostCard = () => {
                     onChange={handleImageChange}
                   />
                 </label>
+              </Button>
+              
+              <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild>
+                <Link to="/travels">
+                  <Plane className="w-5 h-5 mr-1" />
+                  <span>Travel</span>
+                </Link>
               </Button>
             </div>
             <Button 
