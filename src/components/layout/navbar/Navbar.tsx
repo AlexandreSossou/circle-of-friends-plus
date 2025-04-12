@@ -9,11 +9,38 @@ import NavbarDesktopNav from "./NavbarDesktopNav";
 import NavbarMobileMenu from "./NavbarMobileMenu";
 import NavbarUserMenu from "./NavbarUserMenu";
 import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
+
+  // Fetch unread messages for mobile menu
+  const { data: unreadMessages } = useQuery({
+    queryKey: ["unreadMessages", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from("messages")
+        .select("id, content, sender_id, created_at, profiles!messages_sender_id_fkey(full_name, avatar_url)")
+        .eq("recipient_id", user.id)
+        .eq("read", false)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      
+      if (error) {
+        console.error("Error fetching unread messages:", error);
+        return [];
+      }
+      
+      return data || [];
+    },
+    enabled: !!user,
+    refetchInterval: 30000, // Refetch every 30 seconds
+  });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,7 +85,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {mobileMenuOpen && <NavbarMobileMenu user={user} unreadMessages={[]} />}
+      {mobileMenuOpen && <NavbarMobileMenu user={user} unreadMessages={unreadMessages || []} />}
     </header>
   );
 };

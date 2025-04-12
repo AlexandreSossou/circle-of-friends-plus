@@ -5,9 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 
+interface UnreadMessage {
+  id: string;
+  content: string;
+  sender_id: string;
+  created_at: string;
+  profiles: {
+    full_name: string;
+    avatar_url: string | null;
+  };
+}
+
 interface NavbarMobileMenuProps {
   user: any;
-  unreadMessages: any[];
+  unreadMessages: UnreadMessage[];
 }
 
 const NavbarMobileMenu = ({ user, unreadMessages }: NavbarMobileMenuProps) => {
