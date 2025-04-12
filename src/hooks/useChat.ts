@@ -57,8 +57,8 @@ export const useChat = () => {
   };
 
   const handleCloseFriendSelector = () => {
-    setShowFriendSelector(false);
-    if (!selectedFriend) {
+    setShowFriendSelector(!showFriendSelector);
+    if (!selectedFriend && !showFriendSelector) {
       setIsOpen(false);
     }
   };

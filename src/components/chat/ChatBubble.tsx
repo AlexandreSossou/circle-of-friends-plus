@@ -18,7 +18,8 @@ const ChatBubble = () => {
     showFriendSelector,
     handleSelectFriend,
     handleCloseFriendSelector,
-    sendMessage
+    sendMessage,
+    setSelectedFriend
   } = useChat();
   
   const { allFriends } = useFriends();
@@ -26,13 +27,23 @@ const ChatBubble = () => {
   // Filter only close friends (relationship type is 'friend')
   const closeFriends = allFriends.filter(friend => friend.relationshipType === 'friend');
 
+  const handleBackToFriendSelector = () => {
+    setSelectedFriend(null);
+    handleCloseFriendSelector();
+    // Show friend selector
+    setTimeout(() => {
+      handleCloseFriendSelector();
+    }, 0);
+  };
+
   return (
     <div className="fixed bottom-5 right-5 z-50">
       {isOpen ? (
         <Card className="w-80 md:w-96 shadow-lg">
           <ChatHeader 
             selectedFriend={selectedFriend} 
-            onClose={toggleChat} 
+            onClose={toggleChat}
+            onBack={selectedFriend ? handleBackToFriendSelector : undefined}
           />
           
           {showFriendSelector ? (

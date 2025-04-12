@@ -1,20 +1,31 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, X, ChevronLeft } from "lucide-react";
 import { Friend } from "@/types/friends";
 
 interface ChatHeaderProps {
   selectedFriend: Friend | null;
   onClose: () => void;
+  onBack?: () => void;
 }
 
-const ChatHeader = ({ selectedFriend, onClose }: ChatHeaderProps) => {
+const ChatHeader = ({ selectedFriend, onClose, onBack }: ChatHeaderProps) => {
   return (
     <div className="flex items-center justify-between p-3 bg-social-blue text-white rounded-t-lg">
       <div className="flex items-center gap-2">
         {selectedFriend ? (
           <>
+            {onBack && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onBack}
+                className="h-7 w-7 mr-1 text-white hover:bg-social-darkblue rounded-full"
+              >
+                <ChevronLeft size={16} />
+              </Button>
+            )}
             <Avatar className="h-6 w-6">
               <AvatarImage src={selectedFriend.avatar} />
               <AvatarFallback>{selectedFriend.initials}</AvatarFallback>
