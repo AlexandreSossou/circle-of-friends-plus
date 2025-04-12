@@ -1,16 +1,17 @@
-import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+
+import { useState } from "react";
+import { useParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
-import PostCard from "@/components/post/PostCard";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { CameraIcon, Edit, MapPin, MessageCircle, User, UserPlus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import PhotoAlbum from "@/components/profile/PhotoAlbum";
-import WinkButton from "@/components/profile/WinkButton";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import ProfilePosts from "@/components/profile/ProfilePosts";
+import ProfileFriends from "@/components/profile/ProfileFriends";
+import ProfileLoading from "@/components/profile/ProfileLoading";
 
 type ProfileData = {
   id: string;
@@ -81,30 +82,6 @@ const Profile = () => {
     });
   };
 
-  const handleSendWink = async () => {
-    if (!user || !profileId || isOwnProfile) return;
-    
-    try {
-      await supabase.from('posts').insert({
-        user_id: profileId,
-        content: `${user.email} sent you a wink! 😉`,
-      });
-      
-      setWinkSent(true);
-      toast({
-        title: "Wink sent!",
-        description: "Your wink has been sent successfully",
-      });
-    } catch (error) {
-      console.error("Error sending wink:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send wink. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const { data: posts } = useQuery({
     queryKey: ["profile-posts", profileId],
     queryFn: async () => {
@@ -168,17 +145,7 @@ const Profile = () => {
   if (profileLoading) {
     return (
       <MainLayout>
-        <div className="social-card p-6 animate-pulse">
-          <div className="h-48 md:h-64 bg-gray-200 rounded-t-lg"></div>
-          <div className="flex flex-col md:flex-row md:items-end -mt-16 md:-mt-20 mb-4 md:mb-6 gap-4 md:gap-6">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-gray-300 border-4 border-white"></div>
-            <div className="flex-1">
-              <div className="h-8 bg-gray-200 rounded w-1/3 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/5"></div>
-            </div>
-          </div>
-        </div>
+        <ProfileLoading />
       </MainLayout>
     );
   }
@@ -186,187 +153,45 @@ const Profile = () => {
   return (
     <MainLayout>
       <div className="social-card relative mb-6">
-        <div className="h-48 md:h-64 lg:h-80 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-lg overflow-hidden relative">
-          <img
-            src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=1000"
-            alt="Cover"
-            className="w-full h-full object-cover"
-          />
-          {isOwnProfile && (
-            <div className="absolute bottom-4 right-4">
-              <Button variant="secondary" size="sm" className="flex items-center gap-1">
-                <CameraIcon className="w-4 h-4" />
-                <span>Edit Cover</span>
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <div className="p-4 md:p-6 pt-0 md:pt-0">
-          <div className="flex flex-col md:flex-row md:items-end -mt-16 md:-mt-20 mb-4 md:mb-6 gap-4 md:gap-6">
-            <div className="relative z-10">
-              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white bg-white overflow-hidden">
-                <img
-                  src={profileData?.avatar_url || "/placeholder.svg"}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              {isOwnProfile && (
-                <Button 
-                  variant="secondary" 
-                  size="icon"
-                  className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white"
-                >
-                  <CameraIcon className="w-4 h-4" />
-                </Button>
-              )}
-            </div>
+        {profileData && (
+          <>
+            <ProfileHeader 
+              profileData={profileData} 
+              isOwnProfile={isOwnProfile} 
+              handleAddFriend={handleAddFriend} 
+            />
             
-            <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold">{profileData?.full_name}</h1>
-                
-                <div className="flex flex-col space-y-1 mt-1">
-                  {profileData?.location && (
-                    <p className="text-social-textSecondary flex items-center">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {profileData.location}
-                    </p>
-                  )}
+            <div className="p-4 md:p-6 pt-0">
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList className="grid grid-cols-3 mb-6">
+                    <TabsTrigger value="posts">Posts</TabsTrigger>
+                    <TabsTrigger value="friends">Friends</TabsTrigger>
+                    <TabsTrigger value="photos">Photos</TabsTrigger>
+                  </TabsList>
                   
-                  <div className="flex flex-wrap gap-x-4 text-social-textSecondary text-sm">
-                    {profileData?.age && (
-                      <span className="flex items-center">
-                        <span className="font-medium mr-1">Age:</span> {profileData.age}
-                      </span>
-                    )}
-                    
-                    {profileData?.gender && (
-                      <span className="flex items-center">
-                        <span className="font-medium mr-1">Gender:</span> {profileData.gender}
-                      </span>
-                    )}
-                    
-                    {profileData?.marital_status && (
-                      <span className="flex items-center">
-                        <span className="font-medium mr-1">Status:</span> {profileData.marital_status}
-                      </span>
-                    )}
-                  </div>
+                  <TabsContent value="posts">
+                    <ProfilePosts posts={mockPosts} isOwnProfile={isOwnProfile} />
+                  </TabsContent>
                   
-                  {profileData?.partner && (
-                    <div className="flex items-center mt-1">
-                      <span className="font-medium mr-2">Partner:</span>
-                      <Link to={`/profile/${profileData.partner_id}`} className="flex items-center hover:underline">
-                        <img 
-                          src={profileData.partner.avatar_url || "/placeholder.svg"} 
-                          alt={profileData.partner.full_name || "Partner"} 
-                          className="w-5 h-5 rounded-full mr-1" 
-                        />
-                        {profileData.partner.full_name}
-                      </Link>
-                    </div>
-                  )}
+                  <TabsContent value="friends">
+                    <ProfileFriends friends={friendsList} />
+                  </TabsContent>
                   
-                  <p className="text-social-textSecondary">568 friends</p>
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                {!isOwnProfile && (
-                  <>
-                    <Button className="bg-social-blue hover:bg-social-darkblue" onClick={handleAddFriend}>
-                      <UserPlus className="w-4 h-4 mr-2" />
-                      Add Friend
-                    </Button>
-                    <Link to={`/messages?recipient=${profileId}`}>
-                      <Button variant="outline">
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Message
-                      </Button>
-                    </Link>
-                    <WinkButton recipientId={profileId} />
-                  </>
-                )}
-                
-                {isOwnProfile && (
-                  <Button variant="outline">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Profile
-                  </Button>
-                )}
+                  <TabsContent value="photos">
+                    <PhotoAlbum 
+                      albums={albums}
+                      friends={friendsList}
+                      isOwnProfile={isOwnProfile}
+                      currentUserId={user?.id}
+                      onAlbumChange={setAlbums}
+                    />
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
-          </div>
-          
-          <div className="border-t border-gray-200 pt-4 mt-4">
-            <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-3 mb-6">
-                <TabsTrigger value="posts">Posts</TabsTrigger>
-                <TabsTrigger value="friends">Friends</TabsTrigger>
-                <TabsTrigger value="photos">Photos</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="posts">
-                <div className="space-y-4">
-                  {mockPosts.length > 0 ? (
-                    mockPosts.map((post) => (
-                      <PostCard key={post.id} post={post} />
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-social-textSecondary">
-                      <p>No posts to display.</p>
-                      {isOwnProfile && (
-                        <p className="mt-2">
-                          <Link to="/" className="text-social-blue hover:underline">
-                            Create your first post
-                          </Link>
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="friends">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {friendsList.map((friend) => (
-                    <div key={friend.id} className="social-card p-4 flex flex-col items-center text-center">
-                      <Link to={`/profile/${friend.id}`}>
-                        <div className="w-24 h-24 rounded-full overflow-hidden mb-3">
-                          <img 
-                            src={friend.avatar} 
-                            alt={friend.name} 
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <h3 className="font-medium">{friend.name}</h3>
-                      </Link>
-                      <p className="text-sm text-social-textSecondary mt-1">
-                        {friend.mutualFriends} mutual friends
-                      </p>
-                      <Button variant="outline" size="sm" className="mt-3 w-full">
-                        <User className="w-4 h-4 mr-2" />
-                        View Profile
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="photos">
-                <PhotoAlbum 
-                  albums={albums}
-                  friends={friendsList}
-                  isOwnProfile={isOwnProfile}
-                  currentUserId={user?.id}
-                  onAlbumChange={setAlbums}
-                />
-              </TabsContent>
-            </Tabs>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </MainLayout>
   );
