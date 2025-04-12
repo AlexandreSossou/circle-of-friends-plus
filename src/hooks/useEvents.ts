@@ -41,7 +41,15 @@ export const useEvents = () => {
         throw error;
       }
       
-      return data as Event[];
+      // Transform the data to match the Event type
+      return (data as any[]).map(event => ({
+        ...event,
+        profiles: {
+          id: event.profiles?.id || "",
+          full_name: event.profiles?.full_name || null,
+          avatar_url: event.profiles?.avatar_url || null
+        }
+      })) as Event[];
     },
     enabled: !!user,
   });
