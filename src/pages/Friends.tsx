@@ -13,7 +13,7 @@ const Friends = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { allFriends, friendRequests, suggestions } = useFriends();
+  const { allFriends, friendRequests, suggestions, updateRelationshipType } = useFriends();
   
   const handleViewProfile = (id: string) => {
     // Navigate to the friend's profile page using proper UUID
@@ -39,6 +39,10 @@ const Friends = () => {
       description: `Friend request sent to ${name}`,
     });
   };
+
+  const handleUpdateRelationshipType = (friendId: string, relationshipType: 'friend' | 'acquaintance') => {
+    updateRelationshipType(friendId, relationshipType);
+  };
   
   return (
     <MainLayout>
@@ -62,7 +66,8 @@ const Friends = () => {
           <TabsContent value="all-friends">
             <FriendsList 
               friends={allFriends} 
-              onViewProfile={handleViewProfile} 
+              onViewProfile={handleViewProfile}
+              onUpdateRelationshipType={handleUpdateRelationshipType}
             />
           </TabsContent>
           

@@ -1,40 +1,14 @@
 
-export type ProfileData = {
+export interface ProfileData {
   id: string;
-  full_name: string | null;
-  username: string | null;
-  avatar_url: string | null;
-  location: string | null;
-  bio: string | null;
-  gender: string | null;
-  age: number | null;
-  marital_status: string | null;
-  partner_id: string | null;
-  partner?: {
-    full_name: string | null;
-    avatar_url: string | null;
-  } | null;
-};
+  full_name: string;
+  username?: string;
+  avatar_url: string;
+  bio?: string;
+  location?: string;
+}
 
-export type Friend = {
-  id: string;
-  name: string;
-  avatar: string;
-  initials: string;
-  mutualFriends: number;
-};
-
-export type Photo = string;
-
-export type Album = {
-  id: number;
-  name: string;
-  photos: Photo[];
-  isPrivate: boolean;
-  allowedUsers: string[];
-};
-
-export type Post = {
+export interface Post {
   id: string;
   author: {
     id: string;
@@ -46,6 +20,34 @@ export type Post = {
   image?: string;
   timestamp: string;
   likes: number;
-  comments: any[];
+  comments: Comment[];
   liked: boolean;
-};
+}
+
+export interface Comment {
+  id: string;
+  author: {
+    id: string;
+    name: string;
+    avatar: string;
+  };
+  content: string;
+  timestamp: string;
+}
+
+export interface Friend {
+  id: string;
+  name: string;
+  avatar: string;
+  initials: string;
+  mutualFriends: number;
+  relationshipType?: 'friend' | 'acquaintance';
+}
+
+export interface Album {
+  id: number;
+  name: string;
+  photos: string[];
+  isPrivate: boolean;
+  allowedUsers: string[];
+}

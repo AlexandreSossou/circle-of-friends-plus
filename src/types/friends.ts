@@ -5,4 +5,5 @@ export type Friend = {
   avatar: string;
   initials: string;
   mutualFriends: number;
+  relationshipType?: 'friend' | 'acquaintance';
 };

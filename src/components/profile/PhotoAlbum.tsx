@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CameraIcon } from "lucide-react";
 import AlbumPrivacySettings from "./AlbumPrivacySettings";
@@ -20,6 +20,7 @@ type Friend = {
   avatar: string;
   initials: string;
   mutualFriends: number;
+  relationshipType?: 'friend' | 'acquaintance';
 };
 
 type PhotoAlbumProps = {
@@ -33,10 +34,56 @@ type PhotoAlbumProps = {
 const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserId, onAlbumChange }: PhotoAlbumProps) => {
   const [albums, setAlbums] = useState<Album[]>(initialAlbums);
 
+  // Effect to automatically update album permissions when friends change their relationship type
+  useEffect(() => {
+    if (!isOwnProfile) return;
+
+    const closeFriendIds = friends
+      .filter(friend => friend.relationshipType === 'friend')
+      .map(friend => friend.id);
+
+    const updatedAlbums = albums.map(album => {
+      if (album.isPrivate) {
+        // For each private album, make sure all close friends have access
+        const newAllowedUsers = [...album.allowedUsers];
+        
+        for (const friendId of closeFriendIds) {
+          if (!newAllowedUsers.includes(friendId)) {
+            newAllowedUsers.push(friendId);
+          }
+        }
+        
+        return { ...album, allowedUsers: newAllowedUsers };
+      }
+      return album;
+    });
+    
+    setAlbums(updatedAlbums);
+    
+    if (onAlbumChange) {
+      onAlbumChange(updatedAlbums);
+    }
+  }, [friends, isOwnProfile]);
+
   const handlePrivacyChange = (albumId: number, isPrivate: boolean, allowedUsers: string[]) => {
+    // When updating privacy settings, ensure all close friends are included
+    let updatedAllowedUsers = [...allowedUsers];
+    
+    if (isPrivate) {
+      const closeFriendIds = friends
+        .filter(friend => friend.relationshipType === 'friend')
+        .map(friend => friend.id);
+      
+      for (const friendId of closeFriendIds) {
+        if (!updatedAllowedUsers.includes(friendId)) {
+          updatedAllowedUsers.push(friendId);
+        }
+      }
+    }
+    
     const updatedAlbums = albums.map(album => 
       album.id === albumId 
-        ? { ...album, isPrivate, allowedUsers } 
+        ? { ...album, isPrivate, allowedUsers: updatedAllowedUsers } 
         : album
     );
     
