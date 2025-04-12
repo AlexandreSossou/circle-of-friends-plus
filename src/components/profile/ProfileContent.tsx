@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfilePosts from "./ProfilePosts";
 import ProfileFriends from "./ProfileFriends";
 import PhotoAlbum from "./PhotoAlbum";
+import SafetyReview from "./SafetyReview";
 import { Album, Friend, Post } from "@/types/profile";
 
 type ProfileContentProps = {
@@ -28,10 +29,11 @@ const ProfileContent = ({
   return (
     <div className="border-t border-gray-200 pt-4 mt-4">
       <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 mb-6">
+        <TabsList className="grid grid-cols-4 mb-6">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="friends">Friends</TabsTrigger>
           <TabsTrigger value="photos">Photos</TabsTrigger>
+          <TabsTrigger value="safety">Safety</TabsTrigger>
         </TabsList>
         
         <TabsContent value="posts">
@@ -49,6 +51,15 @@ const ProfileContent = ({
             isOwnProfile={isOwnProfile}
             currentUserId={currentUserId}
             onAlbumChange={onAlbumChange}
+          />
+        </TabsContent>
+
+        <TabsContent value="safety">
+          <SafetyReview 
+            profileId={isOwnProfile && currentUserId ? currentUserId : ""}
+            isOwnProfile={isOwnProfile}
+            currentUserId={currentUserId}
+            friends={friendsList}
           />
         </TabsContent>
       </Tabs>
