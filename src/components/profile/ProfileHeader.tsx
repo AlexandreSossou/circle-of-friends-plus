@@ -27,7 +27,8 @@ type ProfileHeaderProps = {
 const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHeaderProps) => {
   return (
     <div className="relative">
-      <div className="h-48 md:h-64 lg:h-80 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-lg overflow-hidden relative">
+      {/* Cover photo section with reduced height */}
+      <div className="h-40 md:h-56 lg:h-64 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-lg overflow-hidden relative">
         <img
           src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=1000"
           alt="Cover"
@@ -43,10 +44,12 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
         )}
       </div>
 
-      <div className="p-4 md:p-6 pt-0 md:pt-0">
-        <div className="flex flex-col md:flex-row md:items-end -mt-16 md:-mt-20 mb-4 md:mb-6 gap-4 md:gap-6">
-          <div className="relative z-10">
-            <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white bg-white overflow-hidden">
+      {/* Profile information section with increased padding-top */}
+      <div className="p-4 md:p-6 pt-16 md:pt-20">
+        <div className="flex flex-col md:flex-row md:items-end mb-4 md:mb-6 gap-4 md:gap-6">
+          {/* Profile avatar positioned higher to overlap with cover photo */}
+          <div className="absolute top-28 md:top-32 lg:top-40 left-4 md:left-6 z-10">
+            <div className="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
               <img
                 src={profileData?.avatar_url || "/placeholder.svg"}
                 alt="Profile"
@@ -64,7 +67,8 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
             )}
           </div>
           
-          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          {/* Content shifted to the right to make room for the avatar */}
+          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-32 md:ml-40">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">{profileData?.full_name}</h1>
               
