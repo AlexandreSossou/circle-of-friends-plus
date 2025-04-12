@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
@@ -6,7 +5,7 @@ import PostCard from "@/components/post/PostCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { CameraIcon, Edit, MapPin, MessageCircle, User, UserPlus } from "lucide-react";
+import { CameraIcon, Edit, MapPin, MessageCircle, User, UserPlus, Heart } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +32,7 @@ const Profile = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("posts");
   const { toast } = useToast();
+  const [winkSent, setWinkSent] = useState(false);
   
   const isOwnProfile = !id || id === user?.id;
   const profileId = id || user?.id;
@@ -77,6 +77,30 @@ const Profile = () => {
       title: "Friend request sent",
       description: "Your friend request has been sent",
     });
+  };
+
+  const handleSendWink = async () => {
+    if (!user || !profileId || isOwnProfile) return;
+    
+    try {
+      await supabase.from('posts').insert({
+        user_id: profileId,
+        content: `${user.email} sent you a wink! 😉`,
+      });
+      
+      setWinkSent(true);
+      toast({
+        title: "Wink sent!",
+        description: "Your wink has been sent successfully",
+      });
+    } catch (error) {
+      console.error("Error sending wink:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send wink. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Fetch posts data
@@ -135,6 +159,11 @@ const Profile = () => {
     "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=500",
     "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?q=80&w=500"
   ];
+
+  const [albums, setAlbums] = useState([
+    { id: 1, name: "Default Album", photos: photos.slice(0, 3), isPrivate: false, allowedUsers: [] },
+    { id: 2, name: "Vacation", photos: photos.slice(3, 6), isPrivate: true, allowedUsers: ["friend-1", "friend-2"] },
+  ]);
 
   if (profileLoading) {
     return (
@@ -259,6 +288,15 @@ const Profile = () => {
                         Message
                       </Button>
                     </Link>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleSendWink} 
+                      disabled={winkSent}
+                      className={winkSent ? "bg-pink-100" : ""}
+                    >
+                      <Heart className={`w-4 h-4 mr-2 ${winkSent ? "text-pink-500 fill-pink-500" : ""}`} />
+                      {winkSent ? "Winked" : "Wink"}
+                    </Button>
                   </>
                 )}
                 
@@ -328,17 +366,52 @@ const Profile = () => {
               </TabsContent>
               
               <TabsContent value="photos">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {photos.map((photo, index) => (
-                    <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                      <img 
-                        src={photo} 
-                        alt={`Photo ${index + 1}`} 
-                        className="w-full h-full object-cover"
-                      />
+                {albums.map((album, albumIndex) => (
+                  <div key={album.id} className="mb-8">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-lg font-semibold">{album.name}</h3>
+                      {isOwnProfile && albumIndex > 0 && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            const updatedAlbums = [...albums];
+                            updatedAlbums[albumIndex].isPrivate = !album.isPrivate;
+                            setAlbums(updatedAlbums);
+                          }}
+                        >
+                          {album.isPrivate ? "Make Public" : "Make Private"}
+                        </Button>
+                      )}
                     </div>
-                  ))}
-                </div>
+                    
+                    {(isOwnProfile || !album.isPrivate || (album.isPrivate && album.allowedUsers.includes("friend-1"))) ? (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {album.photos.map((photo, index) => (
+                          <div key={index} className="aspect-square rounded-lg overflow-hidden">
+                            <img 
+                              src={photo} 
+                              alt={`Photo ${index + 1}`} 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-gray-100 rounded-lg p-8 text-center">
+                        <p className="text-social-textSecondary mb-4">This album is private</p>
+                        <Button variant="outline">Request Access</Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                
+                {isOwnProfile && (
+                  <Button className="mt-4">
+                    <CameraIcon className="w-4 h-4 mr-2" />
+                    Create New Album
+                  </Button>
+                )}
               </TabsContent>
             </Tabs>
           </div>

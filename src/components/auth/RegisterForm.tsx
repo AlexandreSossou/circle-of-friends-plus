@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -52,7 +51,7 @@ const RegisterForm = () => {
           gender: gender,
           age: parseInt(age),
           marital_status: maritalStatus
-        }
+        } as any
       );
       navigate("/login");
     } catch (error) {
