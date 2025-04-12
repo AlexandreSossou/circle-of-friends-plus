@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Travel {
   id: string;
@@ -39,6 +40,7 @@ const Travels = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [shareAsPost, setShareAsPost] = useState(true);
   const [travelData, setTravelData] = useState({
     city: "",
     country: "",
@@ -74,10 +76,11 @@ const Travels = () => {
 
   // Add travel mutation
   const addTravelMutation = useMutation({
-    mutationFn: async (data: typeof travelData) => {
+    mutationFn: async (data: typeof travelData & { shareAsPost: boolean }) => {
       if (!user) throw new Error("You must be logged in to add travel plans");
       
-      const { error } = await supabase.from("travels").insert({
+      // Insert travel plan
+      const { data: travelData, error } = await supabase.from("travels").insert({
         user_id: user.id,
         city: data.city,
         country: data.country,
@@ -85,12 +88,44 @@ const Travels = () => {
         departure_date: data.departure_date,
         looking_for: data.looking_for,
         description: data.description,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // If shareAsPost is true, create a post
+      if (data.shareAsPost) {
+        const arrivalDate = new Date(data.arrival_date);
+        const departureDate = new Date(data.departure_date);
+        
+        const formattedArrival = format(arrivalDate, "MMM d, yyyy");
+        const formattedDeparture = format(departureDate, "MMM d, yyyy");
+        
+        const lookingForText = {
+          locals: "locals",
+          tourists: "other travelers",
+          both: "locals and travelers"
+        }[data.looking_for];
+        
+        // Create post content
+        const postContent = `I'm traveling to ${data.city}, ${data.country} from ${formattedArrival} to ${formattedDeparture}. Looking to meet ${lookingForText}!${data.description ? `\n\n${data.description}` : ''}`;
+        
+        const { error: postError } = await supabase.from("posts").insert({
+          user_id: user.id,
+          content: postContent,
+        });
+        
+        if (postError) {
+          console.error("Error creating post:", postError);
+          // We don't throw here to avoid failing the whole operation
+          // Instead we'll show a toast about the partial success
+        }
+      }
+      
+      return travelData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["travels"] });
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
       setTravelData({
         city: "",
         country: "",
@@ -99,6 +134,7 @@ const Travels = () => {
         looking_for: "both",
         description: "",
       });
+      setShareAsPost(true);
       setIsAddDialogOpen(false);
       toast({
         title: "Success!",
@@ -143,7 +179,7 @@ const Travels = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addTravelMutation.mutate(travelData);
+    addTravelMutation.mutate({...travelData, shareAsPost});
   };
 
   const groupTravelsByLocation = (travels: Travel[]) => {
@@ -271,6 +307,19 @@ const Travels = () => {
                       onChange={handleInputChange}
                       className="h-24"
                     />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox 
+                      id="shareAsPost" 
+                      checked={shareAsPost} 
+                      onCheckedChange={(checked) => setShareAsPost(checked as boolean)}
+                    />
+                    <label
+                      htmlFor="shareAsPost"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Share as post on my feed
+                    </label>
                   </div>
                 </div>
                 <DialogFooter className="mt-6">
