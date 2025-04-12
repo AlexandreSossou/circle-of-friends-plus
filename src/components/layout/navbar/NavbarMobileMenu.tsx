@@ -1,6 +1,5 @@
-
 import { Link } from "react-router-dom";
-import { Bell, Home, MessageCircle, Plane, Search, Users } from "lucide-react";
+import { Bell, Home, MessageCircle, Plane, Search, Users, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -74,6 +73,15 @@ const NavbarMobileMenu = ({ user, unreadMessages }: NavbarMobileMenuProps) => {
           <Link to="/travels" className="flex items-center p-3 hover:bg-social-gray rounded-md text-green-500">
             <Plane className="w-5 h-5 mr-3" />
             <span>Travels</span>
+          </Link>
+          
+          <Link to="/news" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+            <span>News</span>
+          </Link>
+          
+          <Link to="/live-sessions" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+            <Video className="w-5 h-5 mr-3" />
+            <span>Live Sessions</span>
           </Link>
           
           {!user && (
