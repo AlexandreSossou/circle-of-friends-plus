@@ -3,23 +3,10 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CameraIcon, Edit, MapPin, MessageCircle, UserPlus } from "lucide-react";
 import WinkButton from "./WinkButton";
+import { ProfileData } from "@/types/profile";
 
 type ProfileHeaderProps = {
-  profileData: {
-    id: string;
-    full_name: string | null;
-    avatar_url: string | null;
-    location: string | null;
-    bio: string | null;
-    gender: string | null;
-    age: number | null;
-    marital_status: string | null;
-    partner_id: string | null;
-    partner?: {
-      full_name: string | null;
-      avatar_url: string | null;
-    } | null;
-  };
+  profileData: ProfileData;
   isOwnProfile: boolean;
   handleAddFriend: () => void;
 }
