@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileData } from "@/types/profile";
 
@@ -25,8 +24,12 @@ export const mockProfiles: Record<string, ProfileData> = {
     bio: "Software Engineer",
     gender: "Male",
     age: 28,
-    marital_status: "Single",
-    partner_id: null
+    marital_status: "Married",
+    partner_id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
+    partner: {
+      full_name: "Sarah Johnson",
+      avatar_url: "/placeholder.svg"
+    }
   },
   "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2": {
     id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2",
@@ -38,7 +41,11 @@ export const mockProfiles: Record<string, ProfileData> = {
     gender: "Female",
     age: 31,
     marital_status: "Married",
-    partner_id: null
+    partner_id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
+    partner: {
+      full_name: "James Smith",
+      avatar_url: "/placeholder.svg"
+    }
   },
   "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3": {
     id: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
@@ -49,8 +56,12 @@ export const mockProfiles: Record<string, ProfileData> = {
     bio: "Marketing Specialist",
     gender: "Male",
     age: 35,
-    marital_status: "Single",
-    partner_id: null
+    marital_status: "Married",
+    partner_id: "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4",
+    partner: {
+      full_name: "Jessica Taylor",
+      avatar_url: "/placeholder.svg"
+    }
   },
   "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4": {
     id: "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4",
@@ -61,8 +72,12 @@ export const mockProfiles: Record<string, ProfileData> = {
     bio: "Photographer",
     gender: "Female",
     age: 29,
-    marital_status: "In a relationship",
-    partner_id: null
+    marital_status: "Married",
+    partner_id: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3",
+    partner: {
+      full_name: "Michael Brown",
+      avatar_url: "/placeholder.svg"
+    }
   },
   "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5": {
     id: "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5",
@@ -73,7 +88,7 @@ export const mockProfiles: Record<string, ProfileData> = {
     bio: "Chef",
     gender: "Male",
     age: 34,
-    marital_status: "Married",
+    marital_status: "Single",
     partner_id: null
   },
   "aa1b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d": {

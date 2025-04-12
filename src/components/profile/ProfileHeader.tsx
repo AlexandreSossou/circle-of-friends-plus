@@ -1,3 +1,4 @@
+
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CameraIcon, Edit, MapPin, MessageCircle, UserPlus } from "lucide-react";
@@ -91,23 +92,19 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
                   {profileData?.marital_status && (
                     <span className="flex items-center">
                       <span className="font-medium mr-1">Status:</span> {profileData.marital_status}
+                      {profileData.partner && profileData.partner_id && (
+                        <span className="ml-1">
+                          to <Link 
+                              to={`/profile/${profileData.partner_id}`} 
+                              className="text-social-blue hover:underline font-medium"
+                            >
+                              {profileData.partner.full_name}
+                            </Link>
+                        </span>
+                      )}
                     </span>
                   )}
                 </div>
-                
-                {profileData?.partner && (
-                  <div className="flex items-center mt-1">
-                    <span className="font-medium mr-2">Partner:</span>
-                    <Link to={`/profile/${profileData.partner_id}`} className="flex items-center hover:underline">
-                      <img 
-                        src={profileData.partner.avatar_url || "/placeholder.svg"} 
-                        alt={profileData.partner.full_name || "Partner"} 
-                        className="w-5 h-5 rounded-full mr-1" 
-                      />
-                      {profileData.partner.full_name}
-                    </Link>
-                  </div>
-                )}
                 
                 <p className="text-social-textSecondary">568 friends</p>
               </div>
