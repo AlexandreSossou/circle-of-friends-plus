@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type WinkButtonProps = {
   recipientId: string;
@@ -13,6 +22,7 @@ type WinkButtonProps = {
 const WinkButton = ({ recipientId }: WinkButtonProps) => {
   const [winkSent, setWinkSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -29,6 +39,8 @@ const WinkButton = ({ recipientId }: WinkButtonProps) => {
       });
       
       setWinkSent(true);
+      setDialogOpen(false);
+      
       toast({
         title: "Wink sent!",
         description: "Your wink has been sent successfully",
@@ -45,16 +57,42 @@ const WinkButton = ({ recipientId }: WinkButtonProps) => {
     }
   };
 
+  const handleWinkButtonClick = () => {
+    if (winkSent || isLoading) return;
+    setDialogOpen(true);
+  };
+
   return (
-    <Button 
-      variant="outline" 
-      onClick={handleSendWink} 
-      disabled={winkSent || isLoading}
-      className={winkSent ? "bg-pink-100" : ""}
-    >
-      <Heart className={`w-4 h-4 mr-2 ${winkSent ? "text-pink-500 fill-pink-500" : ""}`} />
-      {isLoading ? "Sending..." : winkSent ? "Winked" : "Wink"}
-    </Button>
+    <>
+      <Button 
+        variant="outline" 
+        onClick={handleWinkButtonClick} 
+        disabled={winkSent || isLoading}
+        className={winkSent ? "bg-pink-100" : ""}
+      >
+        <Heart className={`w-4 h-4 mr-2 ${winkSent ? "text-pink-500 fill-pink-500" : ""}`} />
+        {isLoading ? "Sending..." : winkSent ? "Winked" : "Wink"}
+      </Button>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send a Wink</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to send a wink to this user? They will be notified.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendWink} disabled={isLoading}>
+              {isLoading ? "Sending..." : "Yes, Send Wink"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
