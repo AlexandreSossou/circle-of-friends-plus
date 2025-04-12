@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,51 @@ const FriendSearch = () => {
   const [gender, setGender] = useState<string | undefined>(undefined);
   const [maritalStatus, setMaritalStatus] = useState<string | undefined>(undefined);
   const [ageRange, setAgeRange] = useState<[number, number]>([18, 80]);
+  const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
   const { toast } = useToast();
+
+  // Fetch current user's age when component mounts
+  useEffect(() => {
+    const fetchCurrentUserAge = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("age")
+          .eq("id", user.id)
+          .single();
+        
+        if (data) {
+          setCurrentUserAge(data.age);
+          
+          // If user is over 40, enforce minimum age restriction
+          if (data.age && data.age > 40 && ageRange[0] < 22) {
+            setAgeRange([22, ageRange[1]]);
+            toast({
+              title: "Age Restriction Applied",
+              description: "Users over 40 cannot search for users under 22.",
+            });
+          }
+        }
+      }
+    };
+    
+    fetchCurrentUserAge();
+  }, []);
+
+  // Enforce age restriction when user attempts to change age range
+  const handleAgeRangeChange = (value: [number, number]) => {
+    if (currentUserAge && currentUserAge > 40 && value[0] < 22) {
+      const newRange: [number, number] = [22, value[1]];
+      setAgeRange(newRange);
+      toast({
+        title: "Age Restriction Applied",
+        description: "Users over 40 cannot search for users under 22.",
+      });
+    } else {
+      setAgeRange(value);
+    }
+  };
 
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange],
@@ -40,8 +84,10 @@ const FriendSearch = () => {
         query = query.eq("marital_status", maritalStatus);
       }
 
-      if (ageRange[0] > 18 || ageRange[1] < 80) {
-        query = query.gte("age", ageRange[0]).lte("age", ageRange[1]);
+      // Enforce the age restriction in the query as well
+      const minAge = currentUserAge && currentUserAge > 40 ? Math.max(22, ageRange[0]) : ageRange[0];
+      if (minAge > 18 || ageRange[1] < 80) {
+        query = query.gte("age", minAge).lte("age", ageRange[1]);
       }
 
       const { data, error } = await query;
@@ -138,7 +184,7 @@ const FriendSearch = () => {
                 min={18}
                 max={80}
                 step={1}
-                onValueChange={(value) => setAgeRange(value as [number, number])}
+                onValueChange={handleAgeRangeChange}
                 className="mt-6"
               />
             </div>
