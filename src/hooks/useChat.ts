@@ -43,12 +43,9 @@ export const useChat = () => {
   };
 
   const handleSelectFriend = (friend: Friend) => {
+    // We already ensure only close friends are displayed in the selector
+    // But as an extra safety check, we confirm here too
     if (friend.relationshipType !== 'friend') {
-      toast({
-        title: "Chat not available",
-        description: "Chat is only available with close friends.",
-        variant: "destructive",
-      });
       return;
     }
 
