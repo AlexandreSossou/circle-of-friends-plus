@@ -3,15 +3,20 @@ import { useState, ChangeEvent } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Camera, Send, X, Plane } from "lucide-react";
+import { Camera, Send, X, Plane, Globe, Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const CreatePostCard = () => {
   const [postText, setPostText] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGlobal, setIsGlobal] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setPostText(e.target.value);
@@ -37,17 +42,47 @@ const CreatePostCard = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setPostText("");
-      setImagePreview(null);
-      
+    try {
+      if (user) {
+        // Create the post with visibility field
+        const { data, error } = await supabase
+          .from('posts')
+          .insert([
+            { 
+              content: postText,
+              image_url: imagePreview,
+              user_id: user.id,
+              is_global: isGlobal
+            }
+          ]);
+        
+        if (error) throw error;
+        
+        setPostText("");
+        setImagePreview(null);
+        setIsGlobal(false);
+        
+        toast({
+          title: "Post created",
+          description: "Your post has been published successfully",
+        });
+      } else {
+        toast({
+          title: "Authentication required",
+          description: "You need to be logged in to create a post",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error("Error creating post:", error);
       toast({
-        title: "Post created",
-        description: "Your post has been published successfully",
+        title: "Post failed",
+        description: "There was an error creating your post",
+        variant: "destructive"
       });
-    }, 1000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   
   return (
@@ -79,7 +114,7 @@ const CreatePostCard = () => {
             </div>
           )}
           
-          <div className="flex items-center justify-between mt-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 space-y-3 sm:space-y-0">
             <div className="flex space-x-2">
               <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild>
                 <label>
@@ -101,18 +136,42 @@ const CreatePostCard = () => {
                 </Link>
               </Button>
             </div>
-            <Button 
-              onClick={handleSubmit} 
-              disabled={(!postText.trim() && !imagePreview) || isSubmitting}
-              className="bg-social-blue hover:bg-social-darkblue"
-            >
-              {isSubmitting ? "Posting..." : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Post
-                </>
-              )}
-            </Button>
+            
+            <div className="flex items-center space-x-4 w-full sm:w-auto">
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="visibility-mode" 
+                  checked={isGlobal} 
+                  onCheckedChange={setIsGlobal} 
+                />
+                <div className="flex items-center">
+                  {isGlobal ? (
+                    <>
+                      <Globe className="w-4 h-4 mr-1 text-social-blue" />
+                      <span className="text-sm text-social-blue">Global</span>
+                    </>
+                  ) : (
+                    <>
+                      <Users className="w-4 h-4 mr-1 text-social-textSecondary" />
+                      <span className="text-sm text-social-textSecondary">Connections Only</span>
+                    </>
+                  )}
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleSubmit} 
+                disabled={(!postText.trim() && !imagePreview) || isSubmitting}
+                className="bg-social-blue hover:bg-social-darkblue"
+              >
+                {isSubmitting ? "Posting..." : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Post
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

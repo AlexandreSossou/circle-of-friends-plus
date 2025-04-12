@@ -59,9 +59,23 @@ const Index = () => {
           .order("created_at", { ascending: false });
 
         // Filter by connections if "connections" feed is active and user is logged in
-        if (activeFeed === "connections" && user && connections && connections.length > 0) {
-          // Include user's own posts and posts from connections
-          query = query.or(`user_id.eq.${user.id},user_id.in.(${connections.join(',')})`);
+        if (activeFeed === "connections" && user && connections) {
+          if (connections.length > 0) {
+            // Include user's own posts and posts from connections that are not global
+            query = query.or(`user_id.eq.${user.id},user_id.in.(${connections.join(',')})`);
+          } else {
+            // If no connections, only show user's own posts
+            query = query.eq('user_id', user.id);
+          }
+        } else if (activeFeed === "global") {
+          // For global feed, include posts marked as global or from connections
+          if (user && connections && connections.length > 0) {
+            query = query.or(`is_global.eq.true,user_id.eq.${user.id},user_id.in.(${connections.join(',')})`);
+          } else if (user) {
+            query = query.or(`is_global.eq.true,user_id.eq.${user.id}`);
+          } else {
+            query = query.eq('is_global', true);
+          }
         }
         
         const { data, error } = await query;
@@ -83,7 +97,8 @@ const Index = () => {
           timestamp: new Date(post.created_at).toLocaleDateString(),
           likes: 0,
           comments: [],
-          liked: false
+          liked: false,
+          isGlobal: post.is_global || false
         }));
       } catch (error) {
         console.error("Error fetching posts:", error);

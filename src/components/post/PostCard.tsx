@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, MessageCircle, MoreHorizontal, Send, Share2 } from "lucide-react";
+import { Heart, MessageCircle, MoreHorizontal, Send, Share2, Globe, Users } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -26,6 +27,7 @@ export interface PostData {
   likes: number;
   comments: Comment[];
   liked: boolean;
+  isGlobal?: boolean;
 }
 
 interface Comment {
@@ -107,9 +109,26 @@ const PostCard = ({ post }: PostCardProps) => {
               </Avatar>
             </Link>
             <div>
-              <Link to={`/profile/${post.author.id}`} className="font-medium hover:underline">
-                {post.author.name}
-              </Link>
+              <div className="flex items-center">
+                <Link to={`/profile/${post.author.id}`} className="font-medium hover:underline">
+                  {post.author.name}
+                </Link>
+                {post.isGlobal !== undefined && (
+                  <span className="ml-2 flex items-center text-xs text-social-textSecondary">
+                    {post.isGlobal ? (
+                      <>
+                        <Globe className="w-3 h-3 mr-1" />
+                        <span>Global</span>
+                      </>
+                    ) : (
+                      <>
+                        <Users className="w-3 h-3 mr-1" />
+                        <span>Connections</span>
+                      </>
+                    )}
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-social-textSecondary">{post.timestamp}</p>
             </div>
           </div>
