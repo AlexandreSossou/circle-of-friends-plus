@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,31 +8,50 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, UserCheck, UserPlus, UserX } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+
+// Define types for friend data
+type Friend = {
+  id: string;
+  name: string;
+  avatar: string;
+  initials: string;
+  mutualFriends: number;
+};
 
 const Friends = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
+  // Use static friends list for demo purposes
   const allFriends = [
-    { id: "friend-1", name: "Emma Watson", avatar: "/placeholder.svg", initials: "EW", mutualFriends: 5 },
-    { id: "friend-2", name: "James Smith", avatar: "/placeholder.svg", initials: "JS", mutualFriends: 3 },
-    { id: "friend-3", name: "Sarah Johnson", avatar: "/placeholder.svg", initials: "SJ", mutualFriends: 7 },
-    { id: "friend-4", name: "Michael Brown", avatar: "/placeholder.svg", initials: "MB", mutualFriends: 2 },
-    { id: "friend-5", name: "Jessica Taylor", avatar: "/placeholder.svg", initials: "JT", mutualFriends: 1 },
-    { id: "friend-6", name: "David Lee", avatar: "/placeholder.svg", initials: "DL", mutualFriends: 4 }
+    { id: "f8f8f8f8-f8f8-f8f8-f8f8-f8f8f8f8f8f8", name: "Emma Watson", avatar: "/placeholder.svg", initials: "EW", mutualFriends: 5 },
+    { id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1", name: "James Smith", avatar: "/placeholder.svg", initials: "JS", mutualFriends: 3 },
+    { id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2", name: "Sarah Johnson", avatar: "/placeholder.svg", initials: "SJ", mutualFriends: 7 },
+    { id: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3", name: "Michael Brown", avatar: "/placeholder.svg", initials: "MB", mutualFriends: 2 },
+    { id: "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4", name: "Jessica Taylor", avatar: "/placeholder.svg", initials: "JT", mutualFriends: 1 },
+    { id: "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5", name: "David Lee", avatar: "/placeholder.svg", initials: "DL", mutualFriends: 4 }
   ];
   
   const friendRequests = [
-    { id: "request-1", name: "Ryan Cooper", avatar: "/placeholder.svg", initials: "RC", mutualFriends: 8 },
-    { id: "request-2", name: "Olivia Martinez", avatar: "/placeholder.svg", initials: "OM", mutualFriends: 2 }
+    { id: "aa1b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d", name: "Olivia Martinez", avatar: "/placeholder.svg", initials: "OM", mutualFriends: 2 },
+    { id: "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e", name: "Ryan Cooper", avatar: "/placeholder.svg", initials: "RC", mutualFriends: 8 }
   ];
   
   const suggestions = [
-    { id: "suggestion-1", name: "Christopher Wilson", avatar: "/placeholder.svg", initials: "CW", mutualFriends: 6 },
-    { id: "suggestion-2", name: "Sophia Anderson", avatar: "/placeholder.svg", initials: "SA", mutualFriends: 4 },
-    { id: "suggestion-3", name: "Matthew Thomas", avatar: "/placeholder.svg", initials: "MT", mutualFriends: 3 },
-    { id: "suggestion-4", name: "Emily Garcia", avatar: "/placeholder.svg", initials: "EG", mutualFriends: 5 }
+    { id: "3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f", name: "Sophia Anderson", avatar: "/placeholder.svg", initials: "SA", mutualFriends: 4 },
+    { id: "4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a", name: "Christopher Wilson", avatar: "/placeholder.svg", initials: "CW", mutualFriends: 6 },
+    { id: "f8f8f8f8-a1a1-b2b2-c3c3-d4d4e5e5f6f6", name: "Matthew Thomas", avatar: "/placeholder.svg", initials: "MT", mutualFriends: 3 },
+    { id: "a9b8c7d6-e5f4-a3b2-c1d0-e9f8a7b6c5d4", name: "Emily Garcia", avatar: "/placeholder.svg", initials: "EG", mutualFriends: 5 }
   ];
+  
+  const handleViewProfile = (id: string) => {
+    // Navigate to the friend's profile page
+    navigate(`/profile/${id}`);
+  };
   
   const handleAcceptRequest = (id: string, name: string) => {
     toast({
@@ -94,7 +114,7 @@ const Friends = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredFriends.map((friend) => (
                   <div key={friend.id} className="social-card p-4 flex items-center">
-                    <Link to={`/profile/${friend.id}`} className="flex items-center flex-1">
+                    <div className="flex items-center flex-1">
                       <Avatar className="mr-3">
                         <AvatarImage src={friend.avatar} alt={friend.name} />
                         <AvatarFallback>{friend.initials}</AvatarFallback>
@@ -103,13 +123,15 @@ const Friends = () => {
                         <h3 className="font-medium">{friend.name}</h3>
                         <p className="text-xs text-social-textSecondary">{friend.mutualFriends} mutual friends</p>
                       </div>
-                    </Link>
-                    <Link to={`/profile/${friend.id}`}>
-                      <Button variant="ghost" size="sm">
-                        <UserCheck className="w-4 h-4 mr-2" />
-                        <span>Profile</span>
-                      </Button>
-                    </Link>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleViewProfile(friend.id)}
+                    >
+                      <UserCheck className="w-4 h-4 mr-2" />
+                      <span>Profile</span>
+                    </Button>
                   </div>
                 ))}
               </div>
@@ -126,7 +148,7 @@ const Friends = () => {
                 {friendRequests.map((request) => (
                   <div key={request.id} className="social-card p-4">
                     <div className="flex items-center">
-                      <Link to={`/profile/${request.id}`} className="flex items-center flex-1">
+                      <div className="flex items-center flex-1">
                         <Avatar className="mr-3">
                           <AvatarImage src={request.avatar} alt={request.name} />
                           <AvatarFallback>{request.initials}</AvatarFallback>
@@ -135,7 +157,7 @@ const Friends = () => {
                           <h3 className="font-medium">{request.name}</h3>
                           <p className="text-xs text-social-textSecondary">{request.mutualFriends} mutual friends</p>
                         </div>
-                      </Link>
+                      </div>
                       <div className="flex gap-2">
                         <Button 
                           onClick={() => handleAcceptRequest(request.id, request.name)}
@@ -166,7 +188,7 @@ const Friends = () => {
               {suggestions.map((suggestion) => (
                 <div key={suggestion.id} className="social-card p-4">
                   <div className="flex items-center">
-                    <Link to={`/profile/${suggestion.id}`} className="flex items-center flex-1">
+                    <div className="flex items-center flex-1">
                       <Avatar className="mr-3">
                         <AvatarImage src={suggestion.avatar} alt={suggestion.name} />
                         <AvatarFallback>{suggestion.initials}</AvatarFallback>
@@ -175,7 +197,7 @@ const Friends = () => {
                         <h3 className="font-medium">{suggestion.name}</h3>
                         <p className="text-xs text-social-textSecondary">{suggestion.mutualFriends} mutual friends</p>
                       </div>
-                    </Link>
+                    </div>
                     <Button 
                       onClick={() => handleAddFriend(suggestion.id, suggestion.name)}
                     >
