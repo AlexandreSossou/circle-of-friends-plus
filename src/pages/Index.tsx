@@ -1,23 +1,52 @@
+
 import { useEffect, useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import CreatePostCard from "@/components/post/CreatePostCard";
 import PostCard from "@/components/post/PostCard";
+import FeedFilter, { FeedType } from "@/components/post/FeedFilter";
 import { PostData } from "@/components/post/PostCard";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "@/hooks/use-toast";
 
 const Index = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
+  const [activeFeed, setActiveFeed] = useState<FeedType>("connections");
 
+  // Fetch friends and acquaintances list for filtering posts
+  const { data: connections } = useQuery({
+    queryKey: ["connections", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      try {
+        const { data, error } = await supabase
+          .from("friends")
+          .select("friend_id")
+          .eq("user_id", user.id)
+          .in("relationship_type", ["friend", "acquaintance"]);
+          
+        if (error) throw error;
+        
+        return data.map(item => item.friend_id);
+      } catch (error) {
+        console.error("Error fetching connections:", error);
+        return [];
+      }
+    },
+    enabled: !!user,
+  });
+
+  // Fetch posts with filter based on active feed
   const { data: posts = [] } = useQuery({
-    queryKey: ["posts"],
+    queryKey: ["posts", activeFeed, user?.id, connections],
     queryFn: async () => {
       setIsLoading(true);
       
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from("posts")
           .select(`
             *,
@@ -28,6 +57,14 @@ const Index = () => {
             )
           `)
           .order("created_at", { ascending: false });
+
+        // Filter by connections if "connections" feed is active and user is logged in
+        if (activeFeed === "connections" && user && connections && connections.length > 0) {
+          // Include user's own posts and posts from connections
+          query = query.or(`user_id.eq.${user.id},user_id.in.(${connections.join(',')})`);
+        }
+        
+        const { data, error } = await query;
 
         if (error) {
           throw error;
@@ -50,6 +87,11 @@ const Index = () => {
         }));
       } catch (error) {
         console.error("Error fetching posts:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load posts. Please try again later.",
+          variant: "destructive"
+        });
         return getDemoPostData();
       } finally {
         setIsLoading(false);
@@ -57,6 +99,10 @@ const Index = () => {
     },
     enabled: true,
   });
+
+  const handleFeedChange = (feedType: FeedType) => {
+    setActiveFeed(feedType);
+  };
 
   const getDemoPostData = (): PostData[] => {
     return [
@@ -143,6 +189,7 @@ const Index = () => {
 
   return (
     <MainLayout>
+      <FeedFilter activeFeed={activeFeed} onFeedChange={handleFeedChange} />
       <CreatePostCard />
       
       {isLoading ? (
@@ -164,11 +211,24 @@ const Index = () => {
             </div>
           ))}
         </div>
-      ) : (
+      ) : posts.length > 0 ? (
         <div className="space-y-4">
           {posts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
+        </div>
+      ) : (
+        <div className="social-card p-8 text-center">
+          <p className="text-social-textSecondary mb-2">
+            {activeFeed === "connections" ? 
+              "No posts from your connections yet." : 
+              "There are no posts yet."}
+          </p>
+          <p>
+            {activeFeed === "connections" ? 
+              "Try adding more connections or check the global feed!" : 
+              "Be the first to post something!"}
+          </p>
         </div>
       )}
     </MainLayout>
