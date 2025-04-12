@@ -1,89 +1,26 @@
 
-import { useState, ChangeEvent } from "react";
+import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Camera, Send, X, Plane, Globe, Users } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Link } from "react-router-dom";
-import { Switch } from "@/components/ui/switch";
-import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useCreatePost } from "@/hooks/useCreatePost";
+import PostInput from "./PostInput";
+import ImagePreview from "./ImagePreview";
+import PostActions from "./PostActions";
+import VisibilityToggle from "./VisibilityToggle";
+import SubmitPostButton from "./SubmitPostButton";
 
 const CreatePostCard = () => {
-  const [postText, setPostText] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGlobal, setIsGlobal] = useState(false);
-  const { toast } = useToast();
-  const { user } = useAuth();
-  
-  const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setPostText(e.target.value);
-  };
-  
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-  
-  const removeImage = () => {
-    setImagePreview(null);
-  };
-  
-  const handleSubmit = async () => {
-    if (!postText.trim() && !imagePreview) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      if (user) {
-        // Create the post with visibility field
-        const { data, error } = await supabase
-          .from('posts')
-          .insert([
-            { 
-              content: postText,
-              image_url: imagePreview,
-              user_id: user.id,
-              is_global: isGlobal
-            }
-          ]);
-        
-        if (error) throw error;
-        
-        setPostText("");
-        setImagePreview(null);
-        setIsGlobal(false);
-        
-        toast({
-          title: "Post created",
-          description: "Your post has been published successfully",
-        });
-      } else {
-        toast({
-          title: "Authentication required",
-          description: "You need to be logged in to create a post",
-          variant: "destructive"
-        });
-      }
-    } catch (error) {
-      console.error("Error creating post:", error);
-      toast({
-        title: "Post failed",
-        description: "There was an error creating your post",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const {
+    postText,
+    imagePreview,
+    isSubmitting,
+    isGlobal,
+    handleTextChange,
+    handleImageChange,
+    removeImage,
+    setIsGlobal,
+    handleSubmit,
+    isValid
+  } = useCreatePost();
   
   return (
     <div className="social-card p-4 mb-4">
@@ -93,84 +30,30 @@ const CreatePostCard = () => {
           <AvatarFallback>JD</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <Textarea
-            placeholder="What's on your mind?"
-            className="resize-none min-h-[80px] border-none bg-social-gray focus-visible:ring-0 p-3"
-            value={postText}
-            onChange={handleTextChange}
+          <PostInput 
+            postText={postText} 
+            onTextChange={handleTextChange} 
           />
           
-          {imagePreview && (
-            <div className="relative mt-2 rounded-lg overflow-hidden">
-              <img src={imagePreview} alt="Post preview" className="w-full max-h-80 object-cover" />
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 w-8 h-8 rounded-full"
-                onClick={removeImage}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
+          <ImagePreview 
+            imagePreview={imagePreview} 
+            onRemoveImage={removeImage} 
+          />
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 space-y-3 sm:space-y-0">
-            <div className="flex space-x-2">
-              <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild>
-                <label>
-                  <Camera className="w-5 h-5 mr-1" />
-                  <span>Photo</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </label>
-              </Button>
-              
-              <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild>
-                <Link to="/travels">
-                  <Plane className="w-5 h-5 mr-1" />
-                  <span>Travel</span>
-                </Link>
-              </Button>
-            </div>
+            <PostActions onImageChange={handleImageChange} />
             
             <div className="flex items-center space-x-4 w-full sm:w-auto">
-              <div className="flex items-center space-x-2">
-                <Switch 
-                  id="visibility-mode" 
-                  checked={isGlobal} 
-                  onCheckedChange={setIsGlobal} 
-                />
-                <div className="flex items-center">
-                  {isGlobal ? (
-                    <>
-                      <Globe className="w-4 h-4 mr-1 text-social-blue" />
-                      <span className="text-sm text-social-blue">Global</span>
-                    </>
-                  ) : (
-                    <>
-                      <Users className="w-4 h-4 mr-1 text-social-textSecondary" />
-                      <span className="text-sm text-social-textSecondary">Connections Only</span>
-                    </>
-                  )}
-                </div>
-              </div>
+              <VisibilityToggle 
+                isGlobal={isGlobal} 
+                onVisibilityChange={setIsGlobal} 
+              />
               
-              <Button 
-                onClick={handleSubmit} 
-                disabled={(!postText.trim() && !imagePreview) || isSubmitting}
-                className="bg-social-blue hover:bg-social-darkblue"
-              >
-                {isSubmitting ? "Posting..." : (
-                  <>
-                    <Send className="w-4 h-4 mr-2" />
-                    Post
-                  </>
-                )}
-              </Button>
+              <SubmitPostButton 
+                isSubmitting={isSubmitting} 
+                isDisabled={!isValid}
+                onSubmit={handleSubmit} 
+              />
             </div>
           </div>
         </div>
