@@ -6,6 +6,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { useRelationshipStatus } from "@/hooks/useRelationshipStatus";
 import RelationshipStatusSelector from "./relationship/RelationshipStatusSelector";
 import PartnerSelector from "./relationship/PartnerSelector";
+import RelationshipStatusDisplay from "./relationship/RelationshipStatusDisplay";
 
 const RelationshipStatusUpdater = () => {
   const {
@@ -37,6 +38,11 @@ const RelationshipStatusUpdater = () => {
     );
   }
 
+  // Find partner name if available
+  const partnerName = partner ? 
+    potentialPartners.find(p => p.id === partner)?.full_name : 
+    undefined;
+
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -51,6 +57,18 @@ const RelationshipStatusUpdater = () => {
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
+        )}
+        
+        {status && partner && status !== "Single" && (
+          <div className="mb-4 p-3 bg-gray-50 rounded-md">
+            <p className="text-sm font-medium mb-2">Current Status:</p>
+            <RelationshipStatusDisplay 
+              status={status} 
+              partnerId={partner} 
+              partnerName={partnerName}
+              className="text-sm"
+            />
+          </div>
         )}
         
         <RelationshipStatusSelector 

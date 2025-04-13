@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,6 +7,7 @@ import { ProfileData } from "@/types/profile";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import RelationshipStatusDisplay from "./relationship/RelationshipStatusDisplay";
 
 type ProfileHeaderProps = {
   profileData: ProfileData;
@@ -32,8 +32,6 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
   };
 
   const handleSaveProfile = () => {
-    // In a real implementation, this would save to the database
-    // For now, just show a toast notification
     toast({
       title: "Profile updated",
       description: "Your profile has been updated successfully.",
@@ -43,7 +41,6 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
 
   return (
     <div className="relative">
-      {/* Cover photo section with reduced height */}
       <div className="h-40 md:h-56 lg:h-64 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-lg overflow-hidden relative">
         <img
           src="https://images.unsplash.com/photo-1477346611705-65d1883cee1e?q=80&w=1000"
@@ -62,7 +59,6 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
 
       <div className="p-4 md:p-6 pt-16 md:pt-20">
         <div className="flex flex-col md:flex-row md:items-end mb-4 md:mb-6 gap-4 md:gap-6">
-          {/* Profile avatar positioned higher to overlap with cover photo */}
           <div className="absolute top-28 md:top-32 lg:top-40 left-4 md:left-6 z-10">
             <div className="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-white bg-white overflow-hidden shadow-md">
               <img
@@ -120,19 +116,13 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
                   )}
                   
                   {profileData?.marital_status && (
-                    <span className="flex items-center">
-                      <span className="font-medium mr-1">Status:</span> {profileData.marital_status}
-                      {profileData.partner && profileData.partner_id && (
-                        <span className="ml-1">
-                          to <Link 
-                              to={`/profile/${profileData.partner_id}`} 
-                              className="text-social-blue hover:underline font-medium"
-                            >
-                              {profileData.partner.full_name}
-                            </Link>
-                        </span>
-                      )}
-                    </span>
+                    <RelationshipStatusDisplay 
+                      status={profileData.marital_status}
+                      partnerId={profileData.partner_id}
+                      partnerName={profileData.partner?.full_name || undefined}
+                      showIcon={true}
+                      showLink={true}
+                    />
                   )}
                 </div>
                 
@@ -184,7 +174,6 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
           </div>
         </div>
 
-        {/* Profile description/bio section */}
         {!isEditing && profileData?.bio && (
           <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
             <h2 className="text-lg font-semibold mb-2">About Me</h2>
