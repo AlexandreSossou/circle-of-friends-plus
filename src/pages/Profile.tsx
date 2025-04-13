@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileLoading from "@/components/profile/ProfileLoading";
 import ProfileContent from "@/components/profile/ProfileContent";
+import ProfileVerification from "@/components/profile/ProfileVerification";
 import { useProfileData } from "@/hooks/useProfileData";
 
 const Profile = () => {
@@ -23,7 +24,8 @@ const Profile = () => {
     formattedPosts,
     friendsList,
     albums,
-    setAlbums
+    setAlbums,
+    verificationInfo
   } = useProfileData(profileId, isOwnProfile);
 
   const handleAddFriend = () => {
@@ -53,6 +55,14 @@ const Profile = () => {
             />
             
             <div className="p-4 md:p-6 pt-0">
+              <ProfileVerification
+                profileId={profileId || ""}
+                isOwnProfile={isOwnProfile}
+                lastConnection={verificationInfo?.lastConnection}
+                photoVerificationDate={verificationInfo?.photoVerification}
+                moderatorVerificationDate={verificationInfo?.moderatorVerification}
+              />
+              
               <ProfileContent
                 posts={formattedPosts}
                 friendsList={friendsList}

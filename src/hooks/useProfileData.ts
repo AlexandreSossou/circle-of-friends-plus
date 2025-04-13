@@ -4,6 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchProfileData, fetchProfilePosts, mockProfiles } from "@/services/ProfileService";
 import { Album, Friend, Post, ProfileData } from "@/types/profile";
 
+export interface VerificationInfo {
+  lastConnection?: string;
+  photoVerification?: string;
+  moderatorVerification?: string;
+}
+
 export const useProfileData = (profileId: string | undefined, isOwnProfile: boolean) => {
   // Fetch profile data
   const { data: profileData, isLoading: profileLoading } = useQuery({
@@ -45,6 +51,13 @@ export const useProfileData = (profileId: string | undefined, isOwnProfile: bool
     { id: 2, name: "Vacation", photos: photos.slice(3, 6), isPrivate: true, allowedUsers: ["friend-1", "friend-2"] },
   ]);
 
+  // Mock verification info - in real app this would come from your database
+  const verificationInfo: VerificationInfo = {
+    lastConnection: profileId ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 3 days ago
+    photoVerification: profileId ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 30 days ago
+    moderatorVerification: profileId ? new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 15 days ago
+  };
+
   // Format posts for display
   const formattedPosts: Post[] = (posts || []).map(post => ({
     id: post.id,
@@ -68,6 +81,7 @@ export const useProfileData = (profileId: string | undefined, isOwnProfile: bool
     formattedPosts,
     friendsList,
     albums,
-    setAlbums
+    setAlbums,
+    verificationInfo
   };
 };
