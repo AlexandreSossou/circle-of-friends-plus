@@ -68,6 +68,9 @@ const RelationshipStatusUpdater = () => {
               partnerName={partnerName}
               className="text-sm"
             />
+            <p className="text-xs text-muted-foreground mt-2">
+              Note: Changing your relationship status will notify your partner and update their status accordingly.
+            </p>
           </div>
         )}
         

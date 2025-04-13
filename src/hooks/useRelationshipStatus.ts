@@ -62,7 +62,44 @@ export const useRelationshipStatus = () => {
     };
     
     loadCurrentStatus();
-  }, [user]);
+    
+    // Set up subscription for real-time updates to the user's profile
+    if (user) {
+      const channel = supabase
+        .channel('profile-changes')
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${user.id}`
+        }, (payload) => {
+          console.log("Profile updated:", payload);
+          const newData = payload.new;
+          
+          // Update state with the new data
+          if (newData.marital_status) {
+            setStatus(newData.marital_status);
+          }
+          
+          if (newData.partner_id !== undefined) {
+            setPartner(newData.partner_id || "");
+          }
+          
+          // Show toast notification about the change if it was changed by someone else
+          if (payload.old.marital_status !== newData.marital_status) {
+            toast({
+              title: "Relationship Status Updated",
+              description: `Your relationship status has been changed to ${newData.marital_status}`,
+            });
+          }
+        })
+        .subscribe();
+        
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user, toast]);
 
   const verifyPartnerExists = (partnerId: string): boolean => {
     return potentialPartners.some(p => p.id === partnerId);
