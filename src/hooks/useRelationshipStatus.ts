@@ -1,24 +1,13 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { updateRelationshipStatus } from "@/services/safetyReviews";
-import { supabase } from "@/integrations/supabase/client";
-import { mockProfiles } from "@/services/mocks/mockProfiles";
+import { fetchPotentialPartners, fetchCurrentStatus } from "@/services/relationship";
+import { Partner, RelationshipStatus } from "@/types/relationship";
 import { useToast } from "@/hooks/use-toast";
 
-export interface Partner {
-  id: string;
-  full_name: string;
-}
-
-export enum RelationshipStatus {
-  Single = "Single",
-  InRelationship = "In a relationship",
-  Engaged = "Engaged",
-  Married = "Married",
-  Complicated = "It's complicated",
-  OpenRelationship = "Open relationship",
-  JustDating = "Just dating"
-}
+export type { Partner, RelationshipStatus };
+export { RelationshipStatus };
 
 export const useRelationshipStatus = () => {
   const { user } = useAuth();
@@ -31,106 +20,41 @@ export const useRelationshipStatus = () => {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    const fetchProfiles = async () => {
+    const loadPartners = async () => {
       if (!user) return;
       
       setIsLoading(true);
       setError(null);
       
       try {
-        console.log("Fetching profiles from database...");
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, full_name')
-          .neq('id', user.id);
-        
-        if (error) {
-          console.error("Error fetching profiles:", error);
-          setError("Failed to fetch profiles from database");
-          useMockProfiles();
-          return;
-        }
-        
-        if (data && data.length > 0) {
-          console.log("Got profiles from database:", data.length);
-          const validProfiles = data
-            .filter(profile => profile && profile.id)
-            .map(profile => ({
-              id: profile.id,
-              full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
-            }));
-            
-          setPotentialPartners(validProfiles);
-        } else {
-          console.log("No profiles found in database, using mock data");
-          useMockProfiles();
-        }
+        const partners = await fetchPotentialPartners(user.id);
+        setPotentialPartners(partners);
       } catch (err) {
-        console.error("Exception when fetching profiles:", err);
-        setError("Unexpected error when fetching profiles");
-        useMockProfiles();
+        console.error("Exception when fetching potential partners:", err);
+        setError("Failed to fetch available partners");
+        setPotentialPartners([]);
       } finally {
         setIsLoading(false);
       }
     };
     
-    const useMockProfiles = () => {
-      console.log("Using mock profiles as partners");
-      try {
-        const mockPartners = Object.values(mockProfiles)
-          .filter(profile => profile && profile.id && profile.id !== user?.id)
-          .map(profile => ({
-            id: profile.id,
-            full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
-          }));
-        
-        setPotentialPartners(mockPartners);
-        console.log("Available mock partners:", mockPartners.length);
-      } catch (error) {
-        console.error("Error processing mock profiles:", error);
-        setPotentialPartners([]);
-        setError("Failed to process mock profile data");
-      }
-    };
-    
-    fetchProfiles();
+    loadPartners();
   }, [user]);
   
   useEffect(() => {
-    const fetchCurrentStatus = async () => {
+    const loadCurrentStatus = async () => {
       if (!user) return;
       
       setIsLoading(true);
       
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('marital_status, partner_id')
-          .eq('id', user.id)
-          .single();
+        const currentStatus = await fetchCurrentStatus(user.id);
         
-        if (error) {
-          console.error("Error fetching current status:", error);
-          
-          if (mockProfiles[user.id]) {
-            const mockUser = mockProfiles[user.id];
-            if (mockUser.marital_status) {
-              setStatus(mockUser.marital_status);
-            }
-            if (mockUser.partner_id) {
-              setPartner(mockUser.partner_id);
-            }
-          }
-          return;
+        if (currentStatus.marital_status) {
+          setStatus(currentStatus.marital_status);
         }
-        
-        if (data) {
-          if (data.marital_status) {
-            setStatus(data.marital_status);
-          }
-          if (data.partner_id) {
-            setPartner(data.partner_id);
-          }
+        if (currentStatus.partner_id) {
+          setPartner(currentStatus.partner_id);
         }
       } catch (err) {
         console.error("Exception when fetching current status:", err);
@@ -140,7 +64,7 @@ export const useRelationshipStatus = () => {
       }
     };
     
-    fetchCurrentStatus();
+    loadCurrentStatus();
   }, [user]);
 
   const verifyPartnerExists = (partnerId: string): boolean => {

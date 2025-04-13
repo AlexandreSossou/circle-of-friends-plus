@@ -1,6 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
-import { RelationshipStatus } from "@/hooks/useRelationshipStatus";
+import { RelationshipStatus } from "@/types/relationship";
 import { 
   Heart, 
   UserIcon, 
