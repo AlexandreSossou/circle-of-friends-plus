@@ -52,6 +52,7 @@ const Profile = () => {
               profileData={profileData} 
               isOwnProfile={isOwnProfile} 
               handleAddFriend={handleAddFriend} 
+              profileId={profileId || ""}
             />
             
             <div className="p-4 md:p-6 pt-0">

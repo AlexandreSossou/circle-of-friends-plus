@@ -1,8 +1,10 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Edit, UserPlus, MessageCircle, X } from "lucide-react";
+import { Edit, UserPlus, MessageCircle, X, Images } from "lucide-react";
 import WinkButton from "../WinkButton";
+import SharePhotosDialog from "../SharePhotosDialog";
+import { useState } from "react";
 
 interface ProfileActionsProps {
   profileId: string;
@@ -23,6 +25,8 @@ const ProfileActions = ({
   onSaveProfile,
   handleAddFriend
 }: ProfileActionsProps) => {
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+
   if (!isOwnProfile) {
     return (
       <div className="flex flex-col gap-2">
@@ -33,15 +37,29 @@ const ProfileActions = ({
           <UserPlus className="w-4 h-4 mr-2" />
           Add Friend
         </Button>
-        <div className="flex gap-2">
-          <Link to={`/messages?recipient=${profileId}`}>
-            <Button variant="outline">
+        <div className="flex gap-2 w-full">
+          <Link to={`/messages?recipient=${profileId}`} className="flex-1">
+            <Button variant="outline" className="w-full">
               <MessageCircle className="w-4 h-4 mr-2" />
               Message
             </Button>
           </Link>
           <WinkButton recipientId={profileId} />
         </div>
+        <Button 
+          variant="outline" 
+          className="w-full text-purple-600 border-purple-300 hover:bg-purple-50"
+          onClick={() => setShareDialogOpen(true)}
+        >
+          <Images className="w-4 h-4 mr-2" />
+          Pics Share
+        </Button>
+        
+        <SharePhotosDialog 
+          open={shareDialogOpen} 
+          onOpenChange={setShareDialogOpen} 
+          recipientId={profileId}
+        />
       </div>
     );
   }
