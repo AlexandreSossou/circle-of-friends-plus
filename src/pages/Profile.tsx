@@ -7,6 +7,7 @@ import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileLoading from "@/components/profile/ProfileLoading";
 import ProfileContent from "@/components/profile/ProfileContent";
 import ProfileVerification from "@/components/profile/ProfileVerification";
+import RelationshipStatusUpdater from "@/components/profile/RelationshipStatusUpdater";
 import { useProfileData } from "@/hooks/useProfileData";
 
 const Profile = () => {
@@ -55,6 +56,10 @@ const Profile = () => {
             />
             
             <div className="p-4 md:p-6 pt-0">
+              {isOwnProfile && (
+                <RelationshipStatusUpdater />
+              )}
+              
               <ProfileVerification
                 profileId={profileId || ""}
                 isOwnProfile={isOwnProfile}

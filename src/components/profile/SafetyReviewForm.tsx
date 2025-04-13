@@ -8,11 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 
 type SafetyReviewFormProps = {
   isInRelationship: boolean;
+  relationshipDetail?: string;
   canReview: boolean;
   onSubmit: (rating: number, reviewText: string) => Promise<void>;
 };
 
-const SafetyReviewForm = ({ isInRelationship, canReview, onSubmit }: SafetyReviewFormProps) => {
+const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onSubmit }: SafetyReviewFormProps) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,9 +65,10 @@ const SafetyReviewForm = ({ isInRelationship, canReview, onSubmit }: SafetyRevie
         {isInRelationship ? (
           <div className="p-4 border border-amber-200 bg-amber-50 rounded-md flex items-center gap-2">
             <HeartOff className="h-5 w-5 text-amber-500" />
-            <p className="text-amber-700">
-              You cannot leave a review for someone you are in a relationship with.
-            </p>
+            <div className="text-amber-700">
+              <p>You cannot leave a review for someone you are in a relationship with.</p>
+              {relationshipDetail && <p className="text-sm mt-1">{relationshipDetail}</p>}
+            </div>
           </div>
         ) : (
           <div className="space-y-4">

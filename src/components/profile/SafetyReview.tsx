@@ -20,6 +20,7 @@ type SafetyReviewProps = {
 const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: SafetyReviewProps) => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isInRelationship, setIsInRelationship] = useState(false);
+  const [relationshipDetail, setRelationshipDetail] = useState<string>("");
   const { user } = useAuth();
   const { toast } = useToast();
   
@@ -56,7 +57,7 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
         // Get viewed profile
         const { data: viewedProfile, error: viewedProfileError } = await supabase
           .from('profiles')
-          .select('partner_id, marital_status')
+          .select('partner_id, marital_status, full_name')
           .eq('id', profileId)
           .single();
           
@@ -69,10 +70,16 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
           
         // Check if either has a marital status indicating a relationship
         const hasRelationshipStatus = 
-          (currentUserProfile?.marital_status === 'married' && viewedProfile?.partner_id === currentUserId) ||
-          (viewedProfile?.marital_status === 'married' && currentUserProfile?.partner_id === profileId);
+          (currentUserProfile?.marital_status === 'Married' && viewedProfile?.partner_id === currentUserId) ||
+          (viewedProfile?.marital_status === 'Married' && currentUserProfile?.partner_id === profileId);
         
-        setIsInRelationship(isPartnership || hasRelationshipStatus);
+        const inRelationship = isPartnership || hasRelationshipStatus;
+        setIsInRelationship(inRelationship);
+        
+        if (inRelationship) {
+          const relationshipType = currentUserProfile?.marital_status || 'In a relationship';
+          setRelationshipDetail(`You are ${relationshipType.toLowerCase()} with ${viewedProfile?.full_name}`);
+        }
       } catch (error) {
         console.error("Error checking relationship status:", error);
         setIsInRelationship(false);
@@ -125,7 +132,8 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
       {/* Leave a Review Form */}
       {currentUserId && !isOwnProfile && (
         <SafetyReviewForm 
-          isInRelationship={isInRelationship} 
+          isInRelationship={isInRelationship}
+          relationshipDetail={relationshipDetail}
           canReview={canReview} 
           onSubmit={handleSubmitReview} 
         />
