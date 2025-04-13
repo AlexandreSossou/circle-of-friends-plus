@@ -31,17 +31,13 @@ const ProfileContent = ({
       <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4 mb-6">
           <TabsTrigger value="posts">Posts</TabsTrigger>
-          <TabsTrigger value="friends">Friends</TabsTrigger>
           <TabsTrigger value="photos">Photos</TabsTrigger>
+          <TabsTrigger value="friends">Friends</TabsTrigger>
           <TabsTrigger value="safety">Safety</TabsTrigger>
         </TabsList>
         
         <TabsContent value="posts">
           <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} />
-        </TabsContent>
-        
-        <TabsContent value="friends">
-          <ProfileFriends friends={friendsList} />
         </TabsContent>
         
         <TabsContent value="photos">
@@ -52,6 +48,10 @@ const ProfileContent = ({
             currentUserId={currentUserId}
             onAlbumChange={onAlbumChange}
           />
+        </TabsContent>
+        
+        <TabsContent value="friends">
+          <ProfileFriends friends={friendsList} />
         </TabsContent>
 
         <TabsContent value="safety">
@@ -68,3 +68,4 @@ const ProfileContent = ({
 };
 
 export default ProfileContent;
+
