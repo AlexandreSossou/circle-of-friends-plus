@@ -7,6 +7,7 @@ import ProfileAvatar from "./header/ProfileAvatar";
 import ProfileInfo from "./header/ProfileInfo";
 import ProfileActions from "./header/ProfileActions";
 import ProfileBio from "./header/ProfileBio";
+import RelationshipStatusUpdater from "./RelationshipStatusUpdater";
 
 type ProfileHeaderProps = {
   profileData: ProfileData;
@@ -75,6 +76,10 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
             </div>
           </div>
         </div>
+
+        {isOwnProfile && isEditing && (
+          <RelationshipStatusUpdater />
+        )}
 
         <ProfileBio 
           bio={profileData?.bio}
