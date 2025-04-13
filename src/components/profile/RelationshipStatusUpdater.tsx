@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateRelationshipStatus } from "@/services/safetyReviews";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery } from "@tanstack/react-query";
-import { mockProfiles } from "@/services/mocks/mockProfiles";
+import { supabase } from "@/integrations/supabase/client";
 
 const RelationshipStatusUpdater = () => {
   const { user } = useAuth();
@@ -16,11 +15,59 @@ const RelationshipStatusUpdater = () => {
   const [status, setStatus] = useState<string>("Single");
   const [partner, setPartner] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
-
-  // Get potential partners from our mock profiles
-  const potentialPartners = Object.values(mockProfiles).filter(profile => 
-    profile.id !== user?.id
-  );
+  const [potentialPartners, setPotentialPartners] = useState<{id: string, full_name: string}[]>([]);
+  
+  // Fetch potential partners from real profiles table
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .neq('id', user.id);
+      
+      if (error) {
+        console.error("Error fetching profiles:", error);
+        return;
+      }
+      
+      if (data) {
+        setPotentialPartners(data.filter(profile => profile.full_name));
+      }
+    };
+    
+    fetchProfiles();
+  }, [user]);
+  
+  // Fetch current relationship status
+  useEffect(() => {
+    const fetchCurrentStatus = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('marital_status, partner_id')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching current status:", error);
+        return;
+      }
+      
+      if (data) {
+        if (data.marital_status) {
+          setStatus(data.marital_status);
+        }
+        if (data.partner_id) {
+          setPartner(data.partner_id);
+        }
+      }
+    };
+    
+    fetchCurrentStatus();
+  }, [user]);
 
   const handleUpdateStatus = async () => {
     if (!user) return;
@@ -31,7 +78,7 @@ const RelationshipStatusUpdater = () => {
       const result = await updateRelationshipStatus({
         userId: user.id,
         maritalStatus: status,
-        partnerId: partner || undefined
+        partnerId: status === "Single" ? undefined : partner || undefined
       });
       
       if (result.success) {
@@ -108,7 +155,7 @@ const RelationshipStatusUpdater = () => {
         
         <Button 
           onClick={handleUpdateStatus} 
-          disabled={isUpdating}
+          disabled={isUpdating || (status !== "Single" && !partner)}
           className="w-full"
         >
           {isUpdating ? "Updating..." : "Update Relationship Status"}
