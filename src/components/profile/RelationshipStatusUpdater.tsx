@@ -24,6 +24,7 @@ const RelationshipStatusUpdater = () => {
       if (!user) return;
       
       try {
+        console.log("Fetching profiles from database...");
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name')
@@ -37,13 +38,12 @@ const RelationshipStatusUpdater = () => {
         }
         
         if (data && data.length > 0) {
+          console.log("Got profiles from database:", data.length);
           // Don't filter out profiles without full_name, just use a fallback display name
           setPotentialPartners(data.map(profile => ({
             id: profile.id,
             full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
           })));
-          
-          console.log("Available partners from database:", data);
         } else {
           // If no database profiles, use mock profiles
           console.log("No profiles found in database, using mock data");
@@ -56,6 +56,7 @@ const RelationshipStatusUpdater = () => {
     };
     
     const useMockProfiles = () => {
+      console.log("Using mock profiles as partners");
       // Use mock profiles as fallback, excluding the current user
       const mockPartners = Object.values(mockProfiles)
         .filter(profile => profile.id !== user?.id)
@@ -65,7 +66,7 @@ const RelationshipStatusUpdater = () => {
         }));
       
       setPotentialPartners(mockPartners);
-      console.log("Using mock profiles:", mockPartners);
+      console.log("Available mock partners:", mockPartners.length);
     };
     
     fetchProfiles();
@@ -120,6 +121,21 @@ const RelationshipStatusUpdater = () => {
     setIsUpdating(true);
     
     try {
+      // Verify partner exists in our potential partners list
+      if (status !== "Single" && partner) {
+        const partnerExists = potentialPartners.some(p => p.id === partner);
+        if (!partnerExists) {
+          console.error("Selected partner not found in potential partners list");
+          toast({
+            title: "Update failed",
+            description: "The selected partner doesn't exist or is no longer available",
+            variant: "destructive"
+          });
+          setIsUpdating(false);
+          return;
+        }
+      }
+      
       const result = await updateRelationshipStatus({
         userId: user.id,
         maritalStatus: status,
@@ -127,9 +143,15 @@ const RelationshipStatusUpdater = () => {
       });
       
       if (result.success) {
+        const partnerName = status !== "Single" && partner 
+          ? potentialPartners.find(p => p.id === partner)?.full_name || "your partner"
+          : "";
+          
         toast({
           title: "Status updated",
-          description: "Your relationship status has been updated successfully."
+          description: status === "Single" 
+            ? "Your relationship status has been updated to Single."
+            : `Your relationship status has been updated to ${status} with ${partnerName}.`
         });
       } else {
         toast({
