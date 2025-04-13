@@ -1,13 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { updateRelationshipStatus } from "@/services/safetyReviews";
 import { fetchPotentialPartners, fetchCurrentStatus } from "@/services/relationship";
 import { Partner, RelationshipStatus } from "@/types/relationship";
 import { useToast } from "@/hooks/use-toast";
-
-export type { Partner, RelationshipStatus };
-export { RelationshipStatus };
 
 export const useRelationshipStatus = () => {
   const { user } = useAuth();
@@ -156,3 +152,6 @@ export const useRelationshipStatus = () => {
     verifyPartnerExists
   };
 };
+
+// Export Partner and RelationshipStatus types from the main types file
+export type { Partner, RelationshipStatus } from "@/types/relationship";
