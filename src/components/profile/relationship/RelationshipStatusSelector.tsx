@@ -1,6 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RelationshipStatus } from "@/hooks/useRelationshipStatus";
 
 interface RelationshipStatusSelectorProps {
   status: string;
@@ -22,10 +23,10 @@ const RelationshipStatusSelector = ({
           <SelectValue placeholder="Select status" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Single">Single</SelectItem>
-          <SelectItem value="In a relationship">In a relationship</SelectItem>
-          <SelectItem value="Engaged">Engaged</SelectItem>
-          <SelectItem value="Married">Married</SelectItem>
+          <SelectItem value={RelationshipStatus.Single}>{RelationshipStatus.Single}</SelectItem>
+          <SelectItem value={RelationshipStatus.InRelationship}>{RelationshipStatus.InRelationship}</SelectItem>
+          <SelectItem value={RelationshipStatus.Engaged}>{RelationshipStatus.Engaged}</SelectItem>
+          <SelectItem value={RelationshipStatus.Married}>{RelationshipStatus.Married}</SelectItem>
         </SelectContent>
       </Select>
     </div>

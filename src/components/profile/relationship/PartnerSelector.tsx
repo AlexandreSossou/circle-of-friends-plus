@@ -2,6 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Partner } from "@/hooks/useRelationshipStatus";
+import { AlertCircle } from "lucide-react";
 
 interface PartnerSelectorProps {
   partner: string;
@@ -14,12 +15,15 @@ const PartnerSelector = ({
   onPartnerChange, 
   potentialPartners 
 }: PartnerSelectorProps) => {
+  const noPartnersAvailable = potentialPartners.length === 0;
+
   return (
     <div className="space-y-2">
       <Label htmlFor="partner">Partner</Label>
       <Select 
         value={partner} 
         onValueChange={onPartnerChange}
+        disabled={noPartnersAvailable}
       >
         <SelectTrigger id="partner">
           <SelectValue placeholder="Select partner" />
@@ -36,10 +40,11 @@ const PartnerSelector = ({
           )}
         </SelectContent>
       </Select>
-      {potentialPartners.length === 0 && (
-        <p className="text-sm text-muted-foreground mt-2">
-          No profiles found. Check console logs for details.
-        </p>
+      {noPartnersAvailable && (
+        <div className="flex items-center gap-2 text-sm text-amber-600 mt-2">
+          <AlertCircle className="h-4 w-4" />
+          <p>No profiles found. Please check the console logs for details.</p>
+        </div>
       )}
     </div>
   );

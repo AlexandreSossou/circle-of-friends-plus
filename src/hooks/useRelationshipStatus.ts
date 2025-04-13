@@ -11,18 +11,30 @@ export interface Partner {
   full_name: string;
 }
 
+export enum RelationshipStatus {
+  Single = "Single",
+  InRelationship = "In a relationship",
+  Engaged = "Engaged",
+  Married = "Married"
+}
+
 export const useRelationshipStatus = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [status, setStatus] = useState<string>("Single");
+  const [status, setStatus] = useState<string>(RelationshipStatus.Single);
   const [partner, setPartner] = useState<string>("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [potentialPartners, setPotentialPartners] = useState<Partner[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // Fetch potential partners from real profiles table or use mock data as fallback
   useEffect(() => {
     const fetchProfiles = async () => {
       if (!user) return;
+      
+      setIsLoading(true);
+      setError(null);
       
       try {
         console.log("Fetching profiles from database...");
@@ -33,6 +45,7 @@ export const useRelationshipStatus = () => {
         
         if (error) {
           console.error("Error fetching profiles:", error);
+          setError("Failed to fetch profiles from database");
           // Fall back to mock data if database query fails
           useMockProfiles();
           return;
@@ -40,11 +53,15 @@ export const useRelationshipStatus = () => {
         
         if (data && data.length > 0) {
           console.log("Got profiles from database:", data.length);
-          // Don't filter out profiles without full_name, just use a fallback display name
-          setPotentialPartners(data.map(profile => ({
-            id: profile.id,
-            full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
-          })));
+          // Process profiles with proper validation
+          const validProfiles = data
+            .filter(profile => profile && profile.id)
+            .map(profile => ({
+              id: profile.id,
+              full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
+            }));
+            
+          setPotentialPartners(validProfiles);
         } else {
           // If no database profiles, use mock profiles
           console.log("No profiles found in database, using mock data");
@@ -52,22 +69,31 @@ export const useRelationshipStatus = () => {
         }
       } catch (err) {
         console.error("Exception when fetching profiles:", err);
+        setError("Unexpected error when fetching profiles");
         useMockProfiles();
+      } finally {
+        setIsLoading(false);
       }
     };
     
     const useMockProfiles = () => {
       console.log("Using mock profiles as partners");
-      // Use mock profiles as fallback, excluding the current user
-      const mockPartners = Object.values(mockProfiles)
-        .filter(profile => profile.id !== user?.id)
-        .map(profile => ({
-          id: profile.id,
-          full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
-        }));
-      
-      setPotentialPartners(mockPartners);
-      console.log("Available mock partners:", mockPartners.length);
+      try {
+        // Use mock profiles as fallback, excluding the current user and validating data
+        const mockPartners = Object.values(mockProfiles)
+          .filter(profile => profile && profile.id && profile.id !== user?.id)
+          .map(profile => ({
+            id: profile.id,
+            full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
+          }));
+        
+        setPotentialPartners(mockPartners);
+        console.log("Available mock partners:", mockPartners.length);
+      } catch (error) {
+        console.error("Error processing mock profiles:", error);
+        setPotentialPartners([]);
+        setError("Failed to process mock profile data");
+      }
     };
     
     fetchProfiles();
@@ -78,6 +104,8 @@ export const useRelationshipStatus = () => {
     const fetchCurrentStatus = async () => {
       if (!user) return;
       
+      setIsLoading(true);
+      
       try {
         const { data, error } = await supabase
           .from('profiles')
@@ -87,6 +115,7 @@ export const useRelationshipStatus = () => {
         
         if (error) {
           console.error("Error fetching current status:", error);
+          
           // Try using mock data for current user
           if (mockProfiles[user.id]) {
             const mockUser = mockProfiles[user.id];
@@ -110,21 +139,37 @@ export const useRelationshipStatus = () => {
         }
       } catch (err) {
         console.error("Exception when fetching current status:", err);
+        setError("Failed to fetch your current relationship status");
+      } finally {
+        setIsLoading(false);
       }
     };
     
     fetchCurrentStatus();
   }, [user]);
 
+  // Verify partner exists in our potential partners list
+  const verifyPartnerExists = (partnerId: string): boolean => {
+    return potentialPartners.some(p => p.id === partnerId);
+  };
+
   const handleUpdateStatus = async () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to update your relationship status",
+        variant: "destructive"
+      });
+      return;
+    }
     
     setIsUpdating(true);
+    setError(null);
     
     try {
-      // Verify partner exists in our potential partners list
-      if (status !== "Single" && partner) {
-        const partnerExists = potentialPartners.some(p => p.id === partner);
+      // For non-single status, verify partner exists
+      if (status !== RelationshipStatus.Single && partner) {
+        const partnerExists = verifyPartnerExists(partner);
         if (!partnerExists) {
           console.error("Selected partner not found in potential partners list");
           toast({
@@ -132,6 +177,7 @@ export const useRelationshipStatus = () => {
             description: "The selected partner doesn't exist or is no longer available",
             variant: "destructive"
           });
+          setError("Selected partner not found in available partners list");
           setIsUpdating(false);
           return;
         }
@@ -140,32 +186,36 @@ export const useRelationshipStatus = () => {
       const result = await updateRelationshipStatus({
         userId: user.id,
         maritalStatus: status,
-        partnerId: status === "Single" ? undefined : partner || undefined
+        partnerId: status === RelationshipStatus.Single ? undefined : partner || undefined
       });
       
       if (result.success) {
-        const partnerName = status !== "Single" && partner 
+        const partnerName = status !== RelationshipStatus.Single && partner 
           ? potentialPartners.find(p => p.id === partner)?.full_name || "your partner"
           : "";
           
         toast({
           title: "Status updated",
-          description: status === "Single" 
+          description: status === RelationshipStatus.Single 
             ? "Your relationship status has been updated to Single."
             : `Your relationship status has been updated to ${status} with ${partnerName}.`
         });
       } else {
+        const errorMessage = result.error || "Failed to update relationship status";
+        setError(errorMessage);
         toast({
           title: "Update failed",
-          description: result.error || "Failed to update relationship status",
+          description: errorMessage,
           variant: "destructive"
         });
       }
     } catch (error) {
       console.error("Error updating relationship status:", error);
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      setError(errorMessage);
       toast({
         title: "Update failed",
-        description: "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
@@ -173,13 +223,19 @@ export const useRelationshipStatus = () => {
     }
   };
 
+  const resetError = () => setError(null);
+
   return {
     status,
     setStatus,
     partner,
     setPartner,
     isUpdating,
+    isLoading,
+    error,
+    resetError,
     potentialPartners,
-    handleUpdateStatus
+    handleUpdateStatus,
+    verifyPartnerExists
   };
 };
