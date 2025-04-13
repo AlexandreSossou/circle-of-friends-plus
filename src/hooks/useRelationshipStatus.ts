@@ -5,6 +5,7 @@ import { updateRelationshipStatus } from "@/services/safetyReviews";
 import { fetchPotentialPartners, fetchCurrentStatus } from "@/services/relationship";
 import { Partner, RelationshipStatus } from "@/types/relationship";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useRelationshipStatus = () => {
   const { user } = useAuth();
