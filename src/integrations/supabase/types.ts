@@ -345,6 +345,33 @@ export type Database = {
           },
         ]
       }
+      safety_reviews: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          rating: number
+          reviewed_user_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          rating: number
+          reviewed_user_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewed_user_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       travels: {
         Row: {
           arrival_date: string

@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Friend } from "@/types/profile";
 import { Review } from "@/types/safetyReview";
+import { useToast } from "@/hooks/use-toast";
+import { fetchSafetyReviews, submitSafetyReview } from "@/services/safetyReviews";
 import SafetyRatingSummary from "./SafetyRatingSummary";
 import SafetyReviewForm from "./SafetyReviewForm";
 import SafetyReviewList from "./SafetyReviewList";
@@ -19,6 +21,19 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isInRelationship, setIsInRelationship] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
+  
+  // Fetch safety reviews
+  useEffect(() => {
+    if (!profileId) return;
+    
+    const getReviews = async () => {
+      const data = await fetchSafetyReviews(profileId);
+      setReviews(data);
+    };
+    
+    getReviews();
+  }, [profileId]);
   
   // Check if users are in a relationship
   useEffect(() => {
@@ -78,27 +93,27 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
   const handleSubmitReview = async (rating: number, reviewText: string) => {
     if (!canReview || rating === 0 || !reviewText.trim()) return;
     
-    try {
-      // In a real app, we would store this in the database
-      const newReview = {
-        id: crypto.randomUUID(),
-        rating,
-        content: reviewText,
-        created_at: new Date().toISOString(),
-        reviewer: {
-          name: user?.email || "Anonymous",
-          avatar: "/placeholder.svg",
-          initials: "AN"
-        }
-      };
+    const result = await submitSafetyReview(profileId, rating, reviewText);
+    
+    if (result.success) {
+      // Refresh reviews
+      const updatedReviews = await fetchSafetyReviews(profileId);
+      setReviews(updatedReviews);
       
-      // Add the new review locally
-      setReviews([newReview, ...reviews]);
+      toast({
+        title: "Review submitted",
+        description: "Your safety review has been submitted",
+      });
       
       return Promise.resolve();
-    } catch (error) {
-      console.error("Error submitting review:", error);
-      return Promise.reject(error);
+    } else {
+      toast({
+        title: "Error",
+        description: result.error || "Failed to submit your review. Please try again.",
+        variant: "destructive",
+      });
+      
+      return Promise.reject(result.error);
     }
   };
   
