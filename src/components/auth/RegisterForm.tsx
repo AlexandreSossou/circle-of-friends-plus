@@ -6,6 +6,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 const RegisterForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -20,6 +23,7 @@ const RegisterForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signUp, isLoading } = useAuth();
+  const { language } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +73,15 @@ const RegisterForm = () => {
               Join CircleHub to connect with friends and share moments
             </p>
           </div>
+
+          {language !== "en" && (
+            <Alert className="bg-blue-50 border-blue-200">
+              <Info className="h-4 w-4 text-blue-500" />
+              <AlertDescription className="text-sm text-blue-700">
+                For the best experience connecting with our global community, consider using CircleHub in English. You can change your language preference anytime in settings.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex gap-4">
