@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CameraIcon, Edit, MapPin, MessageCircle, UserPlus } from "lucide-react";
@@ -31,7 +30,6 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
         )}
       </div>
 
-      {/* Profile information section with increased padding-top */}
       <div className="p-4 md:p-6 pt-16 md:pt-20">
         <div className="flex flex-col md:flex-row md:items-end mb-4 md:mb-6 gap-4 md:gap-6">
           {/* Profile avatar positioned higher to overlap with cover photo */}
@@ -54,7 +52,6 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
             )}
           </div>
           
-          {/* Content shifted to the right to make room for the avatar */}
           <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-32 md:ml-40">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">{profileData?.full_name}</h1>
