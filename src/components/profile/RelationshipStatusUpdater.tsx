@@ -33,7 +33,13 @@ const RelationshipStatusUpdater = () => {
       }
       
       if (data) {
-        setPotentialPartners(data.filter(profile => profile.full_name));
+        // Don't filter out profiles without full_name, just use a fallback display name
+        setPotentialPartners(data.map(profile => ({
+          id: profile.id,
+          full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
+        })));
+        
+        console.log("Available partners:", data);
       }
     };
     
@@ -143,13 +149,22 @@ const RelationshipStatusUpdater = () => {
                 <SelectValue placeholder="Select partner" />
               </SelectTrigger>
               <SelectContent>
-                {potentialPartners.map(profile => (
-                  <SelectItem key={profile.id} value={profile.id}>
-                    {profile.full_name}
-                  </SelectItem>
-                ))}
+                {potentialPartners.length > 0 ? (
+                  potentialPartners.map(profile => (
+                    <SelectItem key={profile.id} value={profile.id}>
+                      {profile.full_name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>No potential partners found</SelectItem>
+                )}
               </SelectContent>
             </Select>
+            {potentialPartners.length === 0 && (
+              <p className="text-sm text-muted-foreground mt-2">
+                No profiles found. You may need to create more users in your database.
+              </p>
+            )}
           </div>
         )}
         
