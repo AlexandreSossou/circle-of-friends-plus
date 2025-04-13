@@ -24,8 +24,8 @@ export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus>
         return {
           marital_status: mockUser.marital_status,
           partner_id: mockUser.partner_id,
-          // Use safe access for partners from mockProfiles, since it might not have this property
-          partners: mockUser.partners || []
+          // Use safe access for partners since it might not exist in mockProfiles
+          partners: mockUser.partners ?? []
         };
       }
       return {};
@@ -35,7 +35,7 @@ export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus>
       marital_status: data.marital_status,
       partner_id: data.partner_id,
       // Use optional chaining to safely access the partners property
-      partners: data.partners || []
+      partners: data.partners ?? []
     };
   } catch (err) {
     console.error("Exception when fetching current status:", err);
