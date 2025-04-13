@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { updateRelationshipStatus } from "@/services/safetyReviews";
@@ -153,5 +154,5 @@ export const useRelationshipStatus = () => {
   };
 };
 
-// Export Partner and RelationshipStatus types from the main types file
+// Export types from the main types file
 export type { Partner, RelationshipStatus } from "@/types/relationship";
