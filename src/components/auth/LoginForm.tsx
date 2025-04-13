@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -13,6 +14,7 @@ const LoginForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signIn, isLoading } = useAuth();
+  const { t } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,15 +41,15 @@ const LoginForm = () => {
       <div className="social-card p-8">
         <div className="space-y-6">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-social-blue">Login to CircleHub</h1>
+            <h1 className="text-2xl font-bold text-social-blue">{t("auth.login")} {t("app.name")}</h1>
             <p className="text-social-textSecondary mt-2">
-              Connect with friends and the world around you
+              {t("app.tagline")}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -61,9 +63,9 @@ const LoginForm = () => {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t("auth.password")}</Label>
                 <Link to="/forgot-password" className="text-sm text-social-blue hover:underline">
-                  Forgot password?
+                  {t("auth.forgotPassword")}
                 </Link>
               </div>
               <Input
@@ -82,7 +84,7 @@ const LoginForm = () => {
               className="w-full bg-social-blue hover:bg-social-darkblue text-white py-2 text-lg"
               disabled={isLoading}
             >
-              {isLoading ? "Logging in..." : "Log In"}
+              {isLoading ? t("auth.loggingIn") : t("auth.login")}
             </Button>
           </form>
 
@@ -99,9 +101,9 @@ const LoginForm = () => {
 
           <div className="text-center">
             <p className="text-social-textSecondary">
-              Don't have an account?{" "}
+              {t("auth.noAccount")}{" "}
               <Link to="/register" className="text-social-blue font-medium hover:underline">
-                Sign Up
+                {t("auth.register")}
               </Link>
             </p>
           </div>

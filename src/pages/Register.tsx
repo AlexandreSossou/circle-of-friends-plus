@@ -1,20 +1,29 @@
 
 import { Link } from "react-router-dom";
 import RegisterForm from "@/components/auth/RegisterForm";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSelector from "@/components/language/LanguageSelector";
 
 const Register = () => {
+  const { t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-social-gray flex flex-col">
       <div className="py-8">
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <h1 className="text-4xl font-bold text-social-blue">CircleHub</h1>
+            <h1 className="text-4xl font-bold text-social-blue">{t("app.name")}</h1>
           </Link>
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <RegisterForm />
+        <div className="w-full max-w-md">
+          <div className="flex justify-end mb-4">
+            <LanguageSelector variant="minimal" />
+          </div>
+          <RegisterForm />
+        </div>
       </div>
 
       <footer className="py-6 text-center text-sm text-social-textSecondary">

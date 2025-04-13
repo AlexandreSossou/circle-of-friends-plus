@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,12 +9,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Save, Shield, Bell, User, Eye, Lock, LogOut } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
+import LanguageSelector from "@/components/language/LanguageSelector";
+import { Loader2, Save, Shield, Bell, User, Eye, Lock, LogOut, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
   const { user, signOut } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
@@ -173,9 +175,9 @@ const Settings = () => {
       <div className="space-y-6 py-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+            <h1 className="text-3xl font-bold tracking-tight">{t("settings.title")}</h1>
             <p className="text-social-textSecondary mt-1">
-              Manage your account settings and preferences.
+              {t("settings.subtitle")}
             </p>
           </div>
           <Button 
@@ -184,59 +186,63 @@ const Settings = () => {
             onClick={handleLogout}
           >
             <LogOut className="mr-2 h-4 w-4" />
-            Log out
+            {t("settings.logout")}
           </Button>
         </div>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2 w-full">
+          <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-2 w-full">
             <TabsTrigger value="profile" className="flex items-center">
               <User className="mr-2 h-4 w-4" />
-              <span className="hidden md:inline">Profile</span>
+              <span className="hidden md:inline">{t("settings.profile")}</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center">
               <Bell className="mr-2 h-4 w-4" />
-              <span className="hidden md:inline">Notifications</span>
+              <span className="hidden md:inline">{t("settings.notifications")}</span>
             </TabsTrigger>
             <TabsTrigger value="privacy" className="flex items-center">
               <Eye className="mr-2 h-4 w-4" />
-              <span className="hidden md:inline">Privacy</span>
+              <span className="hidden md:inline">{t("settings.privacy")}</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center">
               <Shield className="mr-2 h-4 w-4" />
-              <span className="hidden md:inline">Security</span>
+              <span className="hidden md:inline">{t("settings.security")}</span>
+            </TabsTrigger>
+            <TabsTrigger value="language" className="flex items-center">
+              <Globe className="mr-2 h-4 w-4" />
+              <span className="hidden md:inline">{t("settings.language")}</span>
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="mt-6 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
+                <CardTitle>{t("settings.profileInfo")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="full-name">Full Name</Label>
+                  <Label htmlFor="full-name">{t("settings.fullName")}</Label>
                   <Input 
                     id="full-name" 
-                    placeholder="Enter your full name" 
+                    placeholder={t("settings.fullName")}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">{t("settings.bio")}</Label>
                   <Textarea 
                     id="bio" 
-                    placeholder="Tell us about yourself" 
+                    placeholder={t("settings.bio")}
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location">{t("settings.location")}</Label>
                   <Input 
                     id="location" 
-                    placeholder="City, Country" 
+                    placeholder={t("settings.location")}
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                   />
@@ -251,7 +257,7 @@ const Settings = () => {
                   ) : (
                     <Save className="mr-2 h-4 w-4" />
                   )}
-                  Save Changes
+                  {t("settings.saveChanges")}
                 </Button>
               </CardContent>
             </Card>
@@ -446,6 +452,24 @@ const Settings = () => {
                   <Button variant="destructive" className="mt-2">
                     Delete Account
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="language" className="mt-6 space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("settings.language")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <p className="text-sm text-social-textSecondary">
+                    Choose your preferred language for the application interface.
+                  </p>
+                  <div className="w-full max-w-xs">
+                    <LanguageSelector />
+                  </div>
                 </div>
               </CardContent>
             </Card>
