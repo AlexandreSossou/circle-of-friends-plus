@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { updateRelationshipStatus } from "@/services/safetyReviews";
@@ -15,7 +14,10 @@ export enum RelationshipStatus {
   Single = "Single",
   InRelationship = "In a relationship",
   Engaged = "Engaged",
-  Married = "Married"
+  Married = "Married",
+  Complicated = "It's complicated",
+  OpenRelationship = "Open relationship",
+  JustDating = "Just dating"
 }
 
 export const useRelationshipStatus = () => {
@@ -28,7 +30,6 @@ export const useRelationshipStatus = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Fetch potential partners from real profiles table or use mock data as fallback
   useEffect(() => {
     const fetchProfiles = async () => {
       if (!user) return;
@@ -46,14 +47,12 @@ export const useRelationshipStatus = () => {
         if (error) {
           console.error("Error fetching profiles:", error);
           setError("Failed to fetch profiles from database");
-          // Fall back to mock data if database query fails
           useMockProfiles();
           return;
         }
         
         if (data && data.length > 0) {
           console.log("Got profiles from database:", data.length);
-          // Process profiles with proper validation
           const validProfiles = data
             .filter(profile => profile && profile.id)
             .map(profile => ({
@@ -63,7 +62,6 @@ export const useRelationshipStatus = () => {
             
           setPotentialPartners(validProfiles);
         } else {
-          // If no database profiles, use mock profiles
           console.log("No profiles found in database, using mock data");
           useMockProfiles();
         }
@@ -79,7 +77,6 @@ export const useRelationshipStatus = () => {
     const useMockProfiles = () => {
       console.log("Using mock profiles as partners");
       try {
-        // Use mock profiles as fallback, excluding the current user and validating data
         const mockPartners = Object.values(mockProfiles)
           .filter(profile => profile && profile.id && profile.id !== user?.id)
           .map(profile => ({
@@ -99,7 +96,6 @@ export const useRelationshipStatus = () => {
     fetchProfiles();
   }, [user]);
   
-  // Fetch current relationship status
   useEffect(() => {
     const fetchCurrentStatus = async () => {
       if (!user) return;
@@ -116,7 +112,6 @@ export const useRelationshipStatus = () => {
         if (error) {
           console.error("Error fetching current status:", error);
           
-          // Try using mock data for current user
           if (mockProfiles[user.id]) {
             const mockUser = mockProfiles[user.id];
             if (mockUser.marital_status) {
@@ -148,7 +143,6 @@ export const useRelationshipStatus = () => {
     fetchCurrentStatus();
   }, [user]);
 
-  // Verify partner exists in our potential partners list
   const verifyPartnerExists = (partnerId: string): boolean => {
     return potentialPartners.some(p => p.id === partnerId);
   };
@@ -167,7 +161,6 @@ export const useRelationshipStatus = () => {
     setError(null);
     
     try {
-      // For non-single status, verify partner exists
       if (status !== RelationshipStatus.Single && partner) {
         const partnerExists = verifyPartnerExists(partner);
         if (!partnerExists) {
