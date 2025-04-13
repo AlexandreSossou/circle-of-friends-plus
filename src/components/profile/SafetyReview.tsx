@@ -1,8 +1,8 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, Shield, StarHalf } from "lucide-react";
+import { Star, Shield, StarHalf, HeartOff } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,11 +33,59 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
   const [reviewText, setReviewText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [isInRelationship, setIsInRelationship] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Check if current user can leave a review (must be logged in and not own profile)
-  const canReview = !isOwnProfile && !!currentUserId;
+  // Check if users are in a relationship
+  useEffect(() => {
+    const checkRelationshipStatus = async () => {
+      if (!currentUserId || !profileId || isOwnProfile) {
+        setIsInRelationship(false);
+        return;
+      }
+      
+      try {
+        // Get current user's profile
+        const { data: currentUserProfile, error: currentUserError } = await supabase
+          .from('profiles')
+          .select('partner_id, marital_status')
+          .eq('id', currentUserId)
+          .single();
+          
+        if (currentUserError) throw currentUserError;
+        
+        // Get viewed profile
+        const { data: viewedProfile, error: viewedProfileError } = await supabase
+          .from('profiles')
+          .select('partner_id, marital_status')
+          .eq('id', profileId)
+          .single();
+          
+        if (viewedProfileError) throw viewedProfileError;
+        
+        // Check if they are partners
+        const isPartnership = 
+          (currentUserProfile?.partner_id === profileId) || 
+          (viewedProfile?.partner_id === currentUserId);
+          
+        // Check if either has a marital status indicating a relationship
+        const hasRelationshipStatus = 
+          (currentUserProfile?.marital_status === 'married' && viewedProfile?.partner_id === currentUserId) ||
+          (viewedProfile?.marital_status === 'married' && currentUserProfile?.partner_id === profileId);
+        
+        setIsInRelationship(isPartnership || hasRelationshipStatus);
+      } catch (error) {
+        console.error("Error checking relationship status:", error);
+        setIsInRelationship(false);
+      }
+    };
+    
+    checkRelationshipStatus();
+  }, [currentUserId, profileId, isOwnProfile]);
+  
+  // Check if current user can leave a review (must be logged in, not own profile, and not in a relationship)
+  const canReview = !isOwnProfile && !!currentUserId && !isInRelationship;
   
   // Calculate the average rating
   const averageRating = reviews.length > 0 
@@ -128,7 +176,7 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
       </Card>
       
       {/* Leave a Review Form */}
-      {canReview && (
+      {currentUserId && !isOwnProfile && (
         <Card>
           <CardHeader>
             <CardTitle>Leave a Safety Review</CardTitle>
@@ -137,41 +185,52 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <p className="mb-2 text-sm font-medium">Your rating</p>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-6 w-6 cursor-pointer ${
-                        star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                      }`}
-                      onClick={() => handleRatingClick(star)}
-                    />
-                  ))}
+            {isInRelationship ? (
+              <div className="p-4 border border-amber-200 bg-amber-50 rounded-md flex items-center gap-2">
+                <HeartOff className="h-5 w-5 text-amber-500" />
+                <p className="text-amber-700">
+                  You cannot leave a review for someone you are in a relationship with.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2 text-sm font-medium">Your rating</p>
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-6 w-6 cursor-pointer ${
+                          star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                        }`}
+                        onClick={() => handleRatingClick(star)}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="mb-2 text-sm font-medium">Your review</p>
+                  <Textarea
+                    placeholder="Write your safety review here..."
+                    value={reviewText}
+                    onChange={(e) => setReviewText(e.target.value)}
+                    disabled={isSubmitting}
+                    className="min-h-[100px]"
+                  />
                 </div>
               </div>
-              <div>
-                <p className="mb-2 text-sm font-medium">Your review</p>
-                <Textarea
-                  placeholder="Write your safety review here..."
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  disabled={isSubmitting}
-                  className="min-h-[100px]"
-                />
-              </div>
-            </div>
+            )}
           </CardContent>
-          <CardFooter>
-            <Button
-              onClick={handleSubmitReview}
-              disabled={rating === 0 || !reviewText.trim() || isSubmitting}
-            >
-              {isSubmitting ? "Submitting..." : "Submit Review"}
-            </Button>
-          </CardFooter>
+          {!isInRelationship && (
+            <CardFooter>
+              <Button
+                onClick={handleSubmitReview}
+                disabled={rating === 0 || !reviewText.trim() || isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit Review"}
+              </Button>
+            </CardFooter>
+          )}
         </Card>
       )}
       
