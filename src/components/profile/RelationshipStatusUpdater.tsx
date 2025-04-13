@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { updateRelationshipStatus } from "@/services/safetyReviews";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { mockProfiles } from "@/services/mocks/mockProfiles";
 
 const RelationshipStatusUpdater = () => {
   const { user } = useAuth();
@@ -17,30 +18,54 @@ const RelationshipStatusUpdater = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [potentialPartners, setPotentialPartners] = useState<{id: string, full_name: string}[]>([]);
   
-  // Fetch potential partners from real profiles table
+  // Fetch potential partners from real profiles table or use mock data as fallback
   useEffect(() => {
     const fetchProfiles = async () => {
       if (!user) return;
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name')
-        .neq('id', user.id);
-      
-      if (error) {
-        console.error("Error fetching profiles:", error);
-        return;
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .neq('id', user.id);
+        
+        if (error) {
+          console.error("Error fetching profiles:", error);
+          // Fall back to mock data if database query fails
+          useMockProfiles();
+          return;
+        }
+        
+        if (data && data.length > 0) {
+          // Don't filter out profiles without full_name, just use a fallback display name
+          setPotentialPartners(data.map(profile => ({
+            id: profile.id,
+            full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
+          })));
+          
+          console.log("Available partners from database:", data);
+        } else {
+          // If no database profiles, use mock profiles
+          console.log("No profiles found in database, using mock data");
+          useMockProfiles();
+        }
+      } catch (err) {
+        console.error("Exception when fetching profiles:", err);
+        useMockProfiles();
       }
-      
-      if (data) {
-        // Don't filter out profiles without full_name, just use a fallback display name
-        setPotentialPartners(data.map(profile => ({
+    };
+    
+    const useMockProfiles = () => {
+      // Use mock profiles as fallback, excluding the current user
+      const mockPartners = Object.values(mockProfiles)
+        .filter(profile => profile.id !== user?.id)
+        .map(profile => ({
           id: profile.id,
           full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`
-        })));
-        
-        console.log("Available partners:", data);
-      }
+        }));
+      
+      setPotentialPartners(mockPartners);
+      console.log("Using mock profiles:", mockPartners);
     };
     
     fetchProfiles();
@@ -51,24 +76,38 @@ const RelationshipStatusUpdater = () => {
     const fetchCurrentStatus = async () => {
       if (!user) return;
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('marital_status, partner_id')
-        .eq('id', user.id)
-        .single();
-      
-      if (error) {
-        console.error("Error fetching current status:", error);
-        return;
-      }
-      
-      if (data) {
-        if (data.marital_status) {
-          setStatus(data.marital_status);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('marital_status, partner_id')
+          .eq('id', user.id)
+          .single();
+        
+        if (error) {
+          console.error("Error fetching current status:", error);
+          // Try using mock data for current user
+          if (mockProfiles[user.id]) {
+            const mockUser = mockProfiles[user.id];
+            if (mockUser.marital_status) {
+              setStatus(mockUser.marital_status);
+            }
+            if (mockUser.partner_id) {
+              setPartner(mockUser.partner_id);
+            }
+          }
+          return;
         }
-        if (data.partner_id) {
-          setPartner(data.partner_id);
+        
+        if (data) {
+          if (data.marital_status) {
+            setStatus(data.marital_status);
+          }
+          if (data.partner_id) {
+            setPartner(data.partner_id);
+          }
         }
+      } catch (err) {
+        console.error("Exception when fetching current status:", err);
       }
     };
     
@@ -163,7 +202,7 @@ const RelationshipStatusUpdater = () => {
             </Select>
             {potentialPartners.length === 0 && (
               <p className="text-sm text-muted-foreground mt-2">
-                No profiles found. You may need to create more users in your database.
+                No profiles found. Check console logs for details.
               </p>
             )}
           </div>
