@@ -5,13 +5,14 @@ import { mockProfiles } from "../mocks/mockProfiles";
 export interface CurrentStatus {
   marital_status?: string;
   partner_id?: string;
+  partners?: string[];
 }
 
 export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus> => {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('marital_status, partner_id')
+      .select('marital_status, partner_id, partners')
       .eq('id', userId)
       .single();
     
@@ -22,7 +23,8 @@ export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus>
         const mockUser = mockProfiles[userId];
         return {
           marital_status: mockUser.marital_status,
-          partner_id: mockUser.partner_id
+          partner_id: mockUser.partner_id,
+          partners: mockUser.partners || []
         };
       }
       return {};
@@ -30,7 +32,8 @@ export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus>
     
     return {
       marital_status: data.marital_status,
-      partner_id: data.partner_id
+      partner_id: data.partner_id,
+      partners: data.partners || []
     };
   } catch (err) {
     console.error("Exception when fetching current status:", err);

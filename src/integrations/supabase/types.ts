@@ -304,6 +304,7 @@ export type Database = {
           location: string | null
           marital_status: string | null
           partner_id: string | null
+          partners: string[] | null
           updated_at: string
           username: string | null
         }
@@ -318,6 +319,7 @@ export type Database = {
           location?: string | null
           marital_status?: string | null
           partner_id?: string | null
+          partners?: string[] | null
           updated_at?: string
           username?: string | null
         }
@@ -332,6 +334,7 @@ export type Database = {
           location?: string | null
           marital_status?: string | null
           partner_id?: string | null
+          partners?: string[] | null
           updated_at?: string
           username?: string | null
         }

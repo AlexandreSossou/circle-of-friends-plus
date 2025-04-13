@@ -28,7 +28,7 @@ export const updateRelationshipStatus = async ({
       .single();
       
     if (!profileError && currentProfile) {
-      previousPartnerId = currentProfile.partner_id;
+      previousPartnerId = currentProfile.partner_id || null;
       previousPartnerIds = currentProfile.partners || [];
     }
     
@@ -140,12 +140,18 @@ export const updateRelationshipStatus = async ({
           
           if (isPolyamorous) {
             // For polyamorous partners, add this user to their partners array
-            const { data: existingPartnerData } = await supabase
+            const { data: existingPartnerData, error: partnerDataError } = await supabase
               .from('profiles')
-              .select('partners')
+              .select('partners, partner_id')
               .eq('id', partnerToUpdate)
               .single();
               
+            // Handle case where fetching partner data fails
+            if (partnerDataError) {
+              console.error(`Error fetching partner data for ${partnerToUpdate}:`, partnerDataError);
+              continue;
+            }
+            
             const existingPartners = existingPartnerData?.partners || [];
             
             if (!existingPartners.includes(userId)) {

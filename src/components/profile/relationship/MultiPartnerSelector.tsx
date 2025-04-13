@@ -67,31 +67,32 @@ const MultiPartnerSelector = ({
       )}
       
       <div className="flex gap-2">
-        <Select 
-          value={selectedPartner} 
-          onValueChange={setSelectedPartner}
-          disabled={noPartnersAvailable || partners.length >= maxPartners || availablePartners.length === 0}
-          className="flex-1"
-        >
-          <SelectTrigger id="partner-select">
-            <SelectValue placeholder="Select partner to add" />
-          </SelectTrigger>
-          <SelectContent>
-            {availablePartners.length > 0 ? (
-              availablePartners.map(profile => (
-                <SelectItem key={profile.id} value={profile.id}>
-                  {profile.full_name}
+        <div className="flex-1">
+          <Select 
+            value={selectedPartner} 
+            onValueChange={setSelectedPartner}
+            disabled={noPartnersAvailable || partners.length >= maxPartners || availablePartners.length === 0}
+          >
+            <SelectTrigger id="partner-select">
+              <SelectValue placeholder="Select partner to add" />
+            </SelectTrigger>
+            <SelectContent>
+              {availablePartners.length > 0 ? (
+                availablePartners.map(profile => (
+                  <SelectItem key={profile.id} value={profile.id}>
+                    {profile.full_name}
+                  </SelectItem>
+                ))
+              ) : (
+                <SelectItem value="no-partner-found" disabled>
+                  {partners.length >= maxPartners 
+                    ? "Maximum partners reached" 
+                    : "No more partners available"}
                 </SelectItem>
-              ))
-            ) : (
-              <SelectItem value="no-partner-found" disabled>
-                {partners.length >= maxPartners 
-                  ? "Maximum partners reached" 
-                  : "No more partners available"}
-              </SelectItem>
-            )}
-          </SelectContent>
-        </Select>
+              )}
+            </SelectContent>
+          </Select>
+        </div>
         
         <Button 
           type="button" 
