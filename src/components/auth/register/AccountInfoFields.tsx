@@ -1,6 +1,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormMessage } from "@/components/ui/form";
 
 interface AccountInfoFieldsProps {
   email: string;
@@ -9,6 +10,11 @@ interface AccountInfoFieldsProps {
   setPassword: (value: string) => void;
   confirmPassword: string;
   setConfirmPassword: (value: string) => void;
+  errors?: {
+    email?: string;
+    password?: string;
+    confirmPassword?: string;
+  };
 }
 
 const AccountInfoFields = ({
@@ -17,7 +23,8 @@ const AccountInfoFields = ({
   password,
   setPassword,
   confirmPassword,
-  setConfirmPassword
+  setConfirmPassword,
+  errors = {}
 }: AccountInfoFieldsProps) => {
   return (
     <>
@@ -30,8 +37,11 @@ const AccountInfoFields = ({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="social-input"
+          className={`social-input ${errors.email ? "border-red-500" : ""}`}
         />
+        {errors.email && (
+          <FormMessage>{errors.email}</FormMessage>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -43,8 +53,11 @@ const AccountInfoFields = ({
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="social-input"
+          className={`social-input ${errors.password ? "border-red-500" : ""}`}
         />
+        {errors.password && (
+          <FormMessage>{errors.password}</FormMessage>
+        )}
       </div>
 
       <div className="space-y-2">
@@ -56,8 +69,11 @@ const AccountInfoFields = ({
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          className="social-input"
+          className={`social-input ${errors.confirmPassword ? "border-red-500" : ""}`}
         />
+        {errors.confirmPassword && (
+          <FormMessage>{errors.confirmPassword}</FormMessage>
+        )}
       </div>
     </>
   );

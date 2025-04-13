@@ -8,6 +8,7 @@ import PersonalInfoFields from "./register/PersonalInfoFields";
 import AccountInfoFields from "./register/AccountInfoFields";
 import LanguageAlert from "./register/LanguageAlert";
 import TermsAndPrivacyText from "./register/TermsAndPrivacyText";
+import { useRegisterFormValidation } from "@/hooks/useRegisterFormValidation";
 
 const RegisterForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -22,25 +23,23 @@ const RegisterForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signUp, isLoading } = useAuth();
+  const { errors, validateForm } = useRegisterFormValidation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!firstName || !lastName || !email || !password || !confirmPassword || !gender || !age || !maritalStatus) {
-      toast({
-        title: "Error",
-        description: "Please fill in all fields",
-        variant: "destructive",
-      });
-      return;
-    }
+    const formData = {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      gender,
+      age,
+      maritalStatus
+    };
 
-    if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
+    if (!validateForm(formData)) {
       return;
     }
 
@@ -55,6 +54,10 @@ const RegisterForm = () => {
           marital_status: maritalStatus
         } as any
       );
+      toast({
+        title: "Success",
+        description: "Your account has been created. Please log in.",
+      });
       navigate("/login");
     } catch (error) {
       // Error is already handled in the signUp function
@@ -86,6 +89,7 @@ const RegisterForm = () => {
               setAge={setAge}
               maritalStatus={maritalStatus}
               setMaritalStatus={setMaritalStatus}
+              errors={errors}
             />
 
             <AccountInfoFields 
@@ -95,6 +99,7 @@ const RegisterForm = () => {
               setPassword={setPassword}
               confirmPassword={confirmPassword}
               setConfirmPassword={setConfirmPassword}
+              errors={errors}
             />
 
             <TermsAndPrivacyText />
