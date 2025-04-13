@@ -1,8 +1,13 @@
+
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CameraIcon, Edit, MapPin, MessageCircle, UserPlus } from "lucide-react";
+import { CameraIcon, Edit, MapPin, MessageCircle, UserPlus, X } from "lucide-react";
 import WinkButton from "./WinkButton";
 import { ProfileData } from "@/types/profile";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
 
 type ProfileHeaderProps = {
   profileData: ProfileData;
@@ -11,6 +16,31 @@ type ProfileHeaderProps = {
 }
 
 const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHeaderProps) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedBio, setEditedBio] = useState(profileData?.bio || "");
+  const [editedLocation, setEditedLocation] = useState(profileData?.location || "");
+  const { toast } = useToast();
+
+  const handleEditClick = () => {
+    setIsEditing(true);
+    setEditedBio(profileData?.bio || "");
+    setEditedLocation(profileData?.location || "");
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveProfile = () => {
+    // In a real implementation, this would save to the database
+    // For now, just show a toast notification
+    toast({
+      title: "Profile updated",
+      description: "Your profile has been updated successfully.",
+    });
+    setIsEditing(false);
+  };
+
   return (
     <div className="relative">
       {/* Cover photo section with reduced height */}
@@ -57,11 +87,23 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
               <h1 className="text-2xl md:text-3xl font-bold">{profileData?.full_name}</h1>
               
               <div className="flex flex-col space-y-1 mt-1">
-                {profileData?.location && (
+                {!isEditing && profileData?.location && (
                   <p className="text-social-textSecondary flex items-center">
                     <MapPin className="w-4 h-4 mr-1" />
                     {profileData.location}
                   </p>
+                )}
+                
+                {isEditing && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="w-4 h-4" />
+                    <Input 
+                      value={editedLocation}
+                      onChange={(e) => setEditedLocation(e.target.value)}
+                      placeholder="Your location"
+                      className="w-full max-w-xs h-8"
+                    />
+                  </div>
                 )}
                 
                 <div className="flex flex-wrap gap-x-4 text-social-textSecondary text-sm">
@@ -120,29 +162,53 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
                 </div>
               )}
               
-              {isOwnProfile && (
-                <Button variant="outline">
+              {isOwnProfile && !isEditing && (
+                <Button variant="outline" onClick={handleEditClick}>
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Profile
                 </Button>
+              )}
+              
+              {isOwnProfile && isEditing && (
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={handleCancelEdit}>
+                    <X className="w-4 h-4 mr-2" />
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveProfile}>
+                    Save Changes
+                  </Button>
+                </div>
               )}
             </div>
           </div>
         </div>
 
         {/* Profile description/bio section */}
-        {profileData?.bio && (
+        {!isEditing && profileData?.bio && (
           <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
             <h2 className="text-lg font-semibold mb-2">About Me</h2>
             <p className="text-gray-700 whitespace-pre-line">{profileData.bio}</p>
           </div>
         )}
         
-        {isOwnProfile && !profileData?.bio && (
+        {isEditing && (
+          <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
+            <h2 className="text-lg font-semibold mb-2">About Me</h2>
+            <Textarea 
+              placeholder="Tell us about yourself"
+              value={editedBio}
+              onChange={(e) => setEditedBio(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+        )}
+        
+        {isOwnProfile && !isEditing && !profileData?.bio && (
           <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200 border-dashed text-center">
             <h2 className="text-lg font-semibold mb-2">About Me</h2>
             <p className="text-gray-500 mb-3">Add a description to tell people more about yourself and what you're looking for.</p>
-            <Button variant="outline" className="mx-auto">
+            <Button variant="outline" className="mx-auto" onClick={handleEditClick}>
               <Edit className="w-4 h-4 mr-2" />
               Add Description
             </Button>
