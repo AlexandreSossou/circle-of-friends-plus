@@ -1,7 +1,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { RelationshipStatus } from "@/hooks/useRelationshipStatus";
-import { Heart, UserIcon, Ring, HeartHandshake } from "lucide-react";
+import { Heart, UserIcon, HeartHandshake } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface RelationshipStatusDisplayProps {
@@ -36,7 +36,7 @@ const RelationshipStatusDisplay = ({
         };
       case RelationshipStatus.Engaged:
         return {
-          icon: <Ring className="h-3 w-3" />,
+          icon: <Heart className="h-3 w-3" />,
           color: "bg-purple-100 text-purple-700",
         };
       case RelationshipStatus.Married:
