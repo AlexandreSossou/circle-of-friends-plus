@@ -156,7 +156,8 @@ const RelationshipStatusUpdater = () => {
                     </SelectItem>
                   ))
                 ) : (
-                  <SelectItem value="" disabled>No potential partners found</SelectItem>
+                  // Using a non-empty string value for the disabled placeholder item
+                  <SelectItem value="no-partner-found" disabled>No potential partners found</SelectItem>
                 )}
               </SelectContent>
             </Select>
