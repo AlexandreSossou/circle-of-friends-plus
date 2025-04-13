@@ -10,6 +10,7 @@ export interface ProfileData {
   age?: number;
   marital_status?: string;
   partner_id?: string;
+  partners?: string[]; // Added this line to resolve the TypeScript error
   partner?: {
     full_name: string | null;
     avatar_url: string | null;
