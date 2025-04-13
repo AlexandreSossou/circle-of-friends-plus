@@ -1,14 +1,13 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
-import { useLanguage } from "@/context/LanguageContext";
+import PersonalInfoFields from "./register/PersonalInfoFields";
+import AccountInfoFields from "./register/AccountInfoFields";
+import LanguageAlert from "./register/LanguageAlert";
+import TermsAndPrivacyText from "./register/TermsAndPrivacyText";
 
 const RegisterForm = () => {
   const [firstName, setFirstName] = useState("");
@@ -23,7 +22,6 @@ const RegisterForm = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { signUp, isLoading } = useAuth();
-  const { language } = useLanguage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,139 +72,32 @@ const RegisterForm = () => {
             </p>
           </div>
 
-          {language !== "en" && (
-            <Alert className="bg-blue-50 border-blue-200">
-              <Info className="h-4 w-4 text-blue-500" />
-              <AlertDescription className="text-sm text-blue-700">
-                For the best experience connecting with our global community, consider using CircleHub in English. You can change your language preference anytime in settings.
-              </AlertDescription>
-            </Alert>
-          )}
+          <LanguageAlert />
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex gap-4">
-              <div className="space-y-2 w-1/2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  type="text"
-                  placeholder="John"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                  className="social-input"
-                />
-              </div>
-              <div className="space-y-2 w-1/2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  placeholder="Doe"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                  className="social-input"
-                />
-              </div>
-            </div>
+            <PersonalInfoFields 
+              firstName={firstName}
+              setFirstName={setFirstName}
+              lastName={lastName}
+              setLastName={setLastName}
+              gender={gender}
+              setGender={setGender}
+              age={age}
+              setAge={setAge}
+              maritalStatus={maritalStatus}
+              setMaritalStatus={setMaritalStatus}
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="gender">Gender</Label>
-              <Select value={gender} onValueChange={setGender} required>
-                <SelectTrigger id="gender">
-                  <SelectValue placeholder="Select gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="non-binary">Non-binary</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <AccountInfoFields 
+              email={email}
+              setEmail={setEmail}
+              password={password}
+              setPassword={setPassword}
+              confirmPassword={confirmPassword}
+              setConfirmPassword={setConfirmPassword}
+            />
 
-            <div className="space-y-2">
-              <Label htmlFor="age">Age</Label>
-              <Input
-                id="age"
-                type="number"
-                min="18"
-                max="120"
-                placeholder="30"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                required
-                className="social-input"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="maritalStatus">Marital Status</Label>
-              <Select value={maritalStatus} onValueChange={setMaritalStatus} required>
-                <SelectTrigger id="maritalStatus">
-                  <SelectValue placeholder="Select marital status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="single">Single</SelectItem>
-                  <SelectItem value="married">Married</SelectItem>
-                  <SelectItem value="divorced">Divorced</SelectItem>
-                  <SelectItem value="widowed">Widowed</SelectItem>
-                  <SelectItem value="complicated">It's complicated</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="social-input"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="social-input"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="social-input"
-              />
-            </div>
-
-            <div className="text-sm text-social-textSecondary">
-              By registering, you agree to our{" "}
-              <Link to="/terms" className="text-social-blue hover:underline">
-                Terms of Service
-              </Link>{" "}
-              and{" "}
-              <Link to="/privacy" className="text-social-blue hover:underline">
-                Privacy Policy
-              </Link>
-              .
-            </div>
+            <TermsAndPrivacyText />
 
             <Button
               type="submit"
