@@ -1,4 +1,4 @@
-
+import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { UserCheck, Star, Settings2, Clock } from "lucide-react";
@@ -11,8 +11,6 @@ import {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -63,7 +61,12 @@ const FriendCard = ({
         </Avatar>
         <div>
           <div className="flex items-center">
-            <h3 className="font-medium">{friend.name}</h3>
+            <Link 
+              to={`/profile/${friend.id}`} 
+              className="font-medium hover:underline cursor-pointer"
+            >
+              {friend.name}
+            </Link>
             {friend.relationshipType === "friend" && (
               <Star className="w-3 h-3 text-yellow-500 ml-1" fill="currentColor" />
             )}
