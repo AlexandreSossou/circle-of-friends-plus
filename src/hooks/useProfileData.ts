@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchProfileData, fetchProfilePosts, mockProfiles } from "@/services/ProfileService";
+import { fetchProfileData, fetchProfilePosts, mockProfiles } from "@/services/profile";
 import { Album, Friend, Post, ProfileData } from "@/types/profile";
 
 export interface VerificationInfo {
