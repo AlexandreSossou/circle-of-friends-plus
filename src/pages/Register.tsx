@@ -3,12 +3,15 @@ import { Link } from "react-router-dom";
 import RegisterForm from "@/components/auth/RegisterForm";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSelector from "@/components/language/LanguageSelector";
+import { useCalmMode } from "@/context/CalmModeContext";
+import { CalmModeToggle } from "@/components/ui/calm-mode-toggle";
 
 const Register = () => {
   const { t } = useLanguage();
+  const { calmMode } = useCalmMode();
 
   return (
-    <div className="min-h-screen bg-social-gray flex flex-col">
+    <div className={`min-h-screen ${calmMode ? 'bg-calm-background' : 'bg-social-gray'} flex flex-col`}>
       <div className="py-8">
         <div className="text-center">
           <Link to="/" className="inline-block">
@@ -19,7 +22,8 @@ const Register = () => {
 
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-end mb-4 gap-2 items-center">
+            <CalmModeToggle />
             <LanguageSelector variant="minimal" />
           </div>
           <RegisterForm />

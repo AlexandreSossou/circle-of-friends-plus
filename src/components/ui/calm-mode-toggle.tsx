@@ -4,7 +4,7 @@ import { useCalmMode } from "@/context/CalmModeContext";
 import { Moon, Sun, Sparkles } from "lucide-react";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
-export function CalmModeToggle() {
+export function CalmModeToggle({ className }: { className?: string }) {
   const { calmMode, toggleCalmMode } = useCalmMode();
 
   return (
@@ -14,7 +14,7 @@ export function CalmModeToggle() {
           variant="outline"
           size="icon"
           onClick={toggleCalmMode}
-          className="h-8 w-8 bg-transparent"
+          className={`h-8 w-8 bg-transparent ${className}`}
         >
           {calmMode ? (
             <Sparkles className="h-4 w-4 text-purple-400" />
