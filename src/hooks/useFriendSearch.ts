@@ -8,6 +8,7 @@ export interface SearchFilters {
   gender: string | undefined;
   maritalStatus: string | undefined;
   ageRange: [number, number];
+  location: string;
 }
 
 export const useFriendSearch = () => {
@@ -15,6 +16,7 @@ export const useFriendSearch = () => {
   const [gender, setGender] = useState<string | undefined>(undefined);
   const [maritalStatus, setMaritalStatus] = useState<string | undefined>(undefined);
   const [ageRange, setAgeRange] = useState<[number, number]>([18, 80]);
+  const [location, setLocation] = useState("");
   const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export const useFriendSearch = () => {
   }, []);
 
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange],
+    queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange, location],
     queryFn: async () => {
       let query = supabase
         .from("profiles")
@@ -54,6 +56,10 @@ export const useFriendSearch = () => {
 
       if (maritalStatus) {
         query = query.eq("marital_status", maritalStatus);
+      }
+
+      if (location) {
+        query = query.ilike("location", `%${location}%`);
       }
 
       // Enforce the age restriction in the query as well
@@ -85,6 +91,8 @@ export const useFriendSearch = () => {
     setMaritalStatus,
     ageRange,
     setAgeRange,
+    location,
+    setLocation,
     searchResults,
     isLoading,
   };

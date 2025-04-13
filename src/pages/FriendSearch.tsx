@@ -14,6 +14,8 @@ const FriendSearch = () => {
     setMaritalStatus,
     ageRange,
     setAgeRange,
+    location,
+    setLocation,
     searchResults,
     isLoading,
   } = useFriendSearch();
@@ -32,6 +34,8 @@ const FriendSearch = () => {
           setMaritalStatus={setMaritalStatus}
           ageRange={ageRange}
           setAgeRange={setAgeRange}
+          location={location}
+          setLocation={setLocation}
         />
       </div>
       
@@ -42,6 +46,7 @@ const FriendSearch = () => {
         gender={gender}
         maritalStatus={maritalStatus}
         ageRange={ageRange}
+        location={location}
       />
     </MainLayout>
   );

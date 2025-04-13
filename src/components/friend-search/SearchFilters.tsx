@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { SearchIcon } from "lucide-react";
+import { SearchIcon, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SearchFiltersProps {
@@ -17,6 +17,8 @@ interface SearchFiltersProps {
   setMaritalStatus: (status: string) => void;
   ageRange: [number, number];
   setAgeRange: (range: [number, number]) => void;
+  location: string;
+  setLocation: (location: string) => void;
 }
 
 const SearchFilters = ({
@@ -27,7 +29,9 @@ const SearchFilters = ({
   maritalStatus,
   setMaritalStatus,
   ageRange,
-  setAgeRange
+  setAgeRange,
+  location,
+  setLocation
 }: SearchFiltersProps) => {
   const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
   const { toast } = useToast();
@@ -86,6 +90,19 @@ const SearchFilters = ({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="pl-10"
         />
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div className="relative">
+          <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-social-textSecondary h-5 w-5" />
+          <Input
+            type="text"
+            placeholder="Search by city or location..."
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
