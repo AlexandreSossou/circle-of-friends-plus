@@ -2,7 +2,7 @@
 import { useEffect, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Friend } from "@/types/friends";
-import { Shield } from "lucide-react";
+import { Shield, Users } from "lucide-react";
 
 interface Message {
   id: string;
@@ -14,15 +14,30 @@ interface Message {
 interface ChatMessagesProps {
   messages: Message[];
   selectedFriend: Friend | null;
+  selectedGroupChat: {
+    id: string;
+    name: string;
+    members: Friend[];
+    isGroup: true;
+  } | null;
   isChatWithModerator?: boolean;
 }
 
-const ChatMessages = ({ messages, selectedFriend, isChatWithModerator }: ChatMessagesProps) => {
+const ChatMessages = ({ messages, selectedFriend, selectedGroupChat, isChatWithModerator }: ChatMessagesProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Find the correct friend to display for a message in a group chat
+  const findMessageSender = (message: Message) => {
+    if (!selectedGroupChat || message.sender !== "friend") return null;
+    
+    // For demo purposes, randomly select a member as the message sender
+    const randomIndex = message.id.charCodeAt(message.id.length - 1) % selectedGroupChat.members.length;
+    return selectedGroupChat.members[randomIndex];
+  };
 
   if (messages.length === 0) {
     return (
@@ -60,15 +75,39 @@ const ChatMessages = ({ messages, selectedFriend, isChatWithModerator }: ChatMes
             </div>
           ) : (
             <div className="flex items-start gap-2">
-              {selectedFriend && (
-                <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
-                  <AvatarImage src={selectedFriend.avatar} />
-                  <AvatarFallback>{selectedFriend.initials}</AvatarFallback>
-                </Avatar>
+              {selectedGroupChat ? (
+                // Display the message sender for group chats
+                <>
+                  {findMessageSender(message) ? (
+                    <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
+                      <AvatarImage src={findMessageSender(message)?.avatar} />
+                      <AvatarFallback>{findMessageSender(message)?.initials}</AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-social-gray flex-shrink-0 flex items-center justify-center mt-1">
+                      <Users className="h-4 w-4 text-gray-600" />
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-xs text-social-textSecondary mb-1">
+                      {findMessageSender(message)?.name || "Group Member"}
+                    </div>
+                    <div className="bg-white border border-gray-200 text-gray-800 rounded-lg px-3 py-2 max-w-[75%]">
+                      {message.content}
+                    </div>
+                  </div>
+                </>
+              ) : selectedFriend && (
+                <>
+                  <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
+                    <AvatarImage src={selectedFriend.avatar} />
+                    <AvatarFallback>{selectedFriend.initials}</AvatarFallback>
+                  </Avatar>
+                  <div className="bg-white border border-gray-200 text-gray-800 rounded-lg px-3 py-2 max-w-[75%]">
+                    {message.content}
+                  </div>
+                </>
               )}
-              <div className="bg-white border border-gray-200 text-gray-800 rounded-lg px-3 py-2 max-w-[75%]">
-                {message.content}
-              </div>
             </div>
           )}
         </div>

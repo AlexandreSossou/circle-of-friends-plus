@@ -9,21 +9,31 @@ import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 import FriendSelector from "./FriendSelector";
 import ModeratorChatSelector from "./ModeratorChatSelector";
+import GroupChatCreator from "./GroupChatCreator";
 
 const ChatBubble = () => {
   const { 
     isOpen, 
     toggleChat, 
     messages, 
-    selectedFriend, 
+    selectedFriend,
+    selectedGroupChat, 
     showFriendSelector,
+    showGroupCreator,
     showModeratorSelector,
     isChatWithModerator,
+    groupMembers,
+    groupName,
+    setGroupName,
     handleSelectFriend,
     handleCloseFriendSelector,
     handleToggleModeratorSelector,
+    handleToggleGroupCreator,
+    handleAddGroupMember,
+    handleRemoveGroupMember,
+    handleCreateGroupChat,
     sendMessage,
-    setSelectedFriend
+    resetChat
   } = useChat();
   
   const { allFriends } = useFriends();
@@ -32,12 +42,7 @@ const ChatBubble = () => {
   const closeFriends = allFriends.filter(friend => friend.relationshipType === 'friend');
 
   const handleBackToFriendSelector = () => {
-    setSelectedFriend(null);
-    handleCloseFriendSelector();
-    // Show friend selector
-    setTimeout(() => {
-      handleCloseFriendSelector();
-    }, 0);
+    resetChat();
   };
 
   return (
@@ -45,10 +50,11 @@ const ChatBubble = () => {
       {isOpen ? (
         <Card className="w-80 md:w-96 shadow-lg">
           <ChatHeader 
-            selectedFriend={selectedFriend} 
+            selectedFriend={selectedFriend}
+            selectedGroupChat={selectedGroupChat}
             isChatWithModerator={isChatWithModerator}
             onClose={toggleChat}
-            onBack={selectedFriend || isChatWithModerator ? handleBackToFriendSelector : undefined}
+            onBack={(selectedFriend || isChatWithModerator || selectedGroupChat) ? handleBackToFriendSelector : undefined}
           />
           
           {showFriendSelector ? (
@@ -57,6 +63,18 @@ const ChatBubble = () => {
               onSelectFriend={handleSelectFriend}
               onClose={handleCloseFriendSelector}
               onModeratorChat={handleToggleModeratorSelector}
+              onCreateGroupChat={handleToggleGroupCreator}
+            />
+          ) : showGroupCreator ? (
+            <GroupChatCreator
+              closeFriends={closeFriends}
+              selectedMembers={groupMembers}
+              groupName={groupName}
+              setGroupName={setGroupName}
+              onAddMember={handleAddGroupMember}
+              onRemoveMember={handleRemoveGroupMember}
+              onCreateGroup={handleCreateGroupChat}
+              onCancel={handleToggleGroupCreator}
             />
           ) : showModeratorSelector ? (
             <ModeratorChatSelector
@@ -68,6 +86,7 @@ const ChatBubble = () => {
               <ChatMessages 
                 messages={messages}
                 selectedFriend={selectedFriend}
+                selectedGroupChat={selectedGroupChat}
                 isChatWithModerator={isChatWithModerator}
               />
               <ChatInput onSendMessage={sendMessage} />
