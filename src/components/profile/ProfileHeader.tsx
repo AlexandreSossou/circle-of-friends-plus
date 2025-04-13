@@ -8,6 +8,7 @@ import ProfileInfo from "./header/ProfileInfo";
 import ProfileActions from "./header/ProfileActions";
 import ProfileBio from "./header/ProfileBio";
 import RelationshipStatusUpdater from "./RelationshipStatusUpdater";
+import { CalmModeToggle } from "@/components/ui/calm-mode-toggle";
 
 type ProfileHeaderProps = {
   profileData: ProfileData;
@@ -42,6 +43,10 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }
 
   return (
     <div className="relative">
+      <div className="absolute top-4 right-4 z-10">
+        <CalmModeToggle />
+      </div>
+      
       <ProfileCover isOwnProfile={isOwnProfile} />
       <ProfileAvatar 
         avatarUrl={profileData?.avatar_url} 

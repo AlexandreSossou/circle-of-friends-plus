@@ -71,6 +71,17 @@ export default {
 					gray: '#F0F2F5',
 					text: '#050505',
 					textSecondary: '#65676B'
+				},
+				calm: {
+					background: '#F2FCE2',
+					card: '#FFFFFF',
+					text: '#403E43',
+					textSecondary: '#8A898C',
+					primary: '#D3E4FD',
+					secondary: '#FDE1D3',
+					accent: '#E5DEFF',
+					border: '#FEF7CD',
+					muted: '#F1F0FB'
 				}
 			},
 			borderRadius: {

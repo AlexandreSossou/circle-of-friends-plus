@@ -74,6 +74,36 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
+  
+  .calm {
+    --background: 90 80% 95%;
+    --foreground: 240 5% 25%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 5% 25%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 5% 25%;
+
+    --primary: 214 90% 91%;
+    --primary-foreground: 240 5% 25%;
+
+    --secondary: 24 70% 91%;
+    --secondary-foreground: 240 5% 25%;
+
+    --muted: 259 70% 96%;
+    --muted-foreground: 240 3.7% 60%;
+
+    --accent: 270 100% 95%;
+    --accent-foreground: 240 5% 25%;
+
+    --destructive: 0 60% 90%;
+    --destructive-foreground: 0 60% 30%;
+
+    --border: 60 100% 90%;
+    --input: 214 90% 91%;
+    --ring: 270 100% 95%;
+  }
 }
 
 @layer base {
@@ -82,13 +112,21 @@
   }
 
   body {
-    @apply bg-social-gray text-social-text;
+    @apply bg-social-gray text-social-text transition-colors duration-300;
+  }
+  
+  body.calm {
+    @apply bg-calm-background text-calm-text;
   }
 }
 
 @layer components {
   .social-card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-colors duration-300;
+  }
+  
+  .calm .social-card {
+    @apply bg-calm-card border-calm-border shadow-sm;
   }
   
   .social-button {
@@ -96,6 +134,10 @@
   }
   
   .social-input {
-    @apply w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300;
+  }
+  
+  .calm .social-input {
+    @apply border-calm-border focus:ring-calm-accent;
   }
 }
