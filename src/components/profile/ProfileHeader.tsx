@@ -13,9 +13,10 @@ type ProfileHeaderProps = {
   profileData: ProfileData;
   isOwnProfile: boolean;
   handleAddFriend: () => void;
+  profileId: string; // Added profileId prop to fix type error
 }
 
-const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHeaderProps) => {
+const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }: ProfileHeaderProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedBio, setEditedBio] = useState(profileData?.bio || "");
   const [editedLocation, setEditedLocation] = useState(profileData?.location || "");
@@ -65,7 +66,7 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend }: ProfileHe
             
             <div className="flex gap-2">
               <ProfileActions 
-                profileId={profileData.id}
+                profileId={profileId}
                 isOwnProfile={isOwnProfile}
                 isEditing={isEditing}
                 onEditClick={handleEditClick}
