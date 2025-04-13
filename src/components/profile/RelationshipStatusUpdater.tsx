@@ -6,6 +6,7 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import { useRelationshipStatus } from "@/hooks/useRelationshipStatus";
 import RelationshipStatusSelector from "./relationship/RelationshipStatusSelector";
 import PartnerSelector from "./relationship/PartnerSelector";
+import MultiPartnerSelector from "./relationship/MultiPartnerSelector";
 import RelationshipStatusDisplay from "./relationship/RelationshipStatusDisplay";
 
 const RelationshipStatusUpdater = () => {
@@ -14,6 +15,8 @@ const RelationshipStatusUpdater = () => {
     setStatus,
     partner,
     setPartner,
+    partners,
+    setPartners,
     isUpdating,
     isLoading,
     error,
@@ -38,10 +41,22 @@ const RelationshipStatusUpdater = () => {
     );
   }
 
-  // Find partner name if available
-  const partnerName = partner ? 
-    potentialPartners.find(p => p.id === partner)?.full_name : 
-    undefined;
+  // Find partner names
+  const getPartnerNames = () => {
+    if (status === "Polyamorous" && partners.length > 0) {
+      return partners.map(id => {
+        const partner = potentialPartners.find(p => p.id === id);
+        return partner ? partner.full_name : undefined;
+      }).filter(Boolean);
+    } else if (partner) {
+      const foundPartner = potentialPartners.find(p => p.id === partner);
+      return foundPartner ? [foundPartner.full_name] : [];
+    }
+    return [];
+  };
+
+  const partnerNames = getPartnerNames();
+  const isPolyamorous = status === "Polyamorous";
 
   return (
     <Card className="mb-6">
@@ -59,17 +74,18 @@ const RelationshipStatusUpdater = () => {
           </Alert>
         )}
         
-        {status && partner && status !== "Single" && (
+        {status && (partner || partners.length > 0) && status !== "Single" && (
           <div className="mb-4 p-3 bg-gray-50 rounded-md">
             <p className="text-sm font-medium mb-2">Current Status:</p>
             <RelationshipStatusDisplay 
               status={status} 
-              partnerId={partner} 
-              partnerName={partnerName}
+              partnerId={partner}
+              partnerIds={isPolyamorous ? partners : undefined}
+              partnerNames={partnerNames}
               className="text-sm"
             />
             <p className="text-xs text-muted-foreground mt-2">
-              Note: Changing your relationship status will notify your partner and update their status accordingly.
+              Note: Changing your relationship status will notify your partner(s) and update their status accordingly.
             </p>
           </div>
         )}
@@ -82,11 +98,32 @@ const RelationshipStatusUpdater = () => {
             // Reset partner if changing to Single
             if (newStatus === "Single") {
               setPartner("");
+              setPartners([]);
+            } 
+            // Clear partners array if changing from Polyamorous to something else
+            else if (newStatus !== "Polyamorous" && status === "Polyamorous") {
+              setPartners([]);
+            }
+            // Clear partner if changing from something else to Polyamorous
+            else if (newStatus === "Polyamorous" && status !== "Polyamorous") {
+              const currentPartner = partner ? [partner] : [];
+              setPartners(currentPartner);
+              setPartner("");
             }
           }} 
         />
         
-        {status !== "Single" && (
+        {status === "Polyamorous" ? (
+          <MultiPartnerSelector
+            partners={partners}
+            onPartnersChange={(newPartners) => {
+              setPartners(newPartners);
+              resetError();
+            }}
+            potentialPartners={potentialPartners}
+            maxPartners={10}
+          />
+        ) : status !== "Single" ? (
           <PartnerSelector
             partner={partner}
             onPartnerChange={(newPartner) => {
@@ -95,11 +132,11 @@ const RelationshipStatusUpdater = () => {
             }}
             potentialPartners={potentialPartners}
           />
-        )}
+        ) : null}
         
         <Button 
           onClick={handleUpdateStatus} 
-          disabled={isUpdating || (status !== "Single" && !partner)}
+          disabled={isUpdating || (status !== "Single" && !partner && partners.length === 0)}
           className="w-full"
         >
           {isUpdating ? (

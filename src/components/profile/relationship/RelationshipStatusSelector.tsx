@@ -30,6 +30,7 @@ const RelationshipStatusSelector = ({
           <SelectItem value={RelationshipStatus.Complicated}>{RelationshipStatus.Complicated}</SelectItem>
           <SelectItem value={RelationshipStatus.OpenRelationship}>{RelationshipStatus.OpenRelationship}</SelectItem>
           <SelectItem value={RelationshipStatus.JustDating}>{RelationshipStatus.JustDating}</SelectItem>
+          <SelectItem value={RelationshipStatus.Polyamorous}>{RelationshipStatus.Polyamorous}</SelectItem>
         </SelectContent>
       </Select>
     </div>

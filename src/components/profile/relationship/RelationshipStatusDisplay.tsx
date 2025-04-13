@@ -8,7 +8,8 @@ import {
   Users, 
   HeartCrack, 
   Sparkles, 
-  Diamond
+  Diamond, 
+  Network
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -16,6 +17,8 @@ interface RelationshipStatusDisplayProps {
   status: string;
   partnerId?: string;
   partnerName?: string;
+  partnerIds?: string[];
+  partnerNames?: string[];
   showIcon?: boolean;
   showLink?: boolean;
   className?: string;
@@ -25,6 +28,8 @@ const RelationshipStatusDisplay = ({
   status,
   partnerId,
   partnerName,
+  partnerIds = [],
+  partnerNames = [],
   showIcon = true,
   showLink = true,
   className = "",
@@ -67,6 +72,11 @@ const RelationshipStatusDisplay = ({
           icon: <Sparkles className="h-3 w-3" />,
           color: "bg-blue-100 text-blue-700",
         };
+      case RelationshipStatus.Polyamorous:
+        return {
+          icon: <Network className="h-3 w-3" />,
+          color: "bg-violet-100 text-violet-700",
+        };
       default:
         return {
           icon: <UserIcon className="h-3 w-3" />,
@@ -82,23 +92,44 @@ const RelationshipStatusDisplay = ({
     return null;
   }
 
+  // Handle polyamorous relationships differently
+  const isPolyamorous = status === RelationshipStatus.Polyamorous;
+  
+  // For polyamorous, we display all partners
+  const displayPartners = isPolyamorous ? 
+    (partnerIds?.length ? partnerIds : []) : 
+    (partnerId ? [partnerId] : []);
+    
+  const displayPartnerNames = isPolyamorous ?
+    (partnerNames?.length ? partnerNames : []) :
+    (partnerName ? [partnerName] : []);
+
   return (
     <Badge className={`${color} gap-1 ${className}`} variant="outline">
       {showIcon && icon}
       <span className="text-xs">{status}</span>
-      {partnerId && partnerName && status !== RelationshipStatus.Single && (
+      
+      {displayPartners.length > 0 && status !== RelationshipStatus.Single && (
         <span className="text-xs ml-0.5">
           with
-          {showLink ? (
-            <Link
-              to={`/profile/${partnerId}`}
-              className="ml-1 font-medium hover:underline"
-            >
-              {partnerName}
-            </Link>
-          ) : (
-            <span className="ml-1 font-medium">{partnerName}</span>
-          )}
+          {displayPartners.map((id, index) => {
+            const name = displayPartnerNames[index] || `Partner ${index + 1}`;
+            return (
+              <span key={id} className="mx-1">
+                {index > 0 && ", "}
+                {showLink ? (
+                  <Link
+                    to={`/profile/${id}`}
+                    className="font-medium hover:underline"
+                  >
+                    {name}
+                  </Link>
+                ) : (
+                  <span className="font-medium">{name}</span>
+                )}
+              </span>
+            );
+          })}
         </span>
       )}
     </Badge>

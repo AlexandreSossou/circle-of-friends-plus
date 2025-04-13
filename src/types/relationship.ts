@@ -6,7 +6,8 @@ export enum RelationshipStatus {
   Married = "Married",
   Complicated = "It's complicated",
   OpenRelationship = "Open relationship",
-  JustDating = "Just dating"
+  JustDating = "Just dating",
+  Polyamorous = "Polyamorous"
 }
 
 export interface Partner {
@@ -18,6 +19,7 @@ export interface RelationshipUpdateParams {
   userId: string;
   maritalStatus: string;
   partnerId?: string;
+  partnerIds?: string[]; // Added for multiple partners
 }
 
 export interface RelationshipUpdateResult {
