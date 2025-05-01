@@ -34,6 +34,17 @@ const SecurityTab = () => {
     setIsLoading(true);
     
     try {
+      // First verify the current password by attempting to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email || "",
+        password: currentPassword
+      });
+      
+      if (signInError) {
+        throw new Error("Current password is incorrect");
+      }
+      
+      // If current password is correct, proceed with password update
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
