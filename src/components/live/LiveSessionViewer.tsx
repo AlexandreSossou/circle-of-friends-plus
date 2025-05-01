@@ -9,6 +9,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { LiveSession } from './LiveSessionCard';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useCalmMode } from '@/context/CalmModeContext';
 
 interface LiveSessionViewerProps {
   session: LiveSession;
@@ -36,6 +37,7 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
   const [viewerCount, setViewerCount] = useState(session.viewerCount);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { calmMode } = useCalmMode();
   const chatEndRef = useRef<HTMLDivElement>(null);
   
   // Scroll to the bottom of the chat when new messages are added
@@ -123,10 +125,10 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
   
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
-      <DialogContent className="w-full max-w-5xl p-0 h-[80vh] max-h-[90vh] overflow-hidden">
+      <DialogContent className={`w-full max-w-5xl p-0 h-[80vh] max-h-[90vh] overflow-hidden ${calmMode ? 'bg-calm-card border-calm-border' : ''}`}>
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b border-gray-200">
+          <div className={`flex items-center justify-between p-3 border-b ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
             <div className="flex items-center gap-2">
               {onBack ? (
                 <Button variant="ghost" size="icon" onClick={onBack}>
@@ -134,8 +136,8 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
                 </Button>
               ) : null}
               <div>
-                <h3 className="font-medium">{session.title}</h3>
-                <div className="flex items-center gap-2 text-sm text-social-textSecondary">
+                <h3 className={`font-medium ${calmMode ? 'text-calm-text' : ''}`}>{session.title}</h3>
+                <div className={`flex items-center gap-2 text-sm ${calmMode ? 'text-calm-textSecondary' : 'text-social-textSecondary'}`}>
                   <div className="flex items-center">
                     <Users className="h-3 w-3 mr-1" />
                     {viewerCount} watching
@@ -187,9 +189,9 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
             
             {/* Chat area */}
             {showChat && (
-              <div className="w-1/3 border-l border-gray-200 flex flex-col bg-white">
-                <div className="p-3 border-b border-gray-200">
-                  <h4 className="font-medium">Live Chat</h4>
+              <div className={`w-1/3 border-l ${calmMode ? 'border-calm-border bg-calm-card' : 'border-gray-200 bg-white'} flex flex-col`}>
+                <div className={`p-3 border-b ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
+                  <h4 className={`font-medium ${calmMode ? 'text-calm-text' : ''}`}>Live Chat</h4>
                 </div>
                 <ScrollArea className="flex-1 p-3">
                   <div className="space-y-3">
@@ -199,37 +201,37 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
                           {msg.sender.avatar ? (
                             <AvatarImage src={msg.sender.avatar} />
                           ) : (
-                            <AvatarFallback className={msg.sender.isStaff ? "bg-social-blue text-white" : undefined}>
+                            <AvatarFallback className={msg.sender.isStaff ? `${calmMode ? 'bg-calm-primary' : 'bg-social-blue'} text-white` : undefined}>
                               {msg.sender.name.charAt(0)}
                             </AvatarFallback>
                           )}
                         </Avatar>
                         <div>
                           <div className="flex items-center gap-1">
-                            <span className={`font-medium text-sm ${msg.sender.isStaff ? "text-social-blue" : ""}`}>
+                            <span className={`font-medium text-sm ${msg.sender.isStaff ? (calmMode ? 'text-calm-primary' : 'text-social-blue') : (calmMode ? 'text-calm-text' : '')}`}>
                               {msg.sender.name}
                             </span>
                             {msg.sender.isStaff && (
-                              <span className="bg-social-blue text-white text-xs px-1 rounded">Staff</span>
+                              <span className={`${calmMode ? 'bg-calm-primary' : 'bg-social-blue'} text-white text-xs px-1 rounded`}>Staff</span>
                             )}
                           </div>
-                          <p className="text-sm">{msg.content}</p>
+                          <p className={`text-sm ${calmMode ? 'text-calm-text' : ''}`}>{msg.content}</p>
                         </div>
                       </div>
                     ))}
                     <div ref={chatEndRef} />
                   </div>
                 </ScrollArea>
-                <form onSubmit={handleQuestionSubmit} className="p-3 border-t border-gray-200">
+                <form onSubmit={handleQuestionSubmit} className={`p-3 border-t ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
                   <div className="flex gap-2">
                     <Input
                       type="text"
                       placeholder="Ask a question..."
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
-                      className="flex-1"
+                      className={`flex-1 ${calmMode ? 'bg-calm-muted border-calm-border' : ''}`}
                     />
-                    <Button type="submit">Send</Button>
+                    <Button type="submit" className={calmMode ? 'bg-calm-primary hover:bg-calm-primary/90 text-calm-text' : ''}>Send</Button>
                   </div>
                 </form>
               </div>

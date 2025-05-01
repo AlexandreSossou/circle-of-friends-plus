@@ -11,24 +11,27 @@ import {
   CarouselPrevious,
   CarouselNext
 } from '@/components/ui/carousel';
+import { useCalmMode } from '@/context/CalmModeContext';
 
 interface LiveSessionsCarouselProps {
   sessions: LiveSession[];
 }
 
 const LiveSessionsCarousel: React.FC<LiveSessionsCarouselProps> = ({ sessions }) => {
+  const { calmMode } = useCalmMode();
+  
   if (sessions.length === 0) {
     return null;
   }
 
   return (
-    <div className="social-card p-4 mb-4">
+    <div className={`social-card p-4 mb-4 ${calmMode ? 'bg-calm-card border-calm-border' : ''}`}>
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center">
-          <Video className="h-5 w-5 mr-2 text-social-red" />
-          <h2 className="text-lg font-semibold">Live Now</h2>
+          <Video className={`h-5 w-5 mr-2 ${calmMode ? 'text-red-400' : 'text-social-red'}`} />
+          <h2 className={`text-lg font-semibold ${calmMode ? 'text-calm-text' : ''}`}>Live Now</h2>
         </div>
-        <Link to="/live-sessions" className="text-sm text-social-blue">
+        <Link to="/live-sessions" className={`text-sm ${calmMode ? 'text-calm-primary' : 'text-social-blue'}`}>
           See all
         </Link>
       </div>
