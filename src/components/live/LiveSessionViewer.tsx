@@ -22,35 +22,105 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState<LiveMessage[]>([]);
   const [viewerCount, setViewerCount] = useState(session.viewerCount);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const { user } = useAuth();
   const { toast } = useToast();
   const { calmMode } = useCalmMode();
   
-  // Simulate joining a live session
+  // Handle stream connection and simulate loading/errors
   useEffect(() => {
     if (isOpen) {
-      // Welcome message
-      const welcomeMessage: LiveMessage = {
-        id: `welcome-${Date.now()}`,
-        sender: {
-          id: 'system',
-          name: 'System',
-          isStaff: true,
-        },
-        content: `Welcome to "${session.title}" live session with ${session.hostName}! Ask your questions in the chat.`,
-        timestamp: new Date(),
-      };
+      // Simulate connection loading
+      setIsLoading(true);
+      setHasError(false);
       
-      setMessages([welcomeMessage]);
+      const loadingTimer = setTimeout(() => {
+        setIsLoading(false);
+        
+        // Simulate random errors (1 in 10 chance for demo purposes)
+        if (Math.random() < 0.1) {
+          setHasError(true);
+          setErrorMessage('Could not connect to the stream. Please try again later.');
+          
+          toast({
+            title: "Connection failed",
+            description: "Unable to connect to the live stream. Please try again.",
+            variant: "destructive",
+          });
+        } else {
+          // Welcome message
+          const welcomeMessage: LiveMessage = {
+            id: `welcome-${Date.now()}`,
+            sender: {
+              id: 'system',
+              name: 'System',
+              isStaff: true,
+            },
+            content: `Welcome to "${session.title}" live session with ${session.hostName}! Ask your questions in the chat.`,
+            timestamp: new Date(),
+          };
+          
+          setMessages([welcomeMessage]);
+        }
+      }, 2000); // Simulate 2 seconds loading time
       
       // Simulate other viewers joining
-      const timer = setInterval(() => {
-        setViewerCount(prev => prev + Math.floor(Math.random() * 2));
+      const viewerTimer = setInterval(() => {
+        if (!hasError) {
+          setViewerCount(prev => prev + Math.floor(Math.random() * 2));
+        }
       }, 10000);
       
-      return () => clearInterval(timer);
+      return () => {
+        clearTimeout(loadingTimer);
+        clearInterval(viewerTimer);
+      };
     }
-  }, [isOpen, session]);
+  }, [isOpen, session, toast, hasError]);
+  
+  // Handle retry connection
+  const handleRetryConnection = () => {
+    setIsLoading(true);
+    setHasError(false);
+    
+    // Simulate connection retry
+    setTimeout(() => {
+      setIsLoading(false);
+      
+      // 70% chance of successful reconnect for demo purposes
+      if (Math.random() < 0.7) {
+        toast({
+          title: "Connection restored",
+          description: "Successfully reconnected to the live stream.",
+        });
+        
+        // Welcome message after reconnect
+        const reconnectMessage: LiveMessage = {
+          id: `reconnect-${Date.now()}`,
+          sender: {
+            id: 'system',
+            name: 'System',
+            isStaff: true,
+          },
+          content: `Connection restored. Welcome back to "${session.title}"!`,
+          timestamp: new Date(),
+        };
+        
+        setMessages(prev => [...prev, reconnectMessage]);
+      } else {
+        setHasError(true);
+        setErrorMessage('Still unable to connect. The stream may be unavailable.');
+        
+        toast({
+          title: "Reconnection failed",
+          description: "Still unable to connect to the stream. Please try again later.",
+          variant: "destructive",
+        });
+      }
+    }, 2000);
+  };
   
   const sendMessage = () => {
     if (!message.trim() || !user) return;
@@ -122,16 +192,24 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
           <div className="flex flex-1 overflow-hidden">
             {/* Video area */}
             <div className={`${showChat ? 'w-2/3' : 'w-full'}`}>
-              <LiveVideoArea isHost={true} />
+              <LiveVideoArea 
+                isHost={true} 
+                onEndStream={onClose}
+                isLoading={isLoading}
+                hasError={hasError}
+                errorMessage={errorMessage}
+                onRetryConnection={handleRetryConnection}
+              />
             </div>
             
-            {/* Chat area */}
-            {showChat && (
+            {/* Chat area - only show if not in error state or if explicitly toggled */}
+            {showChat && !isLoading && (
               <LiveChatArea 
                 messages={messages}
                 message={message}
                 setMessage={setMessage}
                 handleQuestionSubmit={handleQuestionSubmit}
+                disabled={hasError}
               />
             )}
           </div>
