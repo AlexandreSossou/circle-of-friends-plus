@@ -9,6 +9,7 @@ import LiveSessionHeader from './viewer/LiveSessionHeader';
 import LiveVideoArea from './viewer/LiveVideoArea';
 import LiveChatArea from './viewer/LiveChatArea';
 import { LiveMessage } from './viewer/LiveChatMessage';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface LiveSessionViewerProps {
   session: LiveSession;
@@ -25,9 +26,15 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [currentLanguage, setCurrentLanguage] = useState(session.language || 'en');
   const { user } = useAuth();
   const { toast } = useToast();
   const { calmMode } = useCalmMode();
+  const { t } = useLanguage();
+  
+  // Available languages for this session (in a real app, this would come from the API)
+  // For demo, we'll simulate multiple language streams for the same session
+  const availableLanguages = ['en', 'es', 'fr', 'de', session.language].filter((v, i, a) => a.indexOf(v) === i);
   
   // Handle stream connection and simulate loading/errors
   useEffect(() => {
@@ -79,6 +86,38 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
       };
     }
   }, [isOpen, session, toast, hasError]);
+  
+  // Handle language change
+  const handleLanguageChange = (lang: string) => {
+    if (lang === currentLanguage) return;
+    
+    setIsLoading(true);
+    
+    // Simulate language stream switching
+    setTimeout(() => {
+      setIsLoading(false);
+      setCurrentLanguage(lang);
+      
+      toast({
+        title: "Language changed",
+        description: `Streaming now in ${lang.toUpperCase()}`,
+      });
+      
+      // Add system message about language change
+      const langChangeMessage: LiveMessage = {
+        id: `lang-change-${Date.now()}`,
+        sender: {
+          id: 'system',
+          name: 'System',
+          isStaff: true,
+        },
+        content: `Stream language changed to ${lang.toUpperCase()}`,
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, langChangeMessage]);
+    }, 1500);
+  };
   
   // Handle retry connection
   const handleRetryConnection = () => {
@@ -199,6 +238,9 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
                 hasError={hasError}
                 errorMessage={errorMessage}
                 onRetryConnection={handleRetryConnection}
+                availableLanguages={availableLanguages}
+                onLanguageChange={handleLanguageChange}
+                currentLanguage={currentLanguage}
               />
             </div>
             

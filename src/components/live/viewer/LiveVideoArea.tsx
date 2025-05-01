@@ -3,6 +3,8 @@ import React from 'react';
 import { Video, AlertTriangle } from 'lucide-react';
 import LiveSessionControls from './LiveSessionControls';
 import { useCalmMode } from '@/context/CalmModeContext';
+import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/context/LanguageContext';
 
 interface LiveVideoAreaProps {
   isHost?: boolean;
@@ -11,6 +13,9 @@ interface LiveVideoAreaProps {
   hasError?: boolean;
   errorMessage?: string;
   onRetryConnection?: () => void;
+  availableLanguages?: string[];
+  onLanguageChange?: (language: string) => void;
+  currentLanguage?: string;
 }
 
 const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({ 
@@ -19,9 +24,40 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
   isLoading = false,
   hasError = false,
   errorMessage = "Failed to connect to the live stream",
-  onRetryConnection
+  onRetryConnection,
+  availableLanguages = [],
+  onLanguageChange,
+  currentLanguage = 'en'
 }) => {
   const { calmMode } = useCalmMode();
+  const { t } = useLanguage();
+  
+  // Map language codes to flag emojis for display
+  const getLanguageFlag = (languageCode: string) => {
+    const flagMap: Record<string, string> = {
+      'en': '🇬🇧',
+      'es': '🇪🇸',
+      'fr': '🇫🇷',
+      'de': '🇩🇪',
+      'it': '🇮🇹',
+      'pt': '🇵🇹',
+      'ru': '🇷🇺',
+      'zh': '🇨🇳',
+      'ja': '🇯🇵',
+      'ko': '🇰🇷',
+      'ar': '🇸🇦',
+      'hi': '🇮🇳',
+      'tr': '🇹🇷',
+      'nl': '🇳🇱',
+      'pl': '🇵🇱',
+      'sv': '🇸🇪',
+      'da': '🇩🇰',
+      'fi': '🇫🇮',
+      'no': '🇳🇴',
+    };
+    
+    return flagMap[languageCode] || '🌐';
+  };
   
   // Loading state
   if (isLoading) {
@@ -48,7 +84,16 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
           <p className={`mt-2 ${calmMode ? 'text-calm-textSecondary' : 'text-gray-400'}`}>
             {errorMessage}
           </p>
-          {isHost && <LiveSessionControls onEndStream={onEndStream} onRetryConnection={onRetryConnection} hasError={true} />}
+          {isHost && (
+            <LiveSessionControls 
+              onEndStream={onEndStream} 
+              onRetryConnection={onRetryConnection} 
+              hasError={true} 
+              availableLanguages={availableLanguages}
+              onLanguageChange={onLanguageChange}
+              currentLanguage={currentLanguage}
+            />
+          )}
         </div>
       </div>
     );
@@ -57,6 +102,15 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
   // Default video state
   return (
     <div className={`w-full ${calmMode ? 'bg-calm-card' : 'bg-black'} relative flex items-center justify-center min-h-[300px]`}>
+      {/* Current language badge */}
+      {availableLanguages.length > 0 && (
+        <div className="absolute top-4 right-4 z-10">
+          <Badge variant="secondary" className={`${calmMode ? 'bg-calm-accent text-calm-text' : 'bg-gray-800 text-white'}`}>
+            {getLanguageFlag(currentLanguage)} {currentLanguage.toUpperCase()}
+          </Badge>
+        </div>
+      )}
+      
       {/* Placeholder for video */}
       <div className="text-center text-white">
         <Video className="h-16 w-16 mx-auto mb-4 opacity-50" />
@@ -68,7 +122,14 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
       </div>
       
       {/* Host controls overlay - in a real app, these would only be visible to the host */}
-      {isHost && <LiveSessionControls onEndStream={onEndStream} />}
+      {isHost && (
+        <LiveSessionControls 
+          onEndStream={onEndStream} 
+          availableLanguages={availableLanguages}
+          onLanguageChange={onLanguageChange}
+          currentLanguage={currentLanguage}
+        />
+      )}
     </div>
   );
 };
