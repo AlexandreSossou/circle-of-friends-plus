@@ -1,33 +1,20 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, MessageSquare, MicOff, Minimize, Users, Video, VideoOff, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { LiveSession } from './LiveSessionCard';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCalmMode } from '@/context/CalmModeContext';
+import LiveSessionHeader from './viewer/LiveSessionHeader';
+import LiveVideoArea from './viewer/LiveVideoArea';
+import LiveChatArea from './viewer/LiveChatArea';
+import { LiveMessage } from './viewer/LiveChatMessage';
 
 interface LiveSessionViewerProps {
   session: LiveSession;
   isOpen: boolean;
   onClose: () => void;
   onBack?: () => void;
-}
-
-interface LiveMessage {
-  id: string;
-  sender: {
-    id: string;
-    name: string;
-    avatar?: string;
-    isStaff?: boolean;
-  };
-  content: string;
-  timestamp: Date;
 }
 
 const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionViewerProps) => {
@@ -38,12 +25,6 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
   const { user } = useAuth();
   const { toast } = useToast();
   const { calmMode } = useCalmMode();
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  
-  // Scroll to the bottom of the chat when new messages are added
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
   
   // Simulate joining a live session
   useEffect(() => {
@@ -128,113 +109,30 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
       <DialogContent className={`w-full max-w-5xl p-0 h-[80vh] max-h-[90vh] overflow-hidden ${calmMode ? 'bg-calm-card border-calm-border' : ''}`}>
         <div className="flex h-full flex-col">
           {/* Header */}
-          <div className={`flex items-center justify-between p-3 border-b ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
-            <div className="flex items-center gap-2">
-              {onBack ? (
-                <Button variant="ghost" size="icon" onClick={onBack}>
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-              ) : null}
-              <div>
-                <h3 className={`font-medium ${calmMode ? 'text-calm-text' : ''}`}>{session.title}</h3>
-                <div className={`flex items-center gap-2 text-sm ${calmMode ? 'text-calm-textSecondary' : 'text-social-textSecondary'}`}>
-                  <div className="flex items-center">
-                    <Users className="h-3 w-3 mr-1" />
-                    {viewerCount} watching
-                  </div>
-                  <div className="flex items-center">
-                    <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="ml-1">LIVE</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={() => setShowChat(!showChat)}>
-                <MessageSquare className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
+          <LiveSessionHeader 
+            session={session}
+            viewerCount={viewerCount}
+            showChat={showChat}
+            setShowChat={setShowChat}
+            onClose={onClose}
+            onBack={onBack}
+          />
           
           {/* Main content */}
           <div className="flex flex-1 overflow-hidden">
             {/* Video area */}
-            <div className={`${showChat ? 'w-2/3' : 'w-full'} bg-black relative flex items-center justify-center`}>
-              {/* Placeholder for video */}
-              <div className="text-center text-white">
-                <Video className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <h3 className="text-xl font-medium">Live Session Demo</h3>
-                <p className="text-gray-400 mt-2">
-                  This is a placeholder for a real video stream.<br />
-                  In a real app, this would be connected to a live streaming service.
-                </p>
-              </div>
-              
-              {/* Host controls overlay - in a real app, these would only be visible to the host */}
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-3 bg-gray-900 bg-opacity-70 px-4 py-2 rounded-full">
-                <Button variant="ghost" size="icon" className="text-white hover:bg-gray-800 rounded-full h-10 w-10">
-                  <VideoOff className="h-5 w-5" />
-                </Button>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-gray-800 rounded-full h-10 w-10">
-                  <MicOff className="h-5 w-5" />
-                </Button>
-                <Button className="bg-red-500 hover:bg-red-600 rounded-full">
-                  End Stream
-                </Button>
-              </div>
+            <div className={`${showChat ? 'w-2/3' : 'w-full'}`}>
+              <LiveVideoArea isHost={true} />
             </div>
             
             {/* Chat area */}
             {showChat && (
-              <div className={`w-1/3 border-l ${calmMode ? 'border-calm-border bg-calm-card' : 'border-gray-200 bg-white'} flex flex-col`}>
-                <div className={`p-3 border-b ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
-                  <h4 className={`font-medium ${calmMode ? 'text-calm-text' : ''}`}>Live Chat</h4>
-                </div>
-                <ScrollArea className="flex-1 p-3">
-                  <div className="space-y-3">
-                    {messages.map((msg) => (
-                      <div key={msg.id} className="flex items-start gap-2">
-                        <Avatar className="h-8 w-8">
-                          {msg.sender.avatar ? (
-                            <AvatarImage src={msg.sender.avatar} />
-                          ) : (
-                            <AvatarFallback className={msg.sender.isStaff ? `${calmMode ? 'bg-calm-primary' : 'bg-social-blue'} text-white` : undefined}>
-                              {msg.sender.name.charAt(0)}
-                            </AvatarFallback>
-                          )}
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center gap-1">
-                            <span className={`font-medium text-sm ${msg.sender.isStaff ? (calmMode ? 'text-calm-primary' : 'text-social-blue') : (calmMode ? 'text-calm-text' : '')}`}>
-                              {msg.sender.name}
-                            </span>
-                            {msg.sender.isStaff && (
-                              <span className={`${calmMode ? 'bg-calm-primary' : 'bg-social-blue'} text-white text-xs px-1 rounded`}>Staff</span>
-                            )}
-                          </div>
-                          <p className={`text-sm ${calmMode ? 'text-calm-text' : ''}`}>{msg.content}</p>
-                        </div>
-                      </div>
-                    ))}
-                    <div ref={chatEndRef} />
-                  </div>
-                </ScrollArea>
-                <form onSubmit={handleQuestionSubmit} className={`p-3 border-t ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
-                  <div className="flex gap-2">
-                    <Input
-                      type="text"
-                      placeholder="Ask a question..."
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      className={`flex-1 ${calmMode ? 'bg-calm-muted border-calm-border' : ''}`}
-                    />
-                    <Button type="submit" className={calmMode ? 'bg-calm-primary hover:bg-calm-primary/90 text-calm-text' : ''}>Send</Button>
-                  </div>
-                </form>
-              </div>
+              <LiveChatArea 
+                messages={messages}
+                message={message}
+                setMessage={setMessage}
+                handleQuestionSubmit={handleQuestionSubmit}
+              />
             )}
           </div>
         </div>
