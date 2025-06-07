@@ -128,7 +128,7 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold">{album.name}</h3>
               {album.isPhotoSafe && (
-                <ShieldIcon className="w-5 h-5 text-orange-500" title="Photo Safe - Only you can see these photos" />
+                <ShieldIcon className="w-5 h-5 text-orange-500" />
               )}
             </div>
             {isOwnProfile && albumIndex > 0 && !album.isPhotoSafe && (
