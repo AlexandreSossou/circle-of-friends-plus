@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { CameraIcon } from "lucide-react";
+import { CameraIcon, ShieldIcon } from "lucide-react";
 import AlbumPrivacySettings from "./AlbumPrivacySettings";
 
 type Photo = string;
@@ -12,6 +12,7 @@ type Album = {
   photos: Photo[];
   isPrivate: boolean;
   allowedUsers: string[];
+  isPhotoSafe?: boolean;
 };
 
 type Friend = {
@@ -43,6 +44,11 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
       .map(friend => friend.id);
 
     const updatedAlbums = albums.map(album => {
+      // Photo Safe album should never be accessible to anyone else
+      if (album.isPhotoSafe) {
+        return album;
+      }
+      
       if (album.isPrivate) {
         // For each private album, make sure all close friends have access
         const newAllowedUsers = [...album.allowedUsers];
@@ -95,19 +101,37 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
   };
 
   const canViewAlbum = (album: Album) => {
+    // Photo Safe album is only visible to the profile owner
+    if (album.isPhotoSafe) {
+      return isOwnProfile;
+    }
+    
     if (isOwnProfile) return true;
     if (!album.isPrivate) return true;
     if (currentUserId && album.allowedUsers.includes(currentUserId)) return true;
     return false;
   };
 
+  // Filter albums to show - Photo Safe is only shown to the profile owner
+  const visibleAlbums = albums.filter(album => {
+    if (album.isPhotoSafe) {
+      return isOwnProfile;
+    }
+    return true;
+  });
+
   return (
     <div className="space-y-8">
-      {albums.map((album, albumIndex) => (
+      {visibleAlbums.map((album, albumIndex) => (
         <div key={album.id} className="mb-8">
           <div className="flex justify-between items-center mb-3">
-            <h3 className="text-lg font-semibold">{album.name}</h3>
-            {isOwnProfile && albumIndex > 0 && (
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold">{album.name}</h3>
+              {album.isPhotoSafe && (
+                <ShieldIcon className="w-5 h-5 text-orange-500" title="Photo Safe - Only you can see these photos" />
+              )}
+            </div>
+            {isOwnProfile && albumIndex > 0 && !album.isPhotoSafe && (
               <AlbumPrivacySettings 
                 albumId={album.id}
                 albumName={album.name}
@@ -118,6 +142,12 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
               />
             )}
           </div>
+          
+          {album.isPhotoSafe && isOwnProfile && (
+            <p className="text-sm text-social-textSecondary mb-4">
+              Photos in this album are completely private and will never be displayed anywhere on the website.
+            </p>
+          )}
           
           {canViewAlbum(album) ? (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

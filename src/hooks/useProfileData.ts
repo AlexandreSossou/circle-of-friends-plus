@@ -45,8 +45,22 @@ export const useProfileData = (profileId: string | undefined, isOwnProfile: bool
     "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?q=80&w=500"
   ];
 
-  // Album state
+  // Sample photos for Photo Safe (only visible to the profile owner)
+  const safePhotos = [
+    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=500",
+    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=500"
+  ];
+
+  // Album state - Photo Safe is always first and has special properties
   const [albums, setAlbums] = useState<Album[]>([
+    { 
+      id: 0, 
+      name: "Photo Safe", 
+      photos: safePhotos, 
+      isPrivate: true, 
+      allowedUsers: [], // Only the owner can see this
+      isPhotoSafe: true // Special flag to identify this album
+    },
     { id: 1, name: "Default Album", photos: photos.slice(0, 3), isPrivate: false, allowedUsers: [] },
     { id: 2, name: "Vacation", photos: photos.slice(3, 6), isPrivate: true, allowedUsers: ["friend-1", "friend-2"] },
   ]);

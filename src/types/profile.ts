@@ -59,4 +59,5 @@ export interface Album {
   photos: string[];
   isPrivate: boolean;
   allowedUsers: string[];
+  isPhotoSafe?: boolean; // Special flag for the Photo Safe album
 }
