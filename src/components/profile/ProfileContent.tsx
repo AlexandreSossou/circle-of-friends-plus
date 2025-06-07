@@ -5,7 +5,9 @@ import ProfilePosts from "./ProfilePosts";
 import ProfileFriends from "./ProfileFriends";
 import PhotoAlbum from "./PhotoAlbum";
 import SafetyReview from "./SafetyReview";
-import { Album, Friend, Post } from "@/types/profile";
+import ProfileTypeSelector from "./ProfileTypeSelector";
+import ProfileVisibilitySettings from "./ProfileVisibilitySettings";
+import { Album, Friend, Post, ProfileData, ProfileType } from "@/types/profile";
 
 type ProfileContentProps = {
   posts: Post[];
@@ -13,7 +15,9 @@ type ProfileContentProps = {
   albums: Album[];
   isOwnProfile: boolean;
   currentUserId?: string;
+  profileData: ProfileData;
   onAlbumChange: (albums: Album[]) => void;
+  onProfileVisibilityChange: (settings: { publicEnabled: boolean; privateEnabled: boolean }) => void;
 };
 
 const ProfileContent = ({
@@ -22,12 +26,45 @@ const ProfileContent = ({
   albums,
   isOwnProfile,
   currentUserId,
-  onAlbumChange
+  profileData,
+  onAlbumChange,
+  onProfileVisibilityChange
 }: ProfileContentProps) => {
   const [activeTab, setActiveTab] = useState("posts");
+  const [profileType, setProfileType] = useState<ProfileType>("public");
+
+  const publicEnabled = profileData.public_profile_enabled ?? true;
+  const privateEnabled = profileData.private_profile_enabled ?? true;
+
+  // If user is viewing someone else's profile and that profile type is disabled, show message
+  if (!isOwnProfile) {
+    if (profileType === "public" && !publicEnabled) {
+      return (
+        <div className="text-center py-8">
+          <p className="text-social-textSecondary">This user has disabled their public profile.</p>
+        </div>
+      );
+    }
+    if (profileType === "private" && !privateEnabled) {
+      return (
+        <div className="text-center py-8">
+          <p className="text-social-textSecondary">This user has disabled their private profile.</p>
+        </div>
+      );
+    }
+  }
 
   return (
     <div className="border-t border-gray-200 pt-4 mt-4">
+      {!isOwnProfile && (
+        <ProfileTypeSelector
+          currentType={profileType}
+          onTypeChange={setProfileType}
+          publicEnabled={publicEnabled}
+          privateEnabled={privateEnabled}
+        />
+      )}
+
       <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-4 mb-6">
           <TabsTrigger value="posts">Posts</TabsTrigger>
@@ -41,11 +78,28 @@ const ProfileContent = ({
         </TabsContent>
         
         <TabsContent value="photos">
+          {isOwnProfile && (
+            <>
+              <ProfileTypeSelector
+                currentType={profileType}
+                onTypeChange={setProfileType}
+                publicEnabled={publicEnabled}
+                privateEnabled={privateEnabled}
+              />
+              <div className="mb-6">
+                <ProfileVisibilitySettings
+                  profileData={profileData}
+                  onSave={onProfileVisibilityChange}
+                />
+              </div>
+            </>
+          )}
           <PhotoAlbum 
             albums={albums}
             friends={friendsList}
             isOwnProfile={isOwnProfile}
             currentUserId={currentUserId}
+            profileType={profileType}
             onAlbumChange={onAlbumChange}
           />
         </TabsContent>
@@ -68,4 +122,3 @@ const ProfileContent = ({
 };
 
 export default ProfileContent;
-

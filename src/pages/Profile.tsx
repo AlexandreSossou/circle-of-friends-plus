@@ -35,6 +35,15 @@ const Profile = () => {
     });
   };
 
+  const handleProfileVisibilityChange = (settings: { publicEnabled: boolean; privateEnabled: boolean }) => {
+    // In a real app, this would update the profile in the database
+    console.log("Profile visibility settings updated:", settings);
+    toast({
+      title: "Profile visibility updated",
+      description: "Your profile visibility settings have been saved.",
+    });
+  };
+
   if (profileLoading) {
     return (
       <MainLayout>
@@ -70,7 +79,9 @@ const Profile = () => {
                 albums={albums}
                 isOwnProfile={isOwnProfile}
                 currentUserId={user?.id}
+                profileData={profileData}
                 onAlbumChange={setAlbums}
+                onProfileVisibilityChange={handleProfileVisibilityChange}
               />
             </div>
           </>

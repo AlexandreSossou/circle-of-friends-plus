@@ -10,11 +10,13 @@ export interface ProfileData {
   age?: number;
   marital_status?: string;
   partner_id?: string;
-  partners?: string[]; // Added this line to resolve the TypeScript error
+  partners?: string[];
   partner?: {
     full_name: string | null;
     avatar_url: string | null;
   } | null;
+  public_profile_enabled?: boolean;
+  private_profile_enabled?: boolean;
 }
 
 export interface Post {
@@ -59,5 +61,9 @@ export interface Album {
   photos: string[];
   isPrivate: boolean;
   allowedUsers: string[];
-  isPhotoSafe?: boolean; // Special flag for the Photo Safe album
+  isPhotoSafe?: boolean;
+  visibleOnPublicProfile?: boolean;
+  visibleOnPrivateProfile?: boolean;
 }
+
+export type ProfileType = 'public' | 'private';

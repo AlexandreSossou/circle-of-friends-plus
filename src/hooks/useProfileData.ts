@@ -58,11 +58,29 @@ export const useProfileData = (profileId: string | undefined, isOwnProfile: bool
       name: "Photo Safe", 
       photos: safePhotos, 
       isPrivate: true, 
-      allowedUsers: [], // Only the owner can see this
-      isPhotoSafe: true // Special flag to identify this album
+      allowedUsers: [], 
+      isPhotoSafe: true,
+      visibleOnPublicProfile: false,
+      visibleOnPrivateProfile: false
     },
-    { id: 1, name: "Default Album", photos: photos.slice(0, 3), isPrivate: false, allowedUsers: [] },
-    { id: 2, name: "Vacation", photos: photos.slice(3, 6), isPrivate: true, allowedUsers: ["friend-1", "friend-2"] },
+    { 
+      id: 1, 
+      name: "Default Album", 
+      photos: photos.slice(0, 3), 
+      isPrivate: false, 
+      allowedUsers: [],
+      visibleOnPublicProfile: true,
+      visibleOnPrivateProfile: true
+    },
+    { 
+      id: 2, 
+      name: "Vacation", 
+      photos: photos.slice(3, 6), 
+      isPrivate: true, 
+      allowedUsers: ["friend-1", "friend-2"],
+      visibleOnPublicProfile: false,
+      visibleOnPrivateProfile: true
+    },
   ]);
 
   // Mock verification info - in real app this would come from your database

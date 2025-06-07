@@ -1,8 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CameraIcon, ShieldIcon } from "lucide-react";
 import AlbumPrivacySettings from "./AlbumPrivacySettings";
+import AlbumVisibilitySettings from "./AlbumVisibilitySettings";
+import { ProfileType } from "@/types/profile";
 
 type Photo = string;
 
@@ -13,6 +14,8 @@ type Album = {
   isPrivate: boolean;
   allowedUsers: string[];
   isPhotoSafe?: boolean;
+  visibleOnPublicProfile?: boolean;
+  visibleOnPrivateProfile?: boolean;
 };
 
 type Friend = {
@@ -29,10 +32,18 @@ type PhotoAlbumProps = {
   friends: Friend[];
   isOwnProfile: boolean;
   currentUserId?: string;
+  profileType: ProfileType;
   onAlbumChange?: (albums: Album[]) => void;
 };
 
-const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserId, onAlbumChange }: PhotoAlbumProps) => {
+const PhotoAlbum = ({ 
+  albums: initialAlbums, 
+  friends, 
+  isOwnProfile, 
+  currentUserId, 
+  profileType,
+  onAlbumChange 
+}: PhotoAlbumProps) => {
   const [albums, setAlbums] = useState<Album[]>(initialAlbums);
 
   // Effect to automatically update album permissions when friends change their relationship type
@@ -100,6 +111,24 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
     }
   };
 
+  const handleVisibilityChange = (albumId: number, visibleOnPublic: boolean, visibleOnPrivate: boolean) => {
+    const updatedAlbums = albums.map(album => 
+      album.id === albumId 
+        ? { 
+            ...album, 
+            visibleOnPublicProfile: visibleOnPublic,
+            visibleOnPrivateProfile: visibleOnPrivate
+          } 
+        : album
+    );
+    
+    setAlbums(updatedAlbums);
+    
+    if (onAlbumChange) {
+      onAlbumChange(updatedAlbums);
+    }
+  };
+
   const canViewAlbum = (album: Album) => {
     // Photo Safe album is only visible to the profile owner
     if (album.isPhotoSafe) {
@@ -112,12 +141,23 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
     return false;
   };
 
-  // Filter albums to show - Photo Safe is only shown to the profile owner
-  const visibleAlbums = albums.filter(album => {
+  const isAlbumVisibleOnProfileType = (album: Album) => {
+    // Photo Safe is only shown to the profile owner regardless of profile type
     if (album.isPhotoSafe) {
       return isOwnProfile;
     }
-    return true;
+    
+    // Check visibility based on profile type
+    if (profileType === 'public') {
+      return album.visibleOnPublicProfile ?? true;
+    } else {
+      return album.visibleOnPrivateProfile ?? true;
+    }
+  };
+
+  // Filter albums based on profile type visibility and viewing permissions
+  const visibleAlbums = albums.filter(album => {
+    return isAlbumVisibleOnProfileType(album) && canViewAlbum(album);
   });
 
   return (
@@ -132,14 +172,20 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
               )}
             </div>
             {isOwnProfile && albumIndex > 0 && !album.isPhotoSafe && (
-              <AlbumPrivacySettings 
-                albumId={album.id}
-                albumName={album.name}
-                isPrivate={album.isPrivate}
-                allowedUsers={album.allowedUsers}
-                friends={friends}
-                onSave={handlePrivacyChange}
-              />
+              <div className="flex gap-2">
+                <AlbumPrivacySettings 
+                  albumId={album.id}
+                  albumName={album.name}
+                  isPrivate={album.isPrivate}
+                  allowedUsers={album.allowedUsers}
+                  friends={friends}
+                  onSave={handlePrivacyChange}
+                />
+                <AlbumVisibilitySettings
+                  album={album}
+                  onSave={handleVisibilityChange}
+                />
+              </div>
             )}
           </div>
           
@@ -149,24 +195,17 @@ const PhotoAlbum = ({ albums: initialAlbums, friends, isOwnProfile, currentUserI
             </p>
           )}
           
-          {canViewAlbum(album) ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {album.photos.map((photo, index) => (
-                <div key={index} className="aspect-square rounded-lg overflow-hidden">
-                  <img 
-                    src={photo} 
-                    alt={`Photo ${index + 1}`} 
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-gray-100 rounded-lg p-8 text-center">
-              <p className="text-social-textSecondary mb-4">This album is private</p>
-              <Button variant="outline">Request Access</Button>
-            </div>
-          )}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {album.photos.map((photo, index) => (
+              <div key={index} className="aspect-square rounded-lg overflow-hidden">
+                <img 
+                  src={photo} 
+                  alt={`Photo ${index + 1}`} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       ))}
       
