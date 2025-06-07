@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useToast } from "@/hooks/use-toast";
@@ -8,11 +9,13 @@ import ProfileLoading from "@/components/profile/ProfileLoading";
 import ProfileContent from "@/components/profile/ProfileContent";
 import ProfileVerification from "@/components/profile/ProfileVerification";
 import { useProfileData } from "@/hooks/useProfileData";
+import { ProfileData, ProfileType } from "@/types/profile";
 
 const Profile = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [currentProfileType, setCurrentProfileType] = useState<ProfileType>("public");
   
   const isOwnProfile = !id || id === user?.id;
   const profileId = id || user?.id;
@@ -28,6 +31,16 @@ const Profile = () => {
     verificationInfo
   } = useProfileData(profileId, isOwnProfile);
 
+  // Local state for profile data to handle updates
+  const [localProfileData, setLocalProfileData] = useState<ProfileData | null>(profileData);
+
+  // Update local state when profile data changes
+  React.useEffect(() => {
+    if (profileData) {
+      setLocalProfileData(profileData);
+    }
+  }, [profileData]);
+
   const handleAddFriend = () => {
     toast({
       title: "Friend request sent",
@@ -36,11 +49,32 @@ const Profile = () => {
   };
 
   const handleProfileVisibilityChange = (settings: { publicEnabled: boolean; privateEnabled: boolean }) => {
-    // In a real app, this would update the profile in the database
+    if (localProfileData) {
+      const updatedProfile = {
+        ...localProfileData,
+        public_profile_enabled: settings.publicEnabled,
+        private_profile_enabled: settings.privateEnabled
+      };
+      setLocalProfileData(updatedProfile);
+    }
+    
     console.log("Profile visibility settings updated:", settings);
     toast({
       title: "Profile visibility updated",
       description: "Your profile visibility settings have been saved.",
+    });
+  };
+
+  const handleProfileUpdate = (updates: Partial<ProfileData>) => {
+    if (localProfileData) {
+      const updatedProfile = { ...localProfileData, ...updates };
+      setLocalProfileData(updatedProfile);
+    }
+    
+    console.log("Profile updated:", updates);
+    toast({
+      title: "Profile updated",
+      description: "Your profile has been updated successfully.",
     });
   };
 
@@ -55,13 +89,14 @@ const Profile = () => {
   return (
     <MainLayout>
       <div className="social-card relative mb-6">
-        {profileData && (
+        {localProfileData && (
           <>
             <ProfileHeader 
-              profileData={profileData} 
+              profileData={localProfileData} 
               isOwnProfile={isOwnProfile} 
               handleAddFriend={handleAddFriend} 
               profileId={profileId || ""}
+              profileType={currentProfileType}
             />
             
             <div className="p-4 md:p-6 pt-0">
@@ -79,9 +114,10 @@ const Profile = () => {
                 albums={albums}
                 isOwnProfile={isOwnProfile}
                 currentUserId={user?.id}
-                profileData={profileData}
+                profileData={localProfileData}
                 onAlbumChange={setAlbums}
                 onProfileVisibilityChange={handleProfileVisibilityChange}
+                onProfileUpdate={handleProfileUpdate}
               />
             </div>
           </>

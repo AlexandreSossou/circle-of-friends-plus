@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { ProfileData } from "@/types/profile";
+import { ProfileData, ProfileType } from "@/types/profile";
 import ProfileCover from "./header/ProfileCover";
 import ProfileAvatar from "./header/ProfileAvatar";
 import ProfileInfo from "./header/ProfileInfo";
@@ -14,18 +14,29 @@ type ProfileHeaderProps = {
   profileData: ProfileData;
   isOwnProfile: boolean;
   handleAddFriend: () => void;
-  profileId: string; // Added profileId prop to fix type error
+  profileId: string;
+  profileType?: ProfileType;
 }
 
-const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }: ProfileHeaderProps) => {
+const ProfileHeader = ({ 
+  profileData, 
+  isOwnProfile, 
+  handleAddFriend, 
+  profileId, 
+  profileType = "public" 
+}: ProfileHeaderProps) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedBio, setEditedBio] = useState(profileData?.bio || "");
+  const [editedBio, setEditedBio] = useState(
+    profileType === "public" ? profileData?.bio || "" : profileData?.private_bio || ""
+  );
   const [editedLocation, setEditedLocation] = useState(profileData?.location || "");
   const { toast } = useToast();
 
   const handleEditClick = () => {
     setIsEditing(true);
-    setEditedBio(profileData?.bio || "");
+    setEditedBio(
+      profileType === "public" ? profileData?.bio || "" : profileData?.private_bio || ""
+    );
     setEditedLocation(profileData?.location || "");
   };
 
@@ -41,6 +52,14 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }
     setIsEditing(false);
   };
 
+  // Get the appropriate avatar based on profile type
+  const currentAvatar = profileType === "private" && profileData?.private_avatar_url
+    ? profileData.private_avatar_url
+    : profileData?.avatar_url;
+
+  // Get the appropriate bio based on profile type
+  const currentBio = profileType === "public" ? profileData?.bio : profileData?.private_bio;
+
   return (
     <div className="relative">
       <div className="absolute top-4 right-4 z-10">
@@ -49,7 +68,7 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }
       
       <ProfileCover isOwnProfile={isOwnProfile} />
       <ProfileAvatar 
-        avatarUrl={profileData?.avatar_url} 
+        avatarUrl={currentAvatar} 
         isOwnProfile={isOwnProfile} 
       />
 
@@ -58,6 +77,8 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }
           <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-32 md:ml-40">
             <ProfileInfo 
               fullName={profileData?.full_name}
+              username={profileData?.username}
+              privateUsername={profileData?.private_username}
               location={profileData?.location}
               age={profileData?.age}
               gender={profileData?.gender}
@@ -67,6 +88,8 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }
               isEditing={isEditing}
               editedLocation={editedLocation}
               onLocationChange={setEditedLocation}
+              profileType={profileType}
+              isOwnProfile={isOwnProfile}
             />
             
             <div className="flex gap-2">
@@ -88,7 +111,7 @@ const ProfileHeader = ({ profileData, isOwnProfile, handleAddFriend, profileId }
         )}
 
         <ProfileBio 
-          bio={profileData?.bio}
+          bio={currentBio}
           isOwnProfile={isOwnProfile}
           isEditing={isEditing}
           editedBio={editedBio}

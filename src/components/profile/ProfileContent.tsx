@@ -7,6 +7,7 @@ import PhotoAlbum from "./PhotoAlbum";
 import SafetyReview from "./SafetyReview";
 import ProfileTypeSelector from "./ProfileTypeSelector";
 import ProfileVisibilitySettings from "./ProfileVisibilitySettings";
+import ProfileIdentityManager from "./ProfileIdentityManager";
 import { Album, Friend, Post, ProfileData, ProfileType } from "@/types/profile";
 
 type ProfileContentProps = {
@@ -18,6 +19,7 @@ type ProfileContentProps = {
   profileData: ProfileData;
   onAlbumChange: (albums: Album[]) => void;
   onProfileVisibilityChange: (settings: { publicEnabled: boolean; privateEnabled: boolean }) => void;
+  onProfileUpdate?: (updates: Partial<ProfileData>) => void;
 };
 
 const ProfileContent = ({
@@ -28,7 +30,8 @@ const ProfileContent = ({
   currentUserId,
   profileData,
   onAlbumChange,
-  onProfileVisibilityChange
+  onProfileVisibilityChange,
+  onProfileUpdate
 }: ProfileContentProps) => {
   const [activeTab, setActiveTab] = useState("posts");
   const [profileType, setProfileType] = useState<ProfileType>("public");
@@ -54,6 +57,12 @@ const ProfileContent = ({
     }
   }
 
+  const handleProfileUpdate = (updates: Partial<ProfileData>) => {
+    if (onProfileUpdate) {
+      onProfileUpdate(updates);
+    }
+  };
+
   return (
     <div className="border-t border-gray-200 pt-4 mt-4">
       {!isOwnProfile && (
@@ -74,6 +83,21 @@ const ProfileContent = ({
         </TabsList>
         
         <TabsContent value="posts">
+          {isOwnProfile && (
+            <>
+              <ProfileTypeSelector
+                currentType={profileType}
+                onTypeChange={setProfileType}
+                publicEnabled={publicEnabled}
+                privateEnabled={privateEnabled}
+              />
+              <ProfileIdentityManager
+                profileData={profileData}
+                profileType={profileType}
+                onSave={handleProfileUpdate}
+              />
+            </>
+          )}
           <ProfilePosts posts={posts} isOwnProfile={isOwnProfile} />
         </TabsContent>
         
@@ -85,6 +109,11 @@ const ProfileContent = ({
                 onTypeChange={setProfileType}
                 publicEnabled={publicEnabled}
                 privateEnabled={privateEnabled}
+              />
+              <ProfileIdentityManager
+                profileData={profileData}
+                profileType={profileType}
+                onSave={handleProfileUpdate}
               />
               <div className="mb-6">
                 <ProfileVisibilitySettings

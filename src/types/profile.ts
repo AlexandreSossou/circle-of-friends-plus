@@ -3,8 +3,11 @@ export interface ProfileData {
   id: string;
   full_name: string;
   username?: string;
+  private_username?: string; // New field for private profile username
   avatar_url: string;
+  private_avatar_url?: string; // New field for private profile avatar
   bio?: string;
+  private_bio?: string; // New field for private profile bio
   location?: string;
   gender?: string;
   age?: number;
