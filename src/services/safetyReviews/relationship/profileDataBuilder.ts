@@ -33,5 +33,10 @@ export const buildProfileUpdateData = (
     }
   }
   
+  // Add looking_for if provided
+  if (lookingFor !== undefined) {
+    updateData.looking_for = lookingFor;
+  }
+  
   return updateData;
 };
