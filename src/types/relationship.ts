@@ -19,9 +19,9 @@ export interface RelationshipUpdateParams {
   userId: string;
   maritalStatus: string;
   partnerId?: string;
-  partnerIds?: string[]; // Added for multiple partners
-  profileType?: 'public' | 'private'; // Added for profile type
-  lookingFor?: string[]; // Added for looking for preferences
+  partnerIds?: string[];
+  profileType?: 'public' | 'private';
+  lookingFor?: string[];
 }
 
 export interface RelationshipUpdateResult {
