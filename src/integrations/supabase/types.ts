@@ -302,9 +302,13 @@ export type Database = {
           gender: string | null
           id: string
           location: string | null
+          looking_for: string[] | null
           marital_status: string | null
           partner_id: string | null
           partners: string[] | null
+          private_marital_status: string | null
+          private_partner_id: string | null
+          private_partners: string[] | null
           updated_at: string
           username: string | null
         }
@@ -317,9 +321,13 @@ export type Database = {
           gender?: string | null
           id: string
           location?: string | null
+          looking_for?: string[] | null
           marital_status?: string | null
           partner_id?: string | null
           partners?: string[] | null
+          private_marital_status?: string | null
+          private_partner_id?: string | null
+          private_partners?: string[] | null
           updated_at?: string
           username?: string | null
         }
@@ -332,9 +340,13 @@ export type Database = {
           gender?: string | null
           id?: string
           location?: string | null
+          looking_for?: string[] | null
           marital_status?: string | null
           partner_id?: string | null
           partners?: string[] | null
+          private_marital_status?: string | null
+          private_partner_id?: string | null
+          private_partners?: string[] | null
           updated_at?: string
           username?: string | null
         }
@@ -347,6 +359,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      relationship_preferences: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+        }
+        Relationships: []
       }
       safety_reviews: {
         Row: {

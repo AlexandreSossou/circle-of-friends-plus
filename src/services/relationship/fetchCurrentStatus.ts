@@ -6,13 +6,25 @@ export interface CurrentStatus {
   marital_status?: string;
   partner_id?: string;
   partners?: string[];
+  private_marital_status?: string;
+  private_partner_id?: string;
+  private_partners?: string[];
+  looking_for?: string[];
 }
 
 export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus> => {
   try {
     const { data, error } = await supabase
       .from('profiles')
-      .select('marital_status, partner_id, partners')
+      .select(`
+        marital_status, 
+        partner_id, 
+        partners,
+        private_marital_status,
+        private_partner_id,
+        private_partners,
+        looking_for
+      `)
       .eq('id', userId)
       .single();
     
@@ -24,8 +36,11 @@ export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus>
         return {
           marital_status: mockUser.marital_status,
           partner_id: mockUser.partner_id,
-          // Use safe access for partners since it might not exist in mockProfiles
-          partners: mockUser.partners ?? []
+          partners: mockUser.partners ?? [],
+          private_marital_status: mockUser.private_marital_status,
+          private_partner_id: mockUser.private_partner_id,
+          private_partners: mockUser.private_partners ?? [],
+          looking_for: mockUser.looking_for ?? []
         };
       }
       return {};
@@ -34,8 +49,11 @@ export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus>
     return {
       marital_status: data.marital_status,
       partner_id: data.partner_id,
-      // Use optional chaining to safely access the partners property
-      partners: data.partners ?? []
+      partners: data.partners ?? [],
+      private_marital_status: data.private_marital_status,
+      private_partner_id: data.private_partner_id,
+      private_partners: data.private_partners ?? [],
+      looking_for: data.looking_for ?? []
     };
   } catch (err) {
     console.error("Exception when fetching current status:", err);

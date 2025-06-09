@@ -8,8 +8,14 @@ import RelationshipStatusSelector from "./relationship/RelationshipStatusSelecto
 import PartnerSelector from "./relationship/PartnerSelector";
 import MultiPartnerSelector from "./relationship/MultiPartnerSelector";
 import RelationshipStatusDisplay from "./relationship/RelationshipStatusDisplay";
+import LookingForSelector from "./relationship/LookingForSelector";
+import { ProfileType } from "@/types/profile";
 
-const RelationshipStatusUpdater = () => {
+interface RelationshipStatusUpdaterProps {
+  profileType?: ProfileType;
+}
+
+const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatusUpdaterProps) => {
   const {
     status,
     setStatus,
@@ -17,6 +23,14 @@ const RelationshipStatusUpdater = () => {
     setPartner,
     partners,
     setPartners,
+    privateStatus,
+    setPrivateStatus,
+    privatePartner,
+    setPrivatePartner,
+    privatePartners,
+    setPrivatePartners,
+    lookingFor,
+    setLookingFor,
     isUpdating,
     isLoading,
     error,
@@ -41,29 +55,41 @@ const RelationshipStatusUpdater = () => {
     );
   }
 
+  // Use the appropriate status and partners based on profile type
+  const currentStatus = profileType === "private" ? privateStatus : status;
+  const currentPartner = profileType === "private" ? privatePartner : partner;
+  const currentPartners = profileType === "private" ? privatePartners : partners;
+  
+  const setCurrentStatus = profileType === "private" ? setPrivateStatus : setStatus;
+  const setCurrentPartner = profileType === "private" ? setPrivatePartner : setPartner;
+  const setCurrentPartners = profileType === "private" ? setPrivatePartners : setPartners;
+
   // Find partner names
   const getPartnerNames = () => {
-    if (status === "Polyamorous" && partners.length > 0) {
-      return partners.map(id => {
+    if (currentStatus === "Polyamorous" && currentPartners.length > 0) {
+      return currentPartners.map(id => {
         const partner = potentialPartners.find(p => p.id === id);
         return partner ? partner.full_name : undefined;
       }).filter(Boolean);
-    } else if (partner) {
-      const foundPartner = potentialPartners.find(p => p.id === partner);
+    } else if (currentPartner) {
+      const foundPartner = potentialPartners.find(p => p.id === currentPartner);
       return foundPartner ? [foundPartner.full_name] : [];
     }
     return [];
   };
 
   const partnerNames = getPartnerNames();
-  const isPolyamorous = status === "Polyamorous";
+  const isPolyamorous = currentStatus === "Polyamorous";
 
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle>Update Relationship Status</CardTitle>
+        <CardTitle>Update {profileType === "private" ? "Private" : "Public"} Relationship Status</CardTitle>
         <CardDescription>
-          Set your relationship status to test the safety review functionality
+          {profileType === "private" 
+            ? "Set your private relationship status and what you're looking for"
+            : "Set your public relationship status to test the safety review functionality"
+          }
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -74,13 +100,13 @@ const RelationshipStatusUpdater = () => {
           </Alert>
         )}
         
-        {status && (partner || partners.length > 0) && status !== "Single" && (
+        {currentStatus && (currentPartner || currentPartners.length > 0) && currentStatus !== "Single" && (
           <div className="mb-4 p-3 bg-gray-50 rounded-md">
             <p className="text-sm font-medium mb-2">Current Status:</p>
             <RelationshipStatusDisplay 
-              status={status} 
-              partnerId={partner}
-              partnerIds={isPolyamorous ? partners : undefined}
+              status={currentStatus} 
+              partnerId={currentPartner}
+              partnerIds={isPolyamorous ? currentPartners : undefined}
               partnerNames={partnerNames}
               className="text-sm"
             />
@@ -91,52 +117,61 @@ const RelationshipStatusUpdater = () => {
         )}
         
         <RelationshipStatusSelector 
-          status={status} 
+          status={currentStatus} 
           onStatusChange={(newStatus) => {
-            setStatus(newStatus);
+            setCurrentStatus(newStatus);
             resetError();
             // Reset partner if changing to Single
             if (newStatus === "Single") {
-              setPartner("");
-              setPartners([]);
+              setCurrentPartner("");
+              setCurrentPartners([]);
             } 
             // Clear partners array if changing from Polyamorous to something else
-            else if (newStatus !== "Polyamorous" && status === "Polyamorous") {
-              setPartners([]);
+            else if (newStatus !== "Polyamorous" && currentStatus === "Polyamorous") {
+              setCurrentPartners([]);
             }
             // Clear partner if changing from something else to Polyamorous
-            else if (newStatus === "Polyamorous" && status !== "Polyamorous") {
-              const currentPartner = partner ? [partner] : [];
-              setPartners(currentPartner);
-              setPartner("");
+            else if (newStatus === "Polyamorous" && currentStatus !== "Polyamorous") {
+              const currentPartnerValue = currentPartner ? [currentPartner] : [];
+              setCurrentPartners(currentPartnerValue);
+              setCurrentPartner("");
             }
           }} 
         />
         
-        {status === "Polyamorous" ? (
+        {currentStatus === "Polyamorous" ? (
           <MultiPartnerSelector
-            partners={partners}
+            partners={currentPartners}
             onPartnersChange={(newPartners) => {
-              setPartners(newPartners);
+              setCurrentPartners(newPartners);
               resetError();
             }}
             potentialPartners={potentialPartners}
             maxPartners={10}
+            profileType={profileType}
           />
-        ) : status !== "Single" ? (
+        ) : currentStatus !== "Single" ? (
           <PartnerSelector
-            partner={partner}
+            partner={currentPartner}
             onPartnerChange={(newPartner) => {
-              setPartner(newPartner);
+              setCurrentPartner(newPartner);
               resetError();
             }}
             potentialPartners={potentialPartners}
+            profileType={profileType}
           />
         ) : null}
         
+        {profileType === "private" && (
+          <LookingForSelector 
+            lookingFor={lookingFor}
+            onLookingForChange={setLookingFor}
+          />
+        )}
+        
         <Button 
-          onClick={handleUpdateStatus} 
-          disabled={isUpdating || (status !== "Single" && !partner && partners.length === 0)}
+          onClick={() => handleUpdateStatus(profileType)} 
+          disabled={isUpdating || (currentStatus !== "Single" && !currentPartner && currentPartners.length === 0)}
           className="w-full"
         >
           {isUpdating ? (
@@ -145,7 +180,7 @@ const RelationshipStatusUpdater = () => {
               Updating...
             </>
           ) : (
-            "Update Relationship Status"
+            `Update ${profileType === "private" ? "Private" : "Public"} Relationship Status`
           )}
         </Button>
       </CardContent>

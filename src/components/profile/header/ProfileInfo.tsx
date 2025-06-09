@@ -12,8 +12,13 @@ interface ProfileInfoProps {
   age?: number;
   gender?: string;
   maritalStatus?: string;
+  privateMaritalStatus?: string;
   partnerId?: string;
+  privatePartnerId?: string;
+  partners?: string[];
+  privatePartners?: string[];
   partnerName?: string;
+  lookingFor?: string[];
   isEditing: boolean;
   editedLocation: string;
   onLocationChange: (value: string) => void;
@@ -29,8 +34,13 @@ const ProfileInfo = ({
   age,
   gender,
   maritalStatus,
+  privateMaritalStatus,
   partnerId,
+  privatePartnerId,
+  partners,
+  privatePartners,
   partnerName,
+  lookingFor,
   isEditing,
   editedLocation,
   onLocationChange,
@@ -52,6 +62,11 @@ const ProfileInfo = ({
     // For visitors viewing public profile, show username or full name
     return username || fullName;
   })();
+
+  // Get the appropriate relationship status based on profile type
+  const currentMaritalStatus = profileType === "private" ? privateMaritalStatus : maritalStatus;
+  const currentPartnerId = profileType === "private" ? privatePartnerId : partnerId;
+  const currentPartners = profileType === "private" ? privatePartners : partners;
 
   return (
     <div>
@@ -92,15 +107,28 @@ const ProfileInfo = ({
               </span>
             )}
             
-            {maritalStatus && (
+            {currentMaritalStatus && (
               <RelationshipStatusDisplay 
-                status={maritalStatus}
-                partnerId={partnerId}
+                status={currentMaritalStatus}
+                partnerId={currentPartnerId}
+                partnerIds={currentPartners}
                 partnerName={partnerName}
                 showIcon={true}
                 showLink={true}
               />
             )}
+          </div>
+        )}
+        
+        {/* Show what user is looking for on private profile */}
+        {profileType === "private" && lookingFor && lookingFor.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            <span className="text-xs font-medium text-social-textSecondary">Looking for:</span>
+            {lookingFor.map((item, index) => (
+              <span key={item} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                {item}
+              </span>
+            ))}
           </div>
         )}
         

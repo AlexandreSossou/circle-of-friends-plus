@@ -14,6 +14,10 @@ export interface ProfileData {
   marital_status?: string;
   partner_id?: string;
   partners?: string[];
+  private_marital_status?: string; // New field for private profile relationship status
+  private_partner_id?: string; // New field for private profile single partner
+  private_partners?: string[]; // New field for private profile multiple partners
+  looking_for?: string[]; // New field for what user is looking for
   partner?: {
     full_name: string | null;
     avatar_url: string | null;
@@ -67,6 +71,13 @@ export interface Album {
   isPhotoSafe?: boolean;
   visibleOnPublicProfile?: boolean;
   visibleOnPrivateProfile?: boolean;
+}
+
+export interface RelationshipPreference {
+  id: string;
+  name: string;
+  description?: string;
+  is_active?: boolean;
 }
 
 export type ProfileType = 'public' | 'private';

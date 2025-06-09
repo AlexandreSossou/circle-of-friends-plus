@@ -20,6 +20,8 @@ export interface RelationshipUpdateParams {
   maritalStatus: string;
   partnerId?: string;
   partnerIds?: string[]; // Added for multiple partners
+  profileType?: 'public' | 'private'; // Added for profile type
+  lookingFor?: string[]; // Added for looking for preferences
 }
 
 export interface RelationshipUpdateResult {

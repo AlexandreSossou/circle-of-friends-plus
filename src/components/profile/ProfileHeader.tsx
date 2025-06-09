@@ -83,8 +83,13 @@ const ProfileHeader = ({
               age={profileData?.age}
               gender={profileData?.gender}
               maritalStatus={profileData?.marital_status}
+              privateMaritalStatus={profileData?.private_marital_status}
               partnerId={profileData?.partner_id}
+              privatePartnerId={profileData?.private_partner_id}
+              partners={profileData?.partners}
+              privatePartners={profileData?.private_partners}
               partnerName={profileData?.partner?.full_name || undefined}
+              lookingFor={profileData?.looking_for}
               isEditing={isEditing}
               editedLocation={editedLocation}
               onLocationChange={setEditedLocation}
@@ -107,7 +112,7 @@ const ProfileHeader = ({
         </div>
 
         {isOwnProfile && isEditing && (
-          <RelationshipStatusUpdater />
+          <RelationshipStatusUpdater profileType={profileType} />
         )}
 
         <ProfileBio 
