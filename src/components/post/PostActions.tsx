@@ -12,6 +12,7 @@ interface PostActionsProps {
   onComment?: () => void;
   onShare?: () => void;
   onImageChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
 }
 
 const PostActions: React.FC<PostActionsProps> = ({ 
@@ -21,13 +22,14 @@ const PostActions: React.FC<PostActionsProps> = ({
   onLike, 
   onComment, 
   onShare, 
-  onImageChange 
+  onImageChange,
+  disabled = false
 }) => {
   // This is the original PostActions component for creating a post
   if (onImageChange) {
     return (
       <div className="flex space-x-2">
-        <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild>
+        <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild disabled={disabled}>
           <label>
             <Camera className="w-5 h-5 mr-1" />
             <span>Photo</span>
@@ -36,11 +38,12 @@ const PostActions: React.FC<PostActionsProps> = ({
               accept="image/*"
               className="hidden"
               onChange={onImageChange}
+              disabled={disabled}
             />
           </label>
         </Button>
         
-        <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild>
+        <Button variant="ghost" size="sm" className="text-social-textSecondary" asChild disabled={disabled}>
           <Link to="/travels">
             <Plane className="w-5 h-5 mr-1" />
             <span>Travel</span>

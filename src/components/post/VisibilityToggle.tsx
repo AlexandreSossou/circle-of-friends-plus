@@ -6,15 +6,17 @@ import { Globe, Users } from "lucide-react";
 interface VisibilityToggleProps {
   isGlobal: boolean;
   onVisibilityChange: (value: boolean) => void;
+  disabled?: boolean;
 }
 
-const VisibilityToggle: React.FC<VisibilityToggleProps> = ({ isGlobal, onVisibilityChange }) => {
+const VisibilityToggle: React.FC<VisibilityToggleProps> = ({ isGlobal, onVisibilityChange, disabled = false }) => {
   return (
     <div className="flex items-center space-x-2">
       <Switch 
         id="visibility-mode" 
         checked={isGlobal} 
-        onCheckedChange={onVisibilityChange} 
+        onCheckedChange={onVisibilityChange}
+        disabled={disabled}
       />
       <div className="flex items-center">
         {isGlobal ? (
