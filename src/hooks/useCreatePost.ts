@@ -3,6 +3,7 @@ import { useState, ChangeEvent } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { canUserCreatePost } from "@/services/postLimits/postLimitService";
 
 export const useCreatePost = () => {
   const [postText, setPostText] = useState("");
@@ -34,39 +35,53 @@ export const useCreatePost = () => {
   const handleSubmit = async () => {
     if (!postText.trim() && !imagePreview) return;
     
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "You need to be logged in to create a post",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      if (user) {
-        // Create the post with visibility field
-        const { data, error } = await supabase
-          .from('posts')
-          .insert([
-            { 
-              content: postText,
-              image_url: imagePreview,
-              user_id: user.id,
-              is_global: isGlobal
-            }
-          ]);
-        
-        if (error) throw error;
-        
-        setPostText("");
-        setImagePreview(null);
-        setIsGlobal(false);
-        
+      // Check if user can create a post (daily limit)
+      const limitCheck = await canUserCreatePost(user.id);
+      
+      if (!limitCheck.canCreate) {
         toast({
-          title: "Post created",
-          description: "Your post has been published successfully",
-        });
-      } else {
-        toast({
-          title: "Authentication required",
-          description: "You need to be logged in to create a post",
+          title: "Daily post limit reached",
+          description: `You can only create ${limitCheck.dailyLimit} post(s) per day. Try again tomorrow.`,
           variant: "destructive"
         });
+        setIsSubmitting(false);
+        return;
       }
+
+      // Create the post with visibility field
+      const { data, error } = await supabase
+        .from('posts')
+        .insert([
+          { 
+            content: postText,
+            image_url: imagePreview,
+            user_id: user.id,
+            is_global: isGlobal
+          }
+        ]);
+      
+      if (error) throw error;
+      
+      setPostText("");
+      setImagePreview(null);
+      setIsGlobal(false);
+      
+      toast({
+        title: "Post created",
+        description: `Your post has been published successfully. ${limitCheck.remainingPosts - 1} posts remaining today.`,
+      });
     } catch (error) {
       console.error("Error creating post:", error);
       toast({

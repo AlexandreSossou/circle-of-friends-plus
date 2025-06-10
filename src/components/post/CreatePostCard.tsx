@@ -2,11 +2,13 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCreatePost } from "@/hooks/useCreatePost";
+import { usePostLimit } from "@/hooks/usePostLimit";
 import PostInput from "./PostInput";
 import ImagePreview from "./ImagePreview";
 import PostActions from "./PostActions";
 import VisibilityToggle from "./VisibilityToggle";
 import SubmitPostButton from "./SubmitPostButton";
+import PostLimitStatus from "./PostLimitStatus";
 
 const CreatePostCard = () => {
   const {
@@ -21,9 +23,13 @@ const CreatePostCard = () => {
     handleSubmit,
     isValid
   } = useCreatePost();
+
+  const { canCreate } = usePostLimit();
   
   return (
     <div className="social-card p-4 mb-4">
+      <PostLimitStatus />
+      
       <div className="flex items-start gap-3">
         <Avatar>
           <AvatarImage src="/placeholder.svg" alt="User" />
@@ -32,7 +38,8 @@ const CreatePostCard = () => {
         <div className="flex-1">
           <PostInput 
             postText={postText} 
-            onTextChange={handleTextChange} 
+            onTextChange={handleTextChange}
+            disabled={!canCreate}
           />
           
           <ImagePreview 
@@ -41,17 +48,21 @@ const CreatePostCard = () => {
           />
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 space-y-3 sm:space-y-0">
-            <PostActions onImageChange={handleImageChange} />
+            <PostActions 
+              onImageChange={handleImageChange}
+              disabled={!canCreate}
+            />
             
             <div className="flex items-center space-x-4 w-full sm:w-auto">
               <VisibilityToggle 
                 isGlobal={isGlobal} 
-                onVisibilityChange={setIsGlobal} 
+                onVisibilityChange={setIsGlobal}
+                disabled={!canCreate}
               />
               
               <SubmitPostButton 
                 isSubmitting={isSubmitting} 
-                isDisabled={!isValid}
+                isDisabled={!isValid || !canCreate}
                 onSubmit={handleSubmit} 
               />
             </div>

@@ -254,6 +254,30 @@ export type Database = {
           },
         ]
       }
+      post_limits: {
+        Row: {
+          created_at: string
+          daily_limit: number
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          daily_limit?: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          daily_limit?: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           content: string
