@@ -5,35 +5,46 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Warm neutral base colors */
+    --background: 30 50% 98%;
+    --foreground: 25 25% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 25 25% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 25 25% 15%;
 
-    --primary: 214 100% 52%;
-    --primary-foreground: 210 40% 98%;
+    /* Coral/salmon primary with warm undertones */
+    --primary: 6 93% 71%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 6 93% 65%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Soft sage secondary */
+    --secondary: 120 25% 85%;
+    --secondary-foreground: 25 25% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Warm muted tones */
+    --muted: 30 40% 94%;
+    --muted-foreground: 25 15% 55%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Dusty blue accent */
+    --accent: 210 35% 85%;
+    --accent-foreground: 25 25% 15%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    /* Soft yellow accent */
+    --accent-yellow: 45 85% 75%;
+    --accent-yellow-foreground: 25 25% 15%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 214 100% 52%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    /* Softer borders and inputs */
+    --border: 30 30% 88%;
+    --input: 30 30% 88%;
+    --ring: 6 93% 71%;
+
+    --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -46,33 +57,40 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark warm tones */
+    --background: 25 15% 8%;
+    --foreground: 30 15% 92%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 25 12% 12%;
+    --card-foreground: 30 15% 92%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 25 12% 12%;
+    --popover-foreground: 30 15% 92%;
 
-    --primary: 214 100% 52%;
-    --primary-foreground: 210 40% 98%;
+    /* Darker coral primary */
+    --primary: 6 85% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 6 85% 55%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    /* Dark sage secondary */
+    --secondary: 120 15% 20%;
+    --secondary-foreground: 30 15% 92%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    /* Dark muted tones */
+    --muted: 25 10% 16%;
+    --muted-foreground: 30 8% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    /* Dark blue accent */
+    --accent: 210 25% 22%;
+    --accent-foreground: 30 15% 92%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Darker borders */
+    --border: 25 8% 20%;
+    --input: 25 8% 20%;
+    --ring: 6 85% 60%;
   }
   
   .calm {
@@ -112,7 +130,7 @@
   }
 
   body {
-    @apply bg-social-gray text-social-text transition-colors duration-300;
+    @apply bg-background text-foreground font-body transition-colors duration-300;
   }
   
   body.calm {
@@ -121,8 +139,39 @@
 }
 
 @layer components {
+  /* Typography Classes */
+  .text-heading {
+    @apply font-heading font-semibold;
+  }
+  
+  .text-heading-lg {
+    @apply font-heading font-bold text-2xl md:text-3xl;
+  }
+  
+  .text-heading-md {
+    @apply font-heading font-semibold text-xl md:text-2xl;
+  }
+  
+  .text-heading-sm {
+    @apply font-heading font-medium text-lg;
+  }
+
+  /* Modern Card Styles */
+  .modern-card {
+    @apply bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:shadow-md;
+  }
+  
+  .modern-button {
+    @apply rounded-xl px-6 py-3 font-medium transition-all duration-200 hover:scale-105;
+  }
+  
+  .modern-input {
+    @apply w-full p-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
+  }
+
+  /* Legacy compatibility */
   .social-card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-colors duration-300;
+    @apply modern-card;
   }
   
   .calm .social-card {
@@ -130,11 +179,11 @@
   }
   
   .social-button {
-    @apply rounded-md px-4 py-2 font-medium transition-colors;
+    @apply modern-button;
   }
   
   .social-input {
-    @apply w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-300;
+    @apply modern-input;
   }
   
   .calm .social-input {

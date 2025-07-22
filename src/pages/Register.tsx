@@ -11,11 +11,11 @@ const Register = () => {
   const { calmMode } = useCalmMode();
 
   return (
-    <div className={`min-h-screen ${calmMode ? 'bg-calm-background' : 'bg-social-gray'} flex flex-col`}>
+    <div className={`min-h-screen bg-background ${calmMode ? 'calm' : ''} flex flex-col`}>
       <div className="py-8">
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <h1 className="text-4xl font-bold text-social-blue">{t("app.name")}</h1>
+            <h1 className="text-heading-lg text-primary hover:text-primary/90 transition-colors">{t("app.name")}</h1>
           </Link>
         </div>
       </div>
