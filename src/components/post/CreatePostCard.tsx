@@ -3,7 +3,7 @@ import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { usePostLimit } from "@/hooks/usePostLimit";
-import PostInput from "./PostInput";
+import { UserMentionInput } from "./UserMentionInput";
 import ImagePreview from "./ImagePreview";
 import PostActions from "./PostActions";
 import VisibilityToggle from "./VisibilityToggle";
@@ -36,10 +36,11 @@ const CreatePostCard = () => {
           <AvatarFallback>JD</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <PostInput 
-            postText={postText} 
-            onTextChange={handleTextChange}
+          <UserMentionInput 
+            value={postText} 
+            onChange={handleTextChange}
             disabled={!canCreate}
+            className="border-none bg-social-gray focus-visible:ring-0 p-3"
           />
           
           <ImagePreview 
