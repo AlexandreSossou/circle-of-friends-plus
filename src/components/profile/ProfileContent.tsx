@@ -78,7 +78,9 @@ const ProfileContent = ({
         <TabsList className="grid grid-cols-4 mb-6">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="photos">Photos</TabsTrigger>
-          <TabsTrigger value="friends">Friends</TabsTrigger>
+          <TabsTrigger value="friends">
+            Friends{isOwnProfile && ` (${friendsList.length})`}
+          </TabsTrigger>
           <TabsTrigger value="safety">Safety</TabsTrigger>
         </TabsList>
         
