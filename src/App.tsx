@@ -20,6 +20,7 @@ import News from "./pages/News";
 import Messages from "./pages/Messages";
 import MessagePreferences from "./pages/MessagePreferences";
 import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import ChatBubble from "./components/chat/ChatBubble";
 import LiveSessions from "./pages/LiveSessions";
@@ -50,6 +51,7 @@ const App = () => (
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/message-preferences" element={<MessagePreferences />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/admin" element={<Admin />} />
                 <Route path="/live-sessions" element={<LiveSessions />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activities: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           content: string
@@ -266,6 +296,7 @@ export type Database = {
           id: string
           is_active: boolean
           updated_at: string
+          updated_by: string | null
         }
         Insert: {
           created_at?: string
@@ -273,6 +304,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           updated_at?: string
+          updated_by?: string | null
         }
         Update: {
           created_at?: string
@@ -280,6 +312,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -349,11 +382,15 @@ export type Database = {
         Row: {
           age: number | null
           avatar_url: string | null
+          banned_by: string | null
+          banned_reason: string | null
+          banned_until: string | null
           bio: string | null
           created_at: string
           full_name: string | null
           gender: string | null
           id: string
+          is_banned: boolean | null
           location: string | null
           looking_for: string[] | null
           marital_status: string | null
@@ -368,11 +405,15 @@ export type Database = {
         Insert: {
           age?: number | null
           avatar_url?: string | null
+          banned_by?: string | null
+          banned_reason?: string | null
+          banned_until?: string | null
           bio?: string | null
           created_at?: string
           full_name?: string | null
           gender?: string | null
           id: string
+          is_banned?: boolean | null
           location?: string | null
           looking_for?: string[] | null
           marital_status?: string | null
@@ -387,11 +428,15 @@ export type Database = {
         Update: {
           age?: number | null
           avatar_url?: string | null
+          banned_by?: string | null
+          banned_reason?: string | null
+          banned_until?: string | null
           bio?: string | null
           created_at?: string
           full_name?: string | null
           gender?: string | null
           id?: string
+          is_banned?: boolean | null
           location?: string | null
           looking_for?: string[] | null
           marital_status?: string | null
@@ -436,6 +481,56 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          post_id: string | null
+          reason: string
+          reported_user_id: string | null
+          reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          reason: string
+          reported_user_id?: string | null
+          reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          reason?: string
+          reported_user_id?: string | null
+          reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       safety_reviews: {
         Row: {
@@ -511,15 +606,52 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          assigned_at: string | null
+          assigned_by: string | null
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -646,6 +778,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
