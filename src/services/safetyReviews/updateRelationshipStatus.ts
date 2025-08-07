@@ -30,8 +30,8 @@ export const updateRelationshipStatus = async ({
     try {
       const updateData = buildProfileUpdateData(maritalStatus, partnerId, partnerIds, profileType, lookingFor);
       
-      // Update looking for preferences for private profile
-      if (profileType === "private" && lookingFor !== undefined) {
+      // Update looking for preferences for both public and private profiles
+      if (lookingFor !== undefined) {
         updateData.looking_for = lookingFor;
       }
       
