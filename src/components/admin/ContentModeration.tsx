@@ -79,32 +79,73 @@ const ContentModeration = () => {
       // Fetch reports
       const { data: reportsData, error: reportsError } = await supabase
         .from('reports')
-        .select(`
-          *,
-          reporter_profiles:reporter_id (
-            full_name
-          ),
-          reported_profiles:reported_user_id (
-            full_name
-          ),
-          posts:post_id (
-            id,
-            content,
-            image_url,
-            created_at,
-            user_id,
-            profiles:user_id (
-              full_name,
-              avatar_url
-            )
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (reportsError) throw reportsError;
 
+      // Fetch additional data for each report
+      const reportsWithDetails = await Promise.all(
+        (reportsData || []).map(async (report) => {
+          // Fetch reporter profile
+          const { data: reporterProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', report.reporter_id)
+            .maybeSingle();
+
+          // Fetch reported user profile if exists
+          let reportedProfile = null;
+          if (report.reported_user_id) {
+            const { data } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', report.reported_user_id)
+              .maybeSingle();
+            reportedProfile = data;
+          }
+
+          // Fetch post if exists
+          let post = null;
+          if (report.post_id) {
+            const { data: postData } = await supabase
+              .from('posts')
+              .select(`
+                id,
+                content,
+                image_url,
+                created_at,
+                user_id
+              `)
+              .eq('id', report.post_id)
+              .maybeSingle();
+
+            if (postData) {
+              // Fetch post author profile
+              const { data: authorProfile } = await supabase
+                .from('profiles')
+                .select('full_name, avatar_url')
+                .eq('id', postData.user_id)
+                .maybeSingle();
+
+              post = {
+                ...postData,
+                profiles: authorProfile
+              };
+            }
+          }
+
+          return {
+            ...report,
+            reporter_profiles: reporterProfile,
+            reported_profiles: reportedProfile,
+            posts: post
+          };
+        })
+      );
+
       setPosts(postsData || []);
-      setReports((reportsData as any) || []);
+      setReports(reportsWithDetails);
     } catch (error) {
       console.error('Error fetching content:', error);
       toast({

@@ -36,18 +36,28 @@ const RoleManagement = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles (
-            id,
-            role,
-            assigned_at
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUsers((data as any) || []);
+
+      // Fetch roles separately for each user
+      const usersWithRoles = await Promise.all(
+        (data || []).map(async (user) => {
+          const { data: rolesData } = await supabase
+            .from('user_roles')
+            .select('id, role, assigned_at')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
+
+          return {
+            ...user,
+            user_roles: rolesData || []
+          };
+        })
+      );
+      
+      setUsers(usersWithRoles);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({

@@ -54,18 +54,28 @@ const UserManagement = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_roles:user_roles(role)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const usersWithRoles = data?.map(user => ({
-        ...user,
-        role: Array.isArray(user.user_roles) && user.user_roles.length > 0 ? user.user_roles[0].role : 'user'
-      })) || [];
+      // Fetch roles separately for each user
+      const usersWithRoles = await Promise.all(
+        (data || []).map(async (user) => {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          return {
+            ...user,
+            role: roleData?.role || 'user'
+          };
+        })
+      );
 
       setUsers(usersWithRoles);
     } catch (error) {
