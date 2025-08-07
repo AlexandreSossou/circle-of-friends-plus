@@ -18,6 +18,7 @@ export const useTravels = (user: any) => {
     departure_date: "",
     looking_for: "both" as "locals" | "tourists" | "both",
     description: "",
+    traveling_with_partner: false,
   });
 
   // Fetch travels
@@ -106,6 +107,7 @@ export const useTravels = (user: any) => {
         departure_date: "",
         looking_for: "both",
         description: "",
+        traveling_with_partner: false,
       });
       setShareAsPost(true);
       setTravelingWithPartner(false);
