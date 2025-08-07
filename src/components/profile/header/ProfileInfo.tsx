@@ -120,8 +120,8 @@ const ProfileInfo = ({
           </div>
         )}
         
-        {/* Show what user is looking for on private profile */}
-        {profileType === "private" && lookingFor && lookingFor.length > 0 && (
+        {/* Show what user is looking for */}
+        {lookingFor && lookingFor.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             <span className="text-xs font-medium text-social-textSecondary">Looking for:</span>
             {lookingFor.map((item, index) => (
