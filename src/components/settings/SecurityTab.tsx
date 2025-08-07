@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Lock } from "lucide-react";
+import { Loader2, Lock, Mail, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ const SecurityTab = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   
   // Security state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -72,8 +73,77 @@ const SecurityTab = () => {
     }
   };
 
+  const handlePasswordReset = async () => {
+    if (!user?.email) return;
+    
+    setIsResettingPassword(true);
+    
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${window.location.origin}/settings?tab=security`
+      });
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Password reset email sent!",
+        description: "Check your email for password reset instructions.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Reset failed",
+        description: error.message || "Failed to send password reset email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
   return (
     <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Account Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address</Label>
+            <div className="flex items-center space-x-2">
+              <Input 
+                id="email" 
+                type="email" 
+                value={user?.email || ""} 
+                disabled
+                className="bg-muted"
+              />
+              <Mail className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              This is the email address you used to register your account.
+            </p>
+          </div>
+          <div className="pt-2">
+            <Button 
+              onClick={handlePasswordReset}
+              disabled={isResettingPassword || !user?.email}
+              variant="outline"
+              className="flex items-center"
+            >
+              {isResettingPassword ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <RotateCcw className="mr-2 h-4 w-4" />
+              )}
+              Reset Password
+            </Button>
+            <p className="text-sm text-muted-foreground mt-2">
+              Send a password reset email to your registered email address.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      
       <Card>
         <CardHeader>
           <CardTitle>Change Password</CardTitle>
