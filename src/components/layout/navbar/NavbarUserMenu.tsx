@@ -5,6 +5,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Shield } from "lucide-react";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +19,7 @@ import {
 const NavbarUserMenu = () => {
   const { toast } = useToast();
   const { user, signOut } = useAuth();
+  const { hasAdminAccess } = useUserRole();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -80,6 +83,17 @@ const NavbarUserMenu = () => {
         <DropdownMenuItem asChild>
           <Link to="/settings">Settings</Link>
         </DropdownMenuItem>
+        {hasAdminAccess && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/admin" className="flex items-center gap-2">
+                <Shield className="w-4 h-4" />
+                Admin Panel
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
           Log out

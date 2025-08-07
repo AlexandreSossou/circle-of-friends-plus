@@ -25,31 +25,31 @@ export const useFriends = () => {
   useEffect(() => {
     const checkExpiredRelationships = () => {
       const now = new Date();
-      const updatedFriends = allFriends.map(friend => {
-        if (friend.temporaryUpgradeUntil && new Date(friend.temporaryUpgradeUntil) < now) {
-          // Revert the relationship type
-          toast({
-            title: "Temporary status expired",
-            description: `${friend.name} has been moved back to acquaintance.`,
-          });
-          return { 
-            ...friend, 
-            relationshipType: 'acquaintance' as const, 
-            temporaryUpgradeUntil: null 
-          };
-        }
-        return friend;
+      setAllFriends(currentFriends => {
+        const updatedFriends = currentFriends.map(friend => {
+          if (friend.temporaryUpgradeUntil && new Date(friend.temporaryUpgradeUntil) < now) {
+            // Revert the relationship type
+            toast({
+              title: "Temporary status expired",
+              description: `${friend.name} has been moved back to acquaintance.`,
+            });
+            return { 
+              ...friend, 
+              relationshipType: 'acquaintance' as const, 
+              temporaryUpgradeUntil: null 
+            };
+          }
+          return friend;
+        });
+        return updatedFriends;
       });
-      
-      setAllFriends(updatedFriends);
     };
     
     // Check on component mount and every minute
-    checkExpiredRelationships();
     const interval = setInterval(checkExpiredRelationships, 60000);
     
     return () => clearInterval(interval);
-  }, [allFriends, toast]);
+  }, [toast]);
   
   // Add function to update relationship type
   const updateRelationshipType = async (friendId: string, relationshipType: 'friend' | 'acquaintance') => {
