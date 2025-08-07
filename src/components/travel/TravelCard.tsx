@@ -1,6 +1,6 @@
 
 import { format, isAfter, isBefore, parseISO } from "date-fns";
-import { Calendar, MapPin, Plane, Trash2, Users } from "lucide-react";
+import { Calendar, MapPin, Plane, Trash2, Users, Heart } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +55,12 @@ export const TravelCard = ({ travel, currentUser, onDelete }: TravelCardProps) =
             <Users className="w-4 h-4 mr-2" />
             <span className="text-sm">{renderLookingForText(travel.looking_for)}</span>
           </div>
+          {travel.traveling_with_partner && (
+            <div className="flex items-center text-pink-600">
+              <Heart className="w-4 h-4 mr-2" />
+              <span className="text-sm">Traveling with partner</span>
+            </div>
+          )}
           {travel.description && (
             <p className="text-sm mt-2">{travel.description}</p>
           )}

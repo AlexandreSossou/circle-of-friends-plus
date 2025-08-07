@@ -10,6 +10,7 @@ export const useTravels = (user: any) => {
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [shareAsPost, setShareAsPost] = useState(true);
+  const [travelingWithPartner, setTravelingWithPartner] = useState(false);
   const [travelData, setTravelData] = useState({
     city: "",
     country: "",
@@ -45,7 +46,7 @@ export const useTravels = (user: any) => {
 
   // Add travel mutation
   const addTravelMutation = useMutation({
-    mutationFn: async (data: typeof travelData & { shareAsPost: boolean }) => {
+    mutationFn: async (data: typeof travelData & { shareAsPost: boolean; travelingWithPartner: boolean }) => {
       if (!user) throw new Error("You must be logged in to add travel plans");
       
       // Insert travel plan
@@ -57,6 +58,7 @@ export const useTravels = (user: any) => {
         departure_date: data.departure_date,
         looking_for: data.looking_for,
         description: data.description,
+        traveling_with_partner: data.travelingWithPartner,
       }).select().single();
 
       if (error) throw error;
@@ -75,8 +77,10 @@ export const useTravels = (user: any) => {
           both: "locals and travelers"
         }[data.looking_for];
         
+        const partnerText = data.travelingWithPartner ? " with my partner" : "";
+        
         // Create post content
-        const postContent = `I'm traveling to ${data.city}, ${data.country} from ${formattedArrival} to ${formattedDeparture}. Looking to meet ${lookingForText}!${data.description ? `\n\n${data.description}` : ''}`;
+        const postContent = `I'm traveling to ${data.city}, ${data.country}${partnerText} from ${formattedArrival} to ${formattedDeparture}. Looking to meet ${lookingForText}!${data.description ? `\n\n${data.description}` : ''}`;
         
         const { error: postError } = await supabase.from("posts").insert({
           user_id: user.id,
@@ -104,6 +108,7 @@ export const useTravels = (user: any) => {
         description: "",
       });
       setShareAsPost(true);
+      setTravelingWithPartner(false);
       setIsAddDialogOpen(false);
       toast({
         title: "Success!",
@@ -148,7 +153,7 @@ export const useTravels = (user: any) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    addTravelMutation.mutate({...travelData, shareAsPost});
+    addTravelMutation.mutate({...travelData, shareAsPost, travelingWithPartner});
   };
 
   return {
@@ -156,11 +161,13 @@ export const useTravels = (user: any) => {
     isLoading,
     travelData,
     shareAsPost,
+    travelingWithPartner,
     isAddDialogOpen,
     addTravelMutation,
     deleteTravelMutation,
     setTravelData,
     setShareAsPost,
+    setTravelingWithPartner,
     setIsAddDialogOpen,
     handleInputChange,
     handleSubmit,

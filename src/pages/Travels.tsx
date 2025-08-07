@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
@@ -17,11 +18,13 @@ const Travels = () => {
     isLoading,
     travelData,
     shareAsPost,
+    travelingWithPartner,
     isAddDialogOpen,
     addTravelMutation,
     deleteTravelMutation,
     setTravelData,
     setShareAsPost,
+    setTravelingWithPartner,
     setIsAddDialogOpen,
     handleInputChange,
     handleSubmit,
@@ -45,10 +48,12 @@ const Travels = () => {
               <TravelForm
                 travelData={travelData}
                 shareAsPost={shareAsPost}
+                travelingWithPartner={travelingWithPartner}
                 isPending={addTravelMutation.isPending}
                 onInputChange={handleInputChange}
                 onLookingForChange={(value) => setTravelData((prev) => ({ ...prev, looking_for: value as "locals" | "tourists" | "both" }))}
                 onShareAsPostChange={(checked) => setShareAsPost(checked)}
+                onTravelingWithPartnerChange={(checked) => setTravelingWithPartner(checked)}
                 onSubmit={handleSubmit}
               />
             </DialogContent>

@@ -8,6 +8,7 @@ export interface Travel {
   departure_date: string;
   looking_for: "locals" | "tourists" | "both";
   description: string | null;
+  traveling_with_partner: boolean;
   created_at: string;
   updated_at: string;
   profiles: {
