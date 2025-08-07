@@ -289,6 +289,57 @@ export type Database = {
           },
         ]
       }
+      news_articles: {
+        Row: {
+          author_id: string
+          author_name: string | null
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          is_published: boolean
+          published_at: string
+          source: string
+          source_url: string | null
+          summary: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          author_name?: string | null
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          published_at?: string
+          source?: string
+          source_url?: string | null
+          summary?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string | null
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_published?: boolean
+          published_at?: string
+          source?: string
+          source_url?: string | null
+          summary?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       post_limits: {
         Row: {
           created_at: string

@@ -4,12 +4,13 @@ import MainLayout from '@/components/layout/MainLayout';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, MessageSquare, Settings, BarChart3, Shield } from 'lucide-react';
+import { Users, MessageSquare, Settings, BarChart3, Shield, Newspaper } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import ContentModeration from '@/components/admin/ContentModeration';
 import SystemSettings from '@/components/admin/SystemSettings';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import RoleManagement from '@/components/admin/RoleManagement';
+import NewsManagement from '@/components/admin/NewsManagement';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -46,7 +47,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Users
@@ -54,6 +55,10 @@ const Admin = () => {
             <TabsTrigger value="content" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
               Content
+            </TabsTrigger>
+            <TabsTrigger value="news" className="flex items-center gap-2">
+              <Newspaper className="w-4 h-4" />
+              News
             </TabsTrigger>
             <TabsTrigger value="roles" className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -87,6 +92,17 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 <ContentModeration />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="news">
+            <Card>
+              <CardHeader>
+                <CardTitle>News Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <NewsManagement />
               </CardContent>
             </Card>
           </TabsContent>
