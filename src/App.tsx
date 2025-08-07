@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/language";
 import { CalmModeProvider } from "@/context/CalmModeContext";
+import { ProfileTypeProvider } from "@/context/ProfileTypeContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -33,30 +34,32 @@ const App = () => (
       <AuthProvider>
         <LanguageProvider>
           <CalmModeProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/profile/:id" element={<Profile />} />
-                <Route path="/friends" element={<Friends />} />
-                <Route path="/friend-search" element={<FriendSearch />} />
-                <Route path="/groups" element={<Groups />} />
-                <Route path="/travels" element={<Travels />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/news" element={<News />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/message-preferences" element={<MessagePreferences />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/live-sessions" element={<LiveSessions />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              <ChatBubble />
-            </BrowserRouter>
+            <ProfileTypeProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/profile/:id" element={<Profile />} />
+                  <Route path="/friends" element={<Friends />} />
+                  <Route path="/friend-search" element={<FriendSearch />} />
+                  <Route path="/groups" element={<Groups />} />
+                  <Route path="/travels" element={<Travels />} />
+                  <Route path="/events" element={<Events />} />
+                  <Route path="/news" element={<News />} />
+                  <Route path="/messages" element={<Messages />} />
+                  <Route path="/message-preferences" element={<MessagePreferences />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/live-sessions" element={<LiveSessions />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <ChatBubble />
+              </BrowserRouter>
+            </ProfileTypeProvider>
           </CalmModeProvider>
         </LanguageProvider>
       </AuthProvider>

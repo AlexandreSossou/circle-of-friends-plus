@@ -8,6 +8,7 @@ import NavbarSearch from "./NavbarSearch";
 import NavbarDesktopNav from "./NavbarDesktopNav";
 import NavbarMobileMenu from "./NavbarMobileMenu";
 import NavbarUserMenu from "./NavbarUserMenu";
+import ProfileTypeSwitch from "./ProfileTypeSwitch";
 import { CalmModeToggle } from "@/components/ui/calm-mode-toggle";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
@@ -72,6 +73,7 @@ const Navbar = () => {
           <NavbarDesktopNav />
 
           <div className="flex items-center gap-2">
+            <ProfileTypeSwitch />
             <CalmModeToggle />
             <NavbarUserMenu />
 
