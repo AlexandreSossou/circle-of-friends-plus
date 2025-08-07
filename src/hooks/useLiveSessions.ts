@@ -140,6 +140,28 @@ export const useLiveSessions = () => {
       setIsViewingLive(false);
     }
   };
+
+  const startSession = (sessionData: { title: string; description: string; language: string }) => {
+    const newSession: LiveSession = {
+      id: `live-${Date.now()}`,
+      title: sessionData.title,
+      description: sessionData.description,
+      hostName: 'You', // In a real app, this would be the current user's name
+      scheduledFor: new Date(),
+      isLive: true,
+      viewerCount: 1,
+      language: sessionData.language
+    };
+
+    setSessions(prev => [newSession, ...prev]);
+    
+    toast({
+      title: "Live Session Started",
+      description: `"${sessionData.title}" is now live!`,
+    });
+
+    return newSession;
+  };
   
   return {
     sessions,
@@ -147,6 +169,7 @@ export const useLiveSessions = () => {
     isViewingLive,
     joinSession,
     leaveSession,
+    startSession,
     liveSessions: sessions.filter(session => session.isLive)
   };
 };
