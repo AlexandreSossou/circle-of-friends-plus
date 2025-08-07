@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 
 import MainLayout from "@/components/layout/MainLayout";
@@ -13,6 +13,7 @@ import { fetchPosts, fetchUserConnections } from "@/api/posts";
 
 const Index = () => {
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [isLoading, setIsLoading] = useState(true);
   const [activeFeed, setActiveFeed] = useState<FeedType>("connections");
   const { liveSessions } = useLiveSessions();
@@ -43,6 +44,11 @@ const Index = () => {
     setActiveFeed(feedType);
   };
 
+  const handlePostDeleted = () => {
+    // Invalidate and refetch posts
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
+  };
+
   return (
     <MainLayout>
       <FeedFilter activeFeed={activeFeed} onFeedChange={handleFeedChange} />
@@ -50,7 +56,7 @@ const Index = () => {
         <LiveSessionsCarousel sessions={liveSessions} />
       )}
       <CreatePostCard />
-      <PostsList posts={posts} isLoading={isLoading} feedType={activeFeed} />
+      <PostsList posts={posts} isLoading={isLoading} feedType={activeFeed} onPostDeleted={handlePostDeleted} />
     </MainLayout>
   );
 };

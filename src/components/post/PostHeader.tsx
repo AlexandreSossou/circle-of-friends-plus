@@ -3,13 +3,28 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Globe, Users } from "lucide-react";
+import { MoreHorizontal, Globe, Users, Trash2 } from "lucide-react";
+import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PostHeaderProps {
   author: {
@@ -20,9 +35,72 @@ interface PostHeaderProps {
   };
   timestamp: string;
   isGlobal?: boolean;
+  postId?: string;
+  postAuthorId?: string;
+  onPostDeleted?: () => void;
 }
 
-const PostHeader: React.FC<PostHeaderProps> = ({ author, timestamp, isGlobal }) => {
+const PostHeader: React.FC<PostHeaderProps> = ({ 
+  author, 
+  timestamp, 
+  isGlobal, 
+  postId, 
+  postAuthorId, 
+  onPostDeleted 
+}) => {
+  const { user } = useAuth();
+  const { hasAdminAccess, hasModeratorAccess } = useUserRole();
+  const { toast } = useToast();
+
+  const canDeletePost = () => {
+    if (!user) return false;
+    // User can delete their own post
+    if (user.id === postAuthorId) return true;
+    // Admins and moderators can delete any post
+    return hasAdminAccess || hasModeratorAccess;
+  };
+
+  const handleDeletePost = async () => {
+    if (!postId) return;
+
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      // Log admin activity if it's not the user's own post
+      if (user && user.id !== postAuthorId && (hasAdminAccess || hasModeratorAccess)) {
+        await supabase
+          .from('admin_activities')
+          .insert({
+            admin_id: user.id,
+            action: 'delete_post',
+            target_type: 'post',
+            target_id: postId,
+            details: { reason: 'Admin/Moderator deletion' }
+          });
+      }
+
+      toast({
+        title: "Post deleted",
+        description: "Post has been successfully deleted"
+      });
+
+      if (onPostDeleted) {
+        onPostDeleted();
+      }
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete post",
+        variant: "destructive"
+      });
+    }
+  };
   return (
     <div className="flex items-start justify-between">
       <div className="flex items-center">
@@ -67,6 +145,33 @@ const PostHeader: React.FC<PostHeaderProps> = ({ author, timestamp, isGlobal }) 
           <DropdownMenuItem>Save post</DropdownMenuItem>
           <DropdownMenuItem>Hide post</DropdownMenuItem>
           <DropdownMenuItem>Report post</DropdownMenuItem>
+          {canDeletePost() && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete post
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Post</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this post? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeletePost}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete Post
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

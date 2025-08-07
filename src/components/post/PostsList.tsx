@@ -10,9 +10,10 @@ interface PostsListProps {
   posts: PostData[];
   isLoading: boolean;
   feedType: FeedType;
+  onPostDeleted?: () => void;
 }
 
-const PostsList: React.FC<PostsListProps> = ({ posts, isLoading, feedType }) => {
+const PostsList: React.FC<PostsListProps> = ({ posts, isLoading, feedType, onPostDeleted }) => {
   if (isLoading) {
     return <PostsLoading />;
   }
@@ -24,7 +25,7 @@ const PostsList: React.FC<PostsListProps> = ({ posts, isLoading, feedType }) => 
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post.id} post={post} onPostDeleted={onPostDeleted} />
       ))}
     </div>
   );

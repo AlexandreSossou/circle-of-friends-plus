@@ -9,9 +9,10 @@ import { usePostActions } from "@/hooks/usePostActions";
 
 interface PostCardProps {
   post: PostData;
+  onPostDeleted?: () => void;
 }
 
-const PostCard = ({ post }: PostCardProps) => {
+const PostCard = ({ post, onPostDeleted }: PostCardProps) => {
   const {
     liked,
     likesCount,
@@ -32,6 +33,9 @@ const PostCard = ({ post }: PostCardProps) => {
           author={post.author}
           timestamp={post.timestamp}
           isGlobal={post.isGlobal}
+          postId={post.id}
+          postAuthorId={post.author.id}
+          onPostDeleted={onPostDeleted}
         />
         
         <PostContent 
