@@ -162,12 +162,10 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
           />
         ) : null}
         
-        {profileType === "private" && (
-          <LookingForSelector 
-            lookingFor={lookingFor}
-            onLookingForChange={setLookingFor}
-          />
-        )}
+        <LookingForSelector 
+          lookingFor={lookingFor}
+          onLookingForChange={setLookingFor}
+        />
         
         <Button 
           onClick={() => handleUpdateStatus(profileType)} 
