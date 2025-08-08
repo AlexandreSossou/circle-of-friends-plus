@@ -30,6 +30,7 @@ interface User {
   id: string;
   full_name?: string;
   username?: string;
+  email?: string;
   avatar_url?: string;
   is_banned?: boolean;
   banned_reason?: string;
@@ -180,7 +181,8 @@ const UserManagement = () => {
 
   const filteredUsers = users.filter(user =>
     user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.username?.toLowerCase().includes(searchTerm.toLowerCase())
+    user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (isLoading) {
@@ -219,6 +221,7 @@ const UserManagement = () => {
                   </Avatar>
                   <div>
                     <h3 className="font-semibold">{user.full_name || user.username || 'Anonymous'}</h3>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
                     <p className="text-sm text-muted-foreground">
                       Joined {new Date(user.created_at).toLocaleDateString()}
                     </p>

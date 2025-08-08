@@ -526,6 +526,7 @@ export type Database = {
           banned_until: string | null
           bio: string | null
           created_at: string
+          email: string | null
           full_name: string | null
           gender: string | null
           id: string
@@ -549,6 +550,7 @@ export type Database = {
           banned_until?: string | null
           bio?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           gender?: string | null
           id: string
@@ -572,6 +574,7 @@ export type Database = {
           banned_until?: string | null
           bio?: string | null
           created_at?: string
+          email?: string | null
           full_name?: string | null
           gender?: string | null
           id?: string
