@@ -44,6 +44,59 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_moderation: {
+        Row: {
+          ai_confidence: number | null
+          created_at: string
+          flagged_content: string
+          id: string
+          message_id: string | null
+          moderator_action: string | null
+          moderator_id: string | null
+          moderator_reviewed: boolean | null
+          severity_level: string
+          updated_at: string
+          user_id: string
+          violation_type: string
+        }
+        Insert: {
+          ai_confidence?: number | null
+          created_at?: string
+          flagged_content: string
+          id?: string
+          message_id?: string | null
+          moderator_action?: string | null
+          moderator_id?: string | null
+          moderator_reviewed?: boolean | null
+          severity_level?: string
+          updated_at?: string
+          user_id: string
+          violation_type: string
+        }
+        Update: {
+          ai_confidence?: number | null
+          created_at?: string
+          flagged_content?: string
+          id?: string
+          message_id?: string | null
+          moderator_action?: string | null
+          moderator_id?: string | null
+          moderator_reviewed?: boolean | null
+          severity_level?: string
+          updated_at?: string
+          user_id?: string
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_moderation_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           content: string
@@ -285,6 +338,41 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_notifications: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          moderation_id: string | null
+          read: boolean | null
+          recipient_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          moderation_id?: string | null
+          read?: boolean | null
+          recipient_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          moderation_id?: string | null
+          read?: boolean | null
+          recipient_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_notifications_moderation_id_fkey"
+            columns: ["moderation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_moderation"
             referencedColumns: ["id"]
           },
         ]
@@ -686,6 +774,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_warnings: {
+        Row: {
+          acknowledged: boolean | null
+          created_at: string
+          id: string
+          moderation_id: string | null
+          user_id: string
+          warning_message: string
+          warning_type: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          created_at?: string
+          id?: string
+          moderation_id?: string | null
+          user_id: string
+          warning_message: string
+          warning_type: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          created_at?: string
+          id?: string
+          moderation_id?: string | null
+          user_id?: string
+          warning_message?: string
+          warning_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_warnings_moderation_id_fkey"
+            columns: ["moderation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_moderation"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

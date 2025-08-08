@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, MessageSquare, Calendar, AlertTriangle, TrendingUp } from 'lucide-react';
+import ModerationDashboard from './ModerationDashboard';
 
 interface AnalyticsData {
   totalUsers: number;
@@ -111,8 +113,20 @@ const AdminAnalytics = () => {
 
   return (
     <div className="space-y-6">
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div>
+        <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+        <p className="text-muted-foreground">Overview of platform activity and user engagement</p>
+      </div>
+      
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="moderation">Moderation</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Overview Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -240,9 +254,15 @@ const AdminAnalytics = () => {
               </div>
               <p className="text-sm text-muted-foreground">Moderation Queue</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+        </TabsContent>
+
+        <TabsContent value="moderation" className="space-y-4">
+          <ModerationDashboard />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

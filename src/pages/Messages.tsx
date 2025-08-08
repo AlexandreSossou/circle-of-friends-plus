@@ -2,6 +2,7 @@
 import MainLayout from "@/components/layout/MainLayout";
 import ContactList from "@/components/messages/ContactList";
 import ChatInterface from "@/components/messages/ChatInterface";
+import UserWarningDialog from "@/components/messages/UserWarningDialog";
 import { useMessages } from "@/hooks/useMessages";
 
 const Messages = () => {
@@ -18,6 +19,7 @@ const Messages = () => {
 
   return (
     <MainLayout>
+      <UserWarningDialog />
       <div className="social-card p-0 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-3 h-[calc(100vh-200px)]">
           {/* Contacts sidebar */}

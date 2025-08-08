@@ -141,15 +141,36 @@ export const useMessages = () => {
     if (!user || !selectedContact) return;
 
     try {
-      const { error } = await supabase
+      // Insert the message first
+      const { data: messageData, error: messageError } = await supabase
         .from("messages")
         .insert({
           sender_id: user.id,
           recipient_id: selectedContact.id,
           content,
+        })
+        .select()
+        .single();
+
+      if (messageError) throw messageError;
+
+      // Check for moderation after message is sent
+      try {
+        const { data: moderationResult } = await supabase.functions.invoke('moderate-message', {
+          body: {
+            messageId: messageData.id,
+            content: content,
+            userId: user.id
+          }
         });
 
-      if (error) throw error;
+        if (moderationResult?.flagged) {
+          console.log('Message flagged for moderation:', moderationResult);
+        }
+      } catch (moderationError) {
+        console.error('Error in moderation check:', moderationError);
+        // Don't fail the entire message send if moderation fails
+      }
 
       refetchMessages();
       refetchContacts();
