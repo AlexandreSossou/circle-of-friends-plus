@@ -832,6 +832,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_content_input: {
+        Args: { content_text: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

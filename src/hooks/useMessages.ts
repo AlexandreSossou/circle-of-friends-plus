@@ -136,44 +136,69 @@ export const useMessages = () => {
     enabled: !!searchTerm && searchTerm.length >= 2 && !!user,
   });
 
-  // Send a message
+  // Send a message with enhanced security validation
   const sendMessage = async (content: string) => {
     if (!user || !selectedContact) return;
 
     try {
-      // Insert the message first
+      // Validate content before sending using secure validation
+      const { data: validationResult, error: validationError } = await supabase.functions.invoke('secure-content-validation', {
+        body: {
+          content: content.trim(),
+          userId: user.id,
+          contentType: 'message'
+        }
+      });
+
+      if (validationError) {
+        console.error('Content validation failed:', validationError);
+        toast({
+          title: "Validation Error",
+          description: "Unable to validate message content. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Block message if flagged with high severity
+      if (validationResult?.flagged && validationResult.severityLevel === 'high') {
+        toast({
+          title: "Message Blocked",
+          description: "Your message violates our community guidelines and cannot be sent.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Show warning for medium severity but allow sending
+      if (validationResult?.flagged && validationResult.severityLevel === 'medium') {
+        toast({
+          title: "Content Warning",
+          description: "Your message has been flagged for review but will be sent.",
+          variant: "default"
+        });
+      }
+
+      // Insert the message
       const { data: messageData, error: messageError } = await supabase
         .from("messages")
         .insert({
           sender_id: user.id,
           recipient_id: selectedContact.id,
-          content,
+          content: content.trim(),
         })
         .select()
         .single();
 
       if (messageError) throw messageError;
 
-      // Check for moderation after message is sent
-      try {
-        const { data: moderationResult } = await supabase.functions.invoke('moderate-message', {
-          body: {
-            messageId: messageData.id,
-            content: content,
-            userId: user.id
-          }
-        });
-
-        if (moderationResult?.flagged) {
-          console.log('Message flagged for moderation:', moderationResult);
-        }
-      } catch (moderationError) {
-        console.error('Error in moderation check:', moderationError);
-        // Don't fail the entire message send if moderation fails
-      }
-
       refetchMessages();
       refetchContacts();
+      
+      toast({
+        title: "Message sent",
+        description: "Your message has been delivered."
+      });
     } catch (error) {
       console.error("Error sending message:", error);
       toast({

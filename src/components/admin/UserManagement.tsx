@@ -181,28 +181,44 @@ const UserManagement = () => {
 
   const promoteToModerator = async (userId: string) => {
     try {
-      const { error } = await supabase
+      // Get current user to verify admin status
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error('Not authenticated');
+
+      // Verify current user is admin (additional client-side check)
+      const { data: roleData } = await supabase
         .from('user_roles')
-        .upsert({
-          user_id: userId,
-          role: 'moderator'
+        .select('role')
+        .eq('user_id', currentUser.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (!roleData) {
+        throw new Error('Insufficient permissions');
+      }
+
+      // Prevent self-modification
+      if (userId === currentUser.id) {
+        throw new Error('Cannot modify your own role');
+      }
+
+      // Delete existing role and insert new one (secure approach)
+      const { error: deleteError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+      if (deleteError) throw deleteError;
+
+      const { error: insertError } = await supabase
+        .from('user_roles')
+        .insert({ 
+          user_id: userId, 
+          role: 'moderator',
+          assigned_by: currentUser.id 
         });
 
-      if (error) throw error;
-
-      // Log admin activity
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase
-          .from('admin_activities')
-          .insert({
-            admin_id: user.id,
-            action: 'promote_to_moderator',
-            target_type: 'user',
-            target_id: userId,
-            details: {}
-          });
-      }
+      if (insertError) throw insertError;
 
       toast({
         title: "User promoted",
@@ -214,7 +230,7 @@ const UserManagement = () => {
       console.error('Error promoting user:', error);
       toast({
         title: "Error",
-        description: "Failed to promote user",
+        description: error.message || "Failed to promote user",
         variant: "destructive"
       });
     }
@@ -222,32 +238,48 @@ const UserManagement = () => {
 
   const demoteFromModerator = async (userId: string) => {
     try {
-      const { error } = await supabase
+      // Get current user to verify admin status
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error('Not authenticated');
+
+      // Verify current user is admin (additional client-side check)
+      const { data: roleData } = await supabase
         .from('user_roles')
-        .upsert({
-          user_id: userId,
-          role: 'user'
+        .select('role')
+        .eq('user_id', currentUser.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (!roleData) {
+        throw new Error('Insufficient permissions');
+      }
+
+      // Prevent self-modification
+      if (userId === currentUser.id) {
+        throw new Error('Cannot modify your own role');
+      }
+
+      // Delete existing role and insert new one (secure approach)
+      const { error: deleteError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+      if (deleteError) throw deleteError;
+
+      const { error: insertError } = await supabase
+        .from('user_roles')
+        .insert({ 
+          user_id: userId, 
+          role: 'user',
+          assigned_by: currentUser.id 
         });
 
-      if (error) throw error;
-
-      // Log admin activity
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase
-          .from('admin_activities')
-          .insert({
-            admin_id: user.id,
-            action: 'demote_from_moderator',
-            target_type: 'user',
-            target_id: userId,
-            details: {}
-          });
-      }
+      if (insertError) throw insertError;
 
       toast({
         title: "User demoted",
-        description: "User has been demoted from moderator"
+        description: "User has been demoted to regular user"
       });
 
       fetchUsers();
@@ -255,7 +287,7 @@ const UserManagement = () => {
       console.error('Error demoting user:', error);
       toast({
         title: "Error",
-        description: "Failed to demote user",
+        description: error.message || "Failed to demote user",
         variant: "destructive"
       });
     }
@@ -263,6 +295,39 @@ const UserManagement = () => {
 
   const deleteUser = async (userId: string) => {
     try {
+      // Get current user to verify admin status
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) throw new Error('Not authenticated');
+
+      // Verify current user is admin (additional client-side check)
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', currentUser.id)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (!roleData) {
+        throw new Error('Insufficient permissions');
+      }
+
+      // Prevent self-deletion
+      if (userId === currentUser.id) {
+        throw new Error('Cannot delete your own account');
+      }
+
+      // Check if target user is admin to prevent deletion
+      const { data: targetRoleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      if (targetRoleData) {
+        throw new Error('Cannot delete admin accounts');
+      }
+
       const { error } = await supabase
         .from('profiles')
         .delete()
@@ -271,18 +336,15 @@ const UserManagement = () => {
       if (error) throw error;
 
       // Log admin activity
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase
-          .from('admin_activities')
-          .insert({
-            admin_id: user.id,
-            action: 'delete_user',
-            target_type: 'user',
-            target_id: userId,
-            details: {}
-          });
-      }
+      await supabase
+        .from('admin_activities')
+        .insert({
+          admin_id: currentUser.id,
+          action: 'delete_user',
+          target_type: 'user',
+          target_id: userId,
+          details: { timestamp: new Date().toISOString() }
+        });
 
       toast({
         title: "User deleted",
@@ -294,7 +356,7 @@ const UserManagement = () => {
       console.error('Error deleting user:', error);
       toast({
         title: "Error",
-        description: "Failed to delete user",
+        description: error.message || "Failed to delete user",
         variant: "destructive"
       });
     }
