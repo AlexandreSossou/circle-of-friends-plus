@@ -17,7 +17,7 @@ import {
   AlertDialogTitle, 
   AlertDialogTrigger 
 } from '@/components/ui/alert-dialog';
-import { Ban, Search, MoreVertical, Unlock } from 'lucide-react';
+import { Ban, Search, MoreVertical, Unlock, Shield, ShieldOff } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -179,6 +179,88 @@ const UserManagement = () => {
     }
   };
 
+  const promoteToModerator = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .upsert({
+          user_id: userId,
+          role: 'moderator'
+        });
+
+      if (error) throw error;
+
+      // Log admin activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('admin_activities')
+          .insert({
+            admin_id: user.id,
+            action: 'promote_to_moderator',
+            target_type: 'user',
+            target_id: userId,
+            details: {}
+          });
+      }
+
+      toast({
+        title: "User promoted",
+        description: "User has been promoted to moderator"
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Error promoting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to promote user",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const demoteFromModerator = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .upsert({
+          user_id: userId,
+          role: 'user'
+        });
+
+      if (error) throw error;
+
+      // Log admin activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('admin_activities')
+          .insert({
+            admin_id: user.id,
+            action: 'demote_from_moderator',
+            target_type: 'user',
+            target_id: userId,
+            details: {}
+          });
+      }
+
+      toast({
+        title: "User demoted",
+        description: "User has been demoted from moderator"
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Error demoting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to demote user",
+        variant: "destructive"
+      });
+    }
+  };
+
   const filteredUsers = users.filter(user =>
     user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -243,6 +325,21 @@ const UserManagement = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    {user.role !== 'admin' && (
+                      <>
+                        {user.role === 'moderator' ? (
+                          <DropdownMenuItem onClick={() => demoteFromModerator(user.id)}>
+                            <ShieldOff className="w-4 h-4 mr-2" />
+                            Remove Moderator
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem onClick={() => promoteToModerator(user.id)}>
+                            <Shield className="w-4 h-4 mr-2" />
+                            Make Moderator
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
                     {user.is_banned ? (
                       <DropdownMenuItem onClick={() => unbanUser(user.id)}>
                         <Unlock className="w-4 h-4 mr-2" />
