@@ -17,7 +17,7 @@ import {
   AlertDialogTitle, 
   AlertDialogTrigger 
 } from '@/components/ui/alert-dialog';
-import { Ban, Search, MoreVertical, Unlock, Shield, ShieldOff } from 'lucide-react';
+import { Ban, Search, MoreVertical, Unlock, Shield, ShieldOff, Trash2 } from 'lucide-react';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -261,6 +261,45 @@ const UserManagement = () => {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      // Log admin activity
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase
+          .from('admin_activities')
+          .insert({
+            admin_id: user.id,
+            action: 'delete_user',
+            target_type: 'user',
+            target_id: userId,
+            details: {}
+          });
+      }
+
+      toast({
+        title: "User deleted",
+        description: "User profile has been permanently deleted"
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive"
+      });
+    }
+  };
+
   const filteredUsers = users.filter(user =>
     user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -384,9 +423,37 @@ const UserManagement = () => {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                     )}
+                     {user.role !== 'admin' && (
+                       <AlertDialog>
+                         <AlertDialogTrigger asChild>
+                           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                             <Trash2 className="w-4 h-4 mr-2" />
+                             Delete User
+                           </DropdownMenuItem>
+                         </AlertDialogTrigger>
+                         <AlertDialogContent>
+                           <AlertDialogHeader>
+                             <AlertDialogTitle>Delete User</AlertDialogTitle>
+                             <AlertDialogDescription>
+                               Are you sure you want to permanently delete {user.full_name || user.username}? 
+                               This action cannot be undone and will remove their profile data.
+                             </AlertDialogDescription>
+                           </AlertDialogHeader>
+                           <AlertDialogFooter>
+                             <AlertDialogCancel>Cancel</AlertDialogCancel>
+                             <AlertDialogAction
+                               onClick={() => deleteUser(user.id)}
+                               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                             >
+                               Delete User
+                             </AlertDialogAction>
+                           </AlertDialogFooter>
+                         </AlertDialogContent>
+                       </AlertDialog>
+                     )}
+                   </DropdownMenuContent>
+                 </DropdownMenu>
               </div>
               {user.banned_reason && (
                 <div className="mt-3 p-3 bg-destructive/10 rounded-md">
