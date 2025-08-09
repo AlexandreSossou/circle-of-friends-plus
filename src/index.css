@@ -5,92 +5,101 @@
 
 @layer base {
   :root {
-    /* Light elegant base colors */
-    --background: 220 15% 97%;
-    --foreground: 220 25% 15%;
+    /* Modern Black & Gold Theme - Light Mode */
+    --background: 0 0% 98%;
+    --foreground: 0 0% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 15%;
+    --card-foreground: 0 0% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 15%;
+    --popover-foreground: 0 0% 8%;
 
-    /* Rich dark blue primary */
-    --primary: 220 85% 25%;
-    --primary-foreground: 0 0% 100%;
-    --primary-hover: 220 85% 20%;
+    /* Luxurious Gold Primary */
+    --primary: 43 96% 56%;
+    --primary-foreground: 0 0% 8%;
+    --primary-hover: 43 96% 48%;
 
-    /* Gold secondary */
-    --secondary: 45 90% 65%;
-    --secondary-foreground: 220 25% 15%;
+    /* Rich Black Secondary */
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 43 96% 56%;
 
-    /* Subtle blue muted tones */
-    --muted: 220 20% 94%;
-    --muted-foreground: 220 15% 55%;
+    /* Sophisticated Muted Tones */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Light gold accent */
-    --accent: 45 85% 85%;
-    --accent-foreground: 220 25% 15%;
+    /* Elegant Gold Accent */
+    --accent: 43 74% 66%;
+    --accent-foreground: 0 0% 8%;
 
-    /* Warm gold accent */
-    --accent-yellow: 45 90% 65%;
-    --accent-yellow-foreground: 220 25% 15%;
+    /* Premium Warm Gold */
+    --accent-yellow: 43 96% 56%;
+    --accent-yellow-foreground: 0 0% 8%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Blue-tinted borders and inputs */
-    --border: 220 25% 88%;
-    --input: 220 25% 88%;
-    --ring: 220 85% 25%;
+    /* Refined Borders */
+    --border: 0 0% 90%;
+    --input: 0 0% 94%;
+    --ring: 43 96% 56%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 43 96% 56%;
+    --sidebar-primary: 43 96% 56%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 43 96% 56%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 43 96% 56%;
   }
 
   .dark {
-    /* Deep blue dark theme */
-    --background: 220 25% 8%;
-    --foreground: 45 15% 92%;
+    /* Modern Black & Gold Theme - Dark Mode */
+    --background: 0 0% 6%;
+    --foreground: 43 96% 56%;
 
-    --card: 220 20% 12%;
-    --card-foreground: 45 15% 92%;
+    --card: 0 0% 8%;
+    --card-foreground: 43 96% 56%;
 
-    --popover: 220 20% 12%;
-    --popover-foreground: 45 15% 92%;
+    --popover: 0 0% 8%;
+    --popover-foreground: 43 96% 56%;
 
-    /* Bright gold primary on dark */
-    --primary: 45 95% 70%;
-    --primary-foreground: 220 25% 8%;
-    --primary-hover: 45 95% 75%;
+    /* Brilliant Gold Primary on Black */
+    --primary: 43 96% 56%;
+    --primary-foreground: 0 0% 8%;
+    --primary-hover: 43 96% 62%;
 
-    /* Dark blue secondary */
-    --secondary: 220 50% 20%;
-    --secondary-foreground: 45 15% 92%;
+    /* Deep Black Secondary */
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 43 96% 56%;
 
-    /* Dark blue muted tones */
-    --muted: 220 15% 16%;
-    --muted-foreground: 45 8% 65%;
+    /* Dark Elegant Muted */
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 65%;
 
-    /* Dark gold accent */
-    --accent: 45 60% 25%;
-    --accent-foreground: 45 15% 92%;
+    /* Rich Gold Accent */
+    --accent: 43 74% 46%;
+    --accent-foreground: 43 96% 56%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Dark blue borders */
-    --border: 220 15% 20%;
-    --input: 220 15% 20%;
-    --ring: 45 95% 70%;
+    /* Sophisticated Dark Borders */
+    --border: 0 0% 18%;
+    --input: 0 0% 12%;
+    --ring: 43 96% 56%;
+
+    --sidebar-background: 0 0% 4%;
+    --sidebar-foreground: 43 96% 56%;
+    --sidebar-primary: 43 96% 56%;
+    --sidebar-primary-foreground: 0 0% 8%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 43 96% 56%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 43 96% 56%;
   }
   
   .calm {
