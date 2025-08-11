@@ -119,6 +119,7 @@ const Profile = () => {
               handleAddFriend={handleAddFriend} 
               profileId={profileId || ""}
               profileType={currentProfileType}
+              onProfileUpdate={handleProfileUpdate}
             />
             
             <div className="p-4 md:p-6 pt-0">

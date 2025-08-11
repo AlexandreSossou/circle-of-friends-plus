@@ -16,6 +16,7 @@ type ProfileHeaderProps = {
   handleAddFriend: () => void;
   profileId: string;
   profileType?: ProfileType;
+  onProfileUpdate?: (updates: Partial<ProfileData>) => Promise<void>;
 }
 
 const ProfileHeader = ({ 
@@ -23,7 +24,8 @@ const ProfileHeader = ({
   isOwnProfile, 
   handleAddFriend, 
   profileId, 
-  profileType = "public" 
+  profileType = "public",
+  onProfileUpdate
 }: ProfileHeaderProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedBio, setEditedBio] = useState(
@@ -44,11 +46,21 @@ const ProfileHeader = ({
     setIsEditing(false);
   };
 
-  const handleSaveProfile = () => {
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been updated successfully.",
-    });
+  const handleSaveProfile = async () => {
+    if (onProfileUpdate) {
+      const updates: Partial<ProfileData> = {
+        location: editedLocation,
+      };
+      
+      // Save bio to appropriate field based on profile type
+      if (profileType === "public") {
+        updates.bio = editedBio;
+      } else {
+        updates.private_bio = editedBio;
+      }
+      
+      await onProfileUpdate(updates);
+    }
     setIsEditing(false);
   };
 
