@@ -120,6 +120,9 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
         title: "Sexual orientation updated",
         description: "Your sexual orientation has been updated successfully.",
       });
+      
+      // Refresh the page to show updated data
+      window.location.reload();
     } catch (error) {
       console.error('Error updating sexual orientation:', error);
       toast({
