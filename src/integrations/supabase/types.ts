@@ -537,9 +537,12 @@ export type Database = {
           marital_status: string | null
           partner_id: string | null
           partners: string[] | null
+          private_avatar_url: string | null
+          private_bio: string | null
           private_marital_status: string | null
           private_partner_id: string | null
           private_partners: string[] | null
+          private_username: string | null
           sexual_orientation: string | null
           updated_at: string
           username: string | null
@@ -563,9 +566,12 @@ export type Database = {
           marital_status?: string | null
           partner_id?: string | null
           partners?: string[] | null
+          private_avatar_url?: string | null
+          private_bio?: string | null
           private_marital_status?: string | null
           private_partner_id?: string | null
           private_partners?: string[] | null
+          private_username?: string | null
           sexual_orientation?: string | null
           updated_at?: string
           username?: string | null
@@ -589,9 +595,12 @@ export type Database = {
           marital_status?: string | null
           partner_id?: string | null
           partners?: string[] | null
+          private_avatar_url?: string | null
+          private_bio?: string | null
           private_marital_status?: string | null
           private_partner_id?: string | null
           private_partners?: string[] | null
+          private_username?: string | null
           sexual_orientation?: string | null
           updated_at?: string
           username?: string | null

@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import MainLayout from "@/components/layout/MainLayout";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileLoading from "@/components/profile/ProfileLoading";
 import ProfileContent from "@/components/profile/ProfileContent";
@@ -65,17 +66,38 @@ const Profile = () => {
     });
   };
 
-  const handleProfileUpdate = (updates: Partial<ProfileData>) => {
-    if (localProfileData) {
-      const updatedProfile = { ...localProfileData, ...updates };
-      setLocalProfileData(updatedProfile);
-    }
+  const handleProfileUpdate = async (updates: Partial<ProfileData>) => {
+    if (!profileId) return;
     
-    console.log("Profile updated:", updates);
-    toast({
-      title: "Profile updated",
-      description: "Your profile has been updated successfully.",
-    });
+    try {
+      // Update the database
+      const { error } = await supabase
+        .from('profiles')
+        .update(updates)
+        .eq('id', profileId);
+
+      if (error) {
+        throw error;
+      }
+
+      // Update local state
+      if (localProfileData) {
+        const updatedProfile = { ...localProfileData, ...updates };
+        setLocalProfileData(updatedProfile);
+      }
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Update failed",
+        description: "Failed to update your profile. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (profileLoading) {
