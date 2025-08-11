@@ -23,8 +23,10 @@ import MessagePreferences from "./pages/MessagePreferences";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import Auth from "./pages/Auth";
 import ChatBubble from "./components/chat/ChatBubble";
 import LiveSessions from "./pages/LiveSessions";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -39,25 +41,28 @@ const App = () => (
               <Sonner />
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/profile/:id" element={<Profile />} />
-                  <Route path="/friends" element={<Friends />} />
-                  <Route path="/friend-search" element={<FriendSearch />} />
-                  <Route path="/groups" element={<Groups />} />
-                  <Route path="/travels" element={<Travels />} />
-                  <Route path="/events" element={<Events />} />
-                  <Route path="/news" element={<News />} />
-                  <Route path="/messages" element={<Messages />} />
-                  <Route path="/message-preferences" element={<MessagePreferences />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/live-sessions" element={<LiveSessions />} />
+                  <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
+                  <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                  <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
+                  <Route path="/friend-search" element={<ProtectedRoute><FriendSearch /></ProtectedRoute>} />
+                  <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+                  <Route path="/travels" element={<ProtectedRoute><Travels /></ProtectedRoute>} />
+                  <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+                  <Route path="/news" element={<ProtectedRoute><News /></ProtectedRoute>} />
+                  <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+                  <Route path="/message-preferences" element={<ProtectedRoute><MessagePreferences /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                  <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+                  <Route path="/live-sessions" element={<ProtectedRoute><LiveSessions /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
-                <ChatBubble />
+                <ProtectedRoute>
+                  <ChatBubble />
+                </ProtectedRoute>
               </BrowserRouter>
             </ProfileTypeProvider>
           </CalmModeProvider>
