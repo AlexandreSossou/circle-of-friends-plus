@@ -539,6 +539,7 @@ export type Database = {
           private_marital_status: string | null
           private_partner_id: string | null
           private_partners: string[] | null
+          sexual_orientation: string | null
           updated_at: string
           username: string | null
         }
@@ -563,6 +564,7 @@ export type Database = {
           private_marital_status?: string | null
           private_partner_id?: string | null
           private_partners?: string[] | null
+          sexual_orientation?: string | null
           updated_at?: string
           username?: string | null
         }
@@ -587,6 +589,7 @@ export type Database = {
           private_marital_status?: string | null
           private_partner_id?: string | null
           private_partners?: string[] | null
+          sexual_orientation?: string | null
           updated_at?: string
           username?: string | null
         }

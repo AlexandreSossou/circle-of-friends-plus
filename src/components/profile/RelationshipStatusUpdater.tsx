@@ -14,6 +14,7 @@ import MultiPartnerSelector from "./relationship/MultiPartnerSelector";
 import RelationshipStatusDisplay from "./relationship/RelationshipStatusDisplay";
 import LookingForSelector from "./relationship/LookingForSelector";
 import GenderSelector from "./GenderSelector";
+import SexualOrientationSelector from "./SexualOrientationSelector";
 import { ProfileType } from "@/types/profile";
 
 interface RelationshipStatusUpdaterProps {
@@ -24,7 +25,9 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
   const { user } = useAuth();
   const { toast } = useToast();
   const [gender, setGender] = useState<string>("");
+  const [sexualOrientation, setSexualOrientation] = useState<string>("");
   const [isUpdatingGender, setIsUpdatingGender] = useState(false);
+  const [isUpdatingOrientation, setIsUpdatingOrientation] = useState(false);
   
   const {
     status,
@@ -49,23 +52,24 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
     handleUpdateStatus
   } = useRelationshipStatus();
 
-  // Load current gender from profile
+  // Load current gender and sexual orientation from profile
   useEffect(() => {
-    const loadGender = async () => {
+    const loadProfileData = async () => {
       if (!user?.id) return;
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('gender')
+        .select('gender, sexual_orientation')
         .eq('id', user.id)
         .single();
       
       if (data && !error) {
         setGender(data.gender || "");
+        setSexualOrientation(data.sexual_orientation || "");
       }
     };
     
-    loadGender();
+    loadProfileData();
   }, [user?.id]);
 
   const handleGenderUpdate = async (newGender: string) => {
@@ -95,6 +99,36 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
       });
     } finally {
       setIsUpdatingGender(false);
+    }
+  };
+
+  const handleSexualOrientationUpdate = async (newOrientation: string) => {
+    if (!user?.id) return;
+    
+    setIsUpdatingOrientation(true);
+    setSexualOrientation(newOrientation);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ sexual_orientation: newOrientation })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Sexual orientation updated",
+        description: "Your sexual orientation has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating sexual orientation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update sexual orientation. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingOrientation(false);
     }
   };
 
@@ -226,17 +260,22 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
           onGenderChange={handleGenderUpdate}
         />
         
-        <LookingForSelector 
+        <SexualOrientationSelector 
+          sexualOrientation={sexualOrientation}
+          onSexualOrientationChange={handleSexualOrientationUpdate}
+        />
+        
+        <LookingForSelector
           lookingFor={lookingFor}
           onLookingForChange={setLookingFor}
         />
         
         <Button 
           onClick={() => handleUpdateStatus(profileType)} 
-          disabled={isUpdating || isUpdatingGender || (currentStatus !== "Single" && !currentPartner && currentPartners.length === 0)}
+          disabled={isUpdating || isUpdatingGender || isUpdatingOrientation || (currentStatus !== "Single" && !currentPartner && currentPartners.length === 0)}
           className="w-full"
         >
-          {isUpdating || isUpdatingGender ? (
+          {isUpdating || isUpdatingGender || isUpdatingOrientation ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Updating...

@@ -10,6 +10,7 @@ export interface ProfileData {
   private_bio?: string; // New field for private profile bio
   location?: string;
   gender?: string;
+  sexual_orientation?: string;
   age?: number;
   marital_status?: string;
   partner_id?: string;

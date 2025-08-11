@@ -11,6 +11,7 @@ interface ProfileInfoProps {
   location?: string;
   age?: number;
   gender?: string;
+  sexualOrientation?: string;
   maritalStatus?: string;
   privateMaritalStatus?: string;
   partnerId?: string;
@@ -33,6 +34,7 @@ const ProfileInfo = ({
   location,
   age,
   gender,
+  sexualOrientation,
   maritalStatus,
   privateMaritalStatus,
   partnerId,
@@ -68,8 +70,6 @@ const ProfileInfo = ({
   const currentPartnerId = profileType === "private" ? privatePartnerId : partnerId;
   const currentPartners = profileType === "private" ? privatePartners : partners;
 
-  console.log('ProfileInfo debug:', { gender, age, profileType, isOwnProfile });
-  
   return (
     <div>
       <h1 className="text-2xl md:text-3xl font-bold">{displayName}</h1>
@@ -106,6 +106,12 @@ const ProfileInfo = ({
             {gender && (
               <span className="flex items-center">
                 <span className="font-medium mr-1">Gender:</span> {gender}
+              </span>
+            )}
+            
+            {sexualOrientation && (
+              <span className="flex items-center">
+                <span className="font-medium mr-1">Orientation:</span> {sexualOrientation}
               </span>
             )}
             
