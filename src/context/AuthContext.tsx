@@ -8,7 +8,7 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   isLoading: boolean;
-  signUp: (email: string, password: string, metadata: { full_name: string }) => Promise<void>;
+  signUp: (email: string, password: string, metadata: { full_name: string; gender?: string; age?: number; marital_status?: string; [key: string]: any }) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, metadata: { full_name: string }) => {
+  const signUp = async (email: string, password: string, metadata: { full_name: string; gender?: string; age?: number; marital_status?: string; [key: string]: any }) => {
     try {
       setIsLoading(true);
       const redirectUrl = `${window.location.origin}/`;
