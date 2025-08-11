@@ -2,6 +2,7 @@
 import { MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ProfileType } from "@/types/profile";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import RelationshipStatusDisplay from "../relationship/RelationshipStatusDisplay";
 
 interface ProfileInfoProps {
@@ -72,6 +73,21 @@ const ProfileInfo = ({
   const currentPartnerId = profileType === "private" ? privatePartnerId : partnerId;
   const currentPartners = profileType === "private" ? privatePartners : partners;
 
+  // Libido descriptions mapping
+  const getLibidoDescription = (libidoEmoji: string) => {
+    const libidoMap: Record<string, string> = {
+      "🚫": "Asexual – Not my thing.",
+      "🐼": "Very Low Libido – Once in a blue moon.",
+      "🦥": "Low Libido – Slowly and infrequently, even during breeding season.",
+      "🦉": "Mild Libido – Monogamous and seasonal.",
+      "🐐": "Moderate Libido – Seasonal breeders, but noticeably active when in heat.",
+      "🦌": "High Libido – All in during the season.",
+      "🐬": "Very High Libido – ALL THE TIME",
+      "🦘": "Death-Drive Libido – Go out with a bang — literally."
+    };
+    return libidoMap[libidoEmoji] || libidoEmoji;
+  };
+
   return (
     <div>
       <h1 className="text-2xl md:text-3xl font-bold">{displayName}</h1>
@@ -118,9 +134,18 @@ const ProfileInfo = ({
             )}
             
             {libido && (
-              <span className="flex items-center">
-                <span className="font-medium mr-1">Libido:</span> {libido}
-              </span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="flex items-center cursor-help">
+                      <span className="font-medium mr-1">Libido:</span> {libido}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{getLibidoDescription(libido)}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
             
             {currentMaritalStatus && (
