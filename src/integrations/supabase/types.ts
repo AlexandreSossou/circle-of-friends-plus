@@ -844,6 +844,7 @@ export type Database = {
           bio: string
           location: string
           gender: string
+          sexual_orientation: string
           marital_status: string
           private_marital_status: string
           looking_for: string[]
