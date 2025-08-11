@@ -531,6 +531,7 @@ export type Database = {
           gender: string | null
           id: string
           is_banned: boolean | null
+          libido: string | null
           location: string | null
           looking_for: string[] | null
           marital_status: string | null
@@ -556,6 +557,7 @@ export type Database = {
           gender?: string | null
           id: string
           is_banned?: boolean | null
+          libido?: string | null
           location?: string | null
           looking_for?: string[] | null
           marital_status?: string | null
@@ -581,6 +583,7 @@ export type Database = {
           gender?: string | null
           id?: string
           is_banned?: boolean | null
+          libido?: string | null
           location?: string | null
           looking_for?: string[] | null
           marital_status?: string | null

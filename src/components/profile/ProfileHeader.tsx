@@ -83,6 +83,7 @@ const ProfileHeader = ({
               age={profileData?.age}
               gender={profileData?.gender}
               sexualOrientation={profileData?.sexual_orientation}
+              libido={profileData?.libido}
               maritalStatus={profileData?.marital_status}
               privateMaritalStatus={profileData?.private_marital_status}
               partnerId={profileData?.partner_id}

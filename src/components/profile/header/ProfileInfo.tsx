@@ -12,6 +12,7 @@ interface ProfileInfoProps {
   age?: number;
   gender?: string;
   sexualOrientation?: string;
+  libido?: string;
   maritalStatus?: string;
   privateMaritalStatus?: string;
   partnerId?: string;
@@ -35,6 +36,7 @@ const ProfileInfo = ({
   age,
   gender,
   sexualOrientation,
+  libido,
   maritalStatus,
   privateMaritalStatus,
   partnerId,
@@ -112,6 +114,12 @@ const ProfileInfo = ({
             {sexualOrientation && (
               <span className="flex items-center">
                 <span className="font-medium mr-1">Orientation:</span> {sexualOrientation}
+              </span>
+            )}
+            
+            {libido && (
+              <span className="flex items-center">
+                <span className="font-medium mr-1">Libido:</span> {libido}
               </span>
             )}
             
