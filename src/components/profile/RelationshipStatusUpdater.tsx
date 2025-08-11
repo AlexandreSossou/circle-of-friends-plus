@@ -3,12 +3,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { useRelationshipStatus } from "@/hooks/useRelationshipStatus";
 import RelationshipStatusSelector from "./relationship/RelationshipStatusSelector";
 import PartnerSelector from "./relationship/PartnerSelector";
 import MultiPartnerSelector from "./relationship/MultiPartnerSelector";
 import RelationshipStatusDisplay from "./relationship/RelationshipStatusDisplay";
 import LookingForSelector from "./relationship/LookingForSelector";
+import GenderSelector from "./GenderSelector";
 import { ProfileType } from "@/types/profile";
 
 interface RelationshipStatusUpdaterProps {
@@ -16,6 +21,11 @@ interface RelationshipStatusUpdaterProps {
 }
 
 const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatusUpdaterProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [gender, setGender] = useState<string>("");
+  const [isUpdatingGender, setIsUpdatingGender] = useState(false);
+  
   const {
     status,
     setStatus,
@@ -38,6 +48,55 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
     potentialPartners,
     handleUpdateStatus
   } = useRelationshipStatus();
+
+  // Load current gender from profile
+  useEffect(() => {
+    const loadGender = async () => {
+      if (!user?.id) return;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('gender')
+        .eq('id', user.id)
+        .single();
+      
+      if (data && !error) {
+        setGender(data.gender || "");
+      }
+    };
+    
+    loadGender();
+  }, [user?.id]);
+
+  const handleGenderUpdate = async (newGender: string) => {
+    if (!user?.id) return;
+    
+    setIsUpdatingGender(true);
+    setGender(newGender);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ gender: newGender })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Gender updated",
+        description: "Your gender has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating gender:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update gender. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingGender(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -162,6 +221,11 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
           />
         ) : null}
         
+        <GenderSelector 
+          gender={gender}
+          onGenderChange={handleGenderUpdate}
+        />
+        
         <LookingForSelector 
           lookingFor={lookingFor}
           onLookingForChange={setLookingFor}
@@ -169,10 +233,10 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
         
         <Button 
           onClick={() => handleUpdateStatus(profileType)} 
-          disabled={isUpdating || (currentStatus !== "Single" && !currentPartner && currentPartners.length === 0)}
+          disabled={isUpdating || isUpdatingGender || (currentStatus !== "Single" && !currentPartner && currentPartners.length === 0)}
           className="w-full"
         >
-          {isUpdating ? (
+          {isUpdating || isUpdatingGender ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Updating...
