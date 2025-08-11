@@ -6,10 +6,10 @@ import { mockProfiles } from "../mocks/mockProfiles";
 export const fetchProfileData = async (profileId: string | undefined): Promise<ProfileData | null> => {
   if (!profileId) return null;
 
-  // First try to get the profile from the database
+  // First try to get the profile from the database using safe_profiles view
   try {
     const { data, error } = await supabase
-      .from("profiles")
+      .from("safe_profiles")
       .select("*")
       .eq("id", profileId)
       .single();
@@ -28,7 +28,7 @@ export const fetchProfileData = async (profileId: string | undefined): Promise<P
     if (data.partner_id) {
       try {
         const { data: partnerData, error: partnerError } = await supabase
-          .from("profiles")
+          .from("safe_profiles")
           .select("full_name, avatar_url")
           .eq("id", data.partner_id)
           .single();

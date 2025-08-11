@@ -15,7 +15,7 @@ export interface CurrentStatus {
 export const fetchCurrentStatus = async (userId: string): Promise<CurrentStatus> => {
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('safe_profiles')
       .select(`
         marital_status, 
         partner_id, 

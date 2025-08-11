@@ -7,7 +7,7 @@ export const fetchPotentialPartners = async (userId: string): Promise<Partner[]>
   console.log("Fetching profiles from database...");
   try {
     const { data, error } = await supabase
-      .from('profiles')
+      .from('safe_profiles')
       .select('id, full_name')
       .neq('id', userId);
     
