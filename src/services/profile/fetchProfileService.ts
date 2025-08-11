@@ -11,6 +11,8 @@ export const fetchProfileData = async (profileId: string | undefined): Promise<P
     const { data, error } = await supabase
       .rpc("get_safe_profile", { profile_id: profileId });
 
+    console.log("Profile data from RPC:", data);
+
     if (error) {
       console.log("Error fetching profile from database:", error.message);
       console.log("Falling back to mock profile data");
