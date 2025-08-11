@@ -7,9 +7,7 @@ export const fetchPotentialPartners = async (userId: string): Promise<Partner[]>
   console.log("Fetching profiles from database...");
   try {
     const { data, error } = await supabase
-      .from('safe_profiles')
-      .select('id, full_name')
-      .neq('id', userId);
+      .rpc('get_safe_profiles_list');
     
     if (error) {
       console.error("Error fetching profiles:", error);
@@ -19,7 +17,7 @@ export const fetchPotentialPartners = async (userId: string): Promise<Partner[]>
     if (data && data.length > 0) {
       console.log("Got profiles from database:", data.length);
       return data
-        .filter(profile => profile && profile.id)
+        .filter(profile => profile && profile.id && profile.id !== userId)
         .map(profile => ({
           id: profile.id,
           full_name: profile.full_name || `User ${profile.id.substring(0, 8)}`

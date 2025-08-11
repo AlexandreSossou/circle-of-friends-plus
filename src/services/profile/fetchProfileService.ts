@@ -6,13 +6,10 @@ import { mockProfiles } from "../mocks/mockProfiles";
 export const fetchProfileData = async (profileId: string | undefined): Promise<ProfileData | null> => {
   if (!profileId) return null;
 
-  // First try to get the profile from the database using safe_profiles view
+  // Use the secure function to get profile data with proper RLS
   try {
     const { data, error } = await supabase
-      .from("safe_profiles")
-      .select("*")
-      .eq("id", profileId)
-      .single();
+      .rpc("get_safe_profile", { profile_id: profileId });
 
     if (error) {
       console.log("Error fetching profile from database:", error.message);
@@ -25,18 +22,27 @@ export const fetchProfileData = async (profileId: string | undefined): Promise<P
       return null;
     }
 
-    if (data.partner_id) {
+    // Get the first result (RPC returns array)
+    const profileData = Array.isArray(data) ? data[0] : data;
+    if (!profileData) {
+      if (mockProfiles[profileId]) {
+        return mockProfiles[profileId];
+      }
+      return null;
+    }
+
+    if (profileData.partner_id) {
       try {
         const { data: partnerData, error: partnerError } = await supabase
-          .from("safe_profiles")
-          .select("full_name, avatar_url")
-          .eq("id", data.partner_id)
-          .single();
+          .rpc("get_safe_profile", { profile_id: profileData.partner_id });
 
-        if (!partnerError) {
+        if (!partnerError && partnerData && partnerData.length > 0) {
           return {
-            ...data,
-            partner: partnerData
+            ...profileData,
+            partner: { 
+              full_name: partnerData[0].full_name, 
+              avatar_url: partnerData[0].avatar_url 
+            }
           } as ProfileData;
         }
       } catch (e) {
@@ -44,7 +50,7 @@ export const fetchProfileData = async (profileId: string | undefined): Promise<P
       }
     }
 
-    return data as ProfileData;
+    return profileData as ProfileData;
   } catch (e) {
     console.error("Unexpected error fetching profile:", e);
     
