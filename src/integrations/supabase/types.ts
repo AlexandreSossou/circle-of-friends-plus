@@ -886,6 +886,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      test_user_creation: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          profiles_count: number
+          user_roles_count: number
+          trigger_exists: boolean
+        }[]
+      }
       validate_content_input: {
         Args: { content_text: string }
         Returns: boolean
