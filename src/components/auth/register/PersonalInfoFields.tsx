@@ -2,7 +2,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormMessage } from "@/components/ui/form";
 
 interface PersonalInfoFieldsProps {
   firstName: string;
@@ -52,7 +51,7 @@ const PersonalInfoFields = ({
             className={`social-input ${errors.firstName ? "border-red-500" : ""}`}
           />
           {errors.firstName && (
-            <FormMessage>{errors.firstName}</FormMessage>
+            <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>
           )}
         </div>
         <div className="space-y-2 w-1/2">
@@ -67,7 +66,7 @@ const PersonalInfoFields = ({
             className={`social-input ${errors.lastName ? "border-red-500" : ""}`}
           />
           {errors.lastName && (
-            <FormMessage>{errors.lastName}</FormMessage>
+            <p className="text-sm text-red-500 mt-1">{errors.lastName}</p>
           )}
         </div>
       </div>
@@ -86,7 +85,7 @@ const PersonalInfoFields = ({
           </SelectContent>
         </Select>
         {errors.gender && (
-          <FormMessage>{errors.gender}</FormMessage>
+          <p className="text-sm text-red-500 mt-1">{errors.gender}</p>
         )}
       </div>
 
@@ -104,7 +103,7 @@ const PersonalInfoFields = ({
           className={`social-input ${errors.age ? "border-red-500" : ""}`}
         />
         {errors.age && (
-          <FormMessage>{errors.age}</FormMessage>
+          <p className="text-sm text-red-500 mt-1">{errors.age}</p>
         )}
       </div>
 
@@ -123,7 +122,7 @@ const PersonalInfoFields = ({
           </SelectContent>
         </Select>
         {errors.maritalStatus && (
-          <FormMessage>{errors.maritalStatus}</FormMessage>
+          <p className="text-sm text-red-500 mt-1">{errors.maritalStatus}</p>
         )}
       </div>
     </>

@@ -1,7 +1,6 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FormMessage } from "@/components/ui/form";
 
 interface AccountInfoFieldsProps {
   email: string;
@@ -40,7 +39,7 @@ const AccountInfoFields = ({
           className={`social-input ${errors.email ? "border-red-500" : ""}`}
         />
         {errors.email && (
-          <FormMessage>{errors.email}</FormMessage>
+          <p className="text-sm text-red-500 mt-1">{errors.email}</p>
         )}
       </div>
 
@@ -56,7 +55,7 @@ const AccountInfoFields = ({
           className={`social-input ${errors.password ? "border-red-500" : ""}`}
         />
         {errors.password && (
-          <FormMessage>{errors.password}</FormMessage>
+          <p className="text-sm text-red-500 mt-1">{errors.password}</p>
         )}
       </div>
 
@@ -72,7 +71,7 @@ const AccountInfoFields = ({
           className={`social-input ${errors.confirmPassword ? "border-red-500" : ""}`}
         />
         {errors.confirmPassword && (
-          <FormMessage>{errors.confirmPassword}</FormMessage>
+          <p className="text-sm text-red-500 mt-1">{errors.confirmPassword}</p>
         )}
       </div>
     </>
