@@ -37,17 +37,21 @@ const ProfileBio = ({
     );
   }
 
-  if (bio) {
+  // Show sections if we have content or if it's the user's own profile
+  if (bio || (lookingFor && lookingFor.length > 0) || isOwnProfile) {
     return (
       <>
-        <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
-          <h2 className="text-lg font-semibold mb-2">About Me</h2>
-          <p className="text-gray-700 whitespace-pre-line">{bio}</p>
-        </div>
+        {/* About Me section */}
+        {bio && (
+          <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
+            <h2 className="text-lg font-semibold mb-2">About Me</h2>
+            <p className="text-gray-700 whitespace-pre-line">{bio}</p>
+          </div>
+        )}
         
         {/* Looking for section */}
         {lookingFor && lookingFor.length > 0 && (
-          <div className="mt-4 bg-white p-4 rounded-lg border border-gray-200">
+          <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
             <h2 className="text-lg font-semibold mb-3">What I'm Looking For</h2>
             <div className="flex flex-wrap gap-2">
               {lookingFor.map((item) => (
@@ -59,6 +63,18 @@ const ProfileBio = ({
                 </span>
               ))}
             </div>
+          </div>
+        )}
+        
+        {/* Add bio prompt for own profile when no bio */}
+        {isOwnProfile && !bio && (
+          <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200 border-dashed text-center">
+            <h2 className="text-lg font-semibold mb-2">About Me</h2>
+            <p className="text-gray-500 mb-3">Add a description to tell people more about yourself.</p>
+            <Button variant="outline" className="mx-auto" onClick={onEditClick}>
+              <Edit className="w-4 h-4 mr-2" />
+              Add Description
+            </Button>
           </div>
         )}
       </>
