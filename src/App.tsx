@@ -11,6 +11,7 @@ import { ProfileTypeProvider } from "@/context/ProfileTypeContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import RegisterTest from "./pages/RegisterTest";
 import Profile from "./pages/Profile";
 import Friends from "./pages/Friends";
 import FriendSearch from "./pages/FriendSearch";
@@ -43,7 +44,8 @@ const App = () => (
                 <Routes>
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
+                  <Route path="/register" element={<RegisterTest />} />
+                  <Route path="/register-full" element={<Register />} />
                   <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
