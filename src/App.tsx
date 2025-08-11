@@ -44,8 +44,7 @@ const App = () => (
                 <Routes>
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<RegisterTest />} />
-                  <Route path="/register-full" element={<Register />} />
+                  <Route path="/register" element={<Register />} />
                   <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
                   <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                   <Route path="/profile/:id" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
