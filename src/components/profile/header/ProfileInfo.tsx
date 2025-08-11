@@ -68,6 +68,8 @@ const ProfileInfo = ({
   const currentPartnerId = profileType === "private" ? privatePartnerId : partnerId;
   const currentPartners = profileType === "private" ? privatePartners : partners;
 
+  console.log('ProfileInfo debug:', { gender, age, profileType, isOwnProfile });
+  
   return (
     <div>
       <h1 className="text-2xl md:text-3xl font-bold">{displayName}</h1>
