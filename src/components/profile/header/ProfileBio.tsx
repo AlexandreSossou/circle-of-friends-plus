@@ -6,6 +6,7 @@ import { Edit } from "lucide-react";
 
 interface ProfileBioProps {
   bio?: string;
+  lookingFor?: string[];
   isOwnProfile: boolean;
   isEditing: boolean;
   editedBio: string;
@@ -15,6 +16,7 @@ interface ProfileBioProps {
 
 const ProfileBio = ({ 
   bio, 
+  lookingFor,
   isOwnProfile, 
   isEditing, 
   editedBio, 
@@ -37,10 +39,29 @@ const ProfileBio = ({
 
   if (bio) {
     return (
-      <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
-        <h2 className="text-lg font-semibold mb-2">About Me</h2>
-        <p className="text-gray-700 whitespace-pre-line">{bio}</p>
-      </div>
+      <>
+        <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
+          <h2 className="text-lg font-semibold mb-2">About Me</h2>
+          <p className="text-gray-700 whitespace-pre-line">{bio}</p>
+        </div>
+        
+        {/* Looking for section */}
+        {lookingFor && lookingFor.length > 0 && (
+          <div className="mt-4 bg-white p-4 rounded-lg border border-gray-200">
+            <h2 className="text-lg font-semibold mb-3">What I'm Looking For</h2>
+            <div className="flex flex-wrap gap-2">
+              {lookingFor.map((item) => (
+                <span 
+                  key={item} 
+                  className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </>
     );
   }
 

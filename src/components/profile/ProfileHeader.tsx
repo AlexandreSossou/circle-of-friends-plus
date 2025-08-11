@@ -119,6 +119,7 @@ const ProfileHeader = ({
 
         <ProfileBio 
           bio={currentBio}
+          lookingFor={profileData?.looking_for}
           isOwnProfile={isOwnProfile}
           isEditing={isEditing}
           editedBio={editedBio}

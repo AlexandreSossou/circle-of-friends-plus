@@ -161,17 +161,6 @@ const ProfileInfo = ({
           </div>
         )}
         
-        {/* Show what user is looking for */}
-        {lookingFor && lookingFor.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            <span className="text-xs font-medium text-social-textSecondary">Looking for:</span>
-            {lookingFor.map((item, index) => (
-              <span key={item} className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                {item}
-              </span>
-            ))}
-          </div>
-        )}
         
         <p className="text-social-textSecondary">
           {profileType === "private" ? "Private connections" : "568 friends"}
