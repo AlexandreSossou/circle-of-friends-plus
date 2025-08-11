@@ -69,7 +69,7 @@ export const useRelationshipUpdate = (params: UpdateParams) => {
           maritalStatus: currentStatus,
           partnerIds: currentPartners.length > 0 ? currentPartners : undefined,
           profileType,
-          lookingFor: profileType === "private" ? params.lookingFor : undefined
+          lookingFor: params.lookingFor
         });
         
         handleUpdateResult(result, currentStatus, currentPartners, profileType);
@@ -93,7 +93,7 @@ export const useRelationshipUpdate = (params: UpdateParams) => {
           maritalStatus: currentStatus,
           partnerId: currentPartner,
           profileType,
-          lookingFor: profileType === "private" ? params.lookingFor : undefined
+          lookingFor: params.lookingFor
         });
         
         handleUpdateResult(result, currentStatus, [currentPartner], profileType);
@@ -103,7 +103,7 @@ export const useRelationshipUpdate = (params: UpdateParams) => {
           userId: user.id,
           maritalStatus: currentStatus,
           profileType,
-          lookingFor: profileType === "private" ? params.lookingFor : undefined
+          lookingFor: params.lookingFor
         });
         
         handleUpdateResult(result, currentStatus, [], profileType);
