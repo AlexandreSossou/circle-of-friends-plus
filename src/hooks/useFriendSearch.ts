@@ -9,6 +9,8 @@ export interface SearchFilters {
   maritalStatus: string | undefined;
   ageRange: [number, number];
   location: string;
+  usaSearch: boolean;
+  usaState: string;
 }
 
 export const useFriendSearch = () => {
@@ -17,6 +19,8 @@ export const useFriendSearch = () => {
   const [maritalStatus, setMaritalStatus] = useState<string | undefined>(undefined);
   const [ageRange, setAgeRange] = useState<[number, number]>([18, 80]);
   const [location, setLocation] = useState("");
+  const [usaSearch, setUsaSearch] = useState(false);
+  const [usaState, setUsaState] = useState("");
   const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
 
   useEffect(() => {
@@ -39,7 +43,7 @@ export const useFriendSearch = () => {
   }, []);
 
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange, location],
+    queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange, location, usaSearch, usaState],
     queryFn: async () => {
       let query = supabase
         .from("profiles")
@@ -58,7 +62,10 @@ export const useFriendSearch = () => {
         query = query.eq("marital_status", maritalStatus);
       }
 
-      if (location) {
+      if (usaSearch && usaState) {
+        // Search for USA state specifically
+        query = query.ilike("location", `%${usaState}%`);
+      } else if (location && !usaSearch) {
         query = query.ilike("location", `%${location}%`);
       }
 
@@ -93,6 +100,10 @@ export const useFriendSearch = () => {
     setAgeRange,
     location,
     setLocation,
+    usaSearch,
+    setUsaSearch,
+    usaState,
+    setUsaState,
     searchResults,
     isLoading,
   };

@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { SearchIcon, MapPin } from "lucide-react";
+import { SearchIcon, MapPin, Flag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SearchFiltersProps {
@@ -19,6 +20,10 @@ interface SearchFiltersProps {
   setAgeRange: (range: [number, number]) => void;
   location: string;
   setLocation: (location: string) => void;
+  usaSearch: boolean;
+  setUsaSearch: (usa: boolean) => void;
+  usaState: string;
+  setUsaState: (state: string) => void;
 }
 
 const SearchFilters = ({
@@ -31,10 +36,25 @@ const SearchFilters = ({
   ageRange,
   setAgeRange,
   location,
-  setLocation
+  setLocation,
+  usaSearch,
+  setUsaSearch,
+  usaState,
+  setUsaState
 }: SearchFiltersProps) => {
   const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
   const { toast } = useToast();
+
+  // US States list
+  const usStates = [
+    "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+    "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+    "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+    "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+    "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+    "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+    "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+  ];
 
   // Fetch current user's age when component mounts
   useEffect(() => {
@@ -101,7 +121,49 @@ const SearchFilters = ({
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             className="pl-10"
+            disabled={usaSearch}
           />
+        </div>
+        
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="usa-search"
+              checked={usaSearch}
+              onCheckedChange={(checked) => {
+                setUsaSearch(checked as boolean);
+                if (checked) {
+                  setLocation("");
+                } else {
+                  setUsaState("");
+                }
+              }}
+            />
+            <div className="flex items-center space-x-1">
+              <Flag className="h-4 w-4 text-social-textSecondary" />
+              <Label htmlFor="usa-search" className="text-sm font-medium">
+                Search in USA
+              </Label>
+            </div>
+          </div>
+          
+          {usaSearch && (
+            <div className="space-y-2">
+              <Label htmlFor="usa-state">State</Label>
+              <Select value={usaState} onValueChange={setUsaState}>
+                <SelectTrigger id="usa-state">
+                  <SelectValue placeholder="Select a state" />
+                </SelectTrigger>
+                <SelectContent>
+                  {usStates.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
       </div>
       
