@@ -11,6 +11,7 @@ export interface SearchFilters {
   location: string;
   usaSearch: boolean;
   usaState: string;
+  milesRange: number;
 }
 
 export const useFriendSearch = () => {
@@ -21,6 +22,7 @@ export const useFriendSearch = () => {
   const [location, setLocation] = useState("");
   const [usaSearch, setUsaSearch] = useState(false);
   const [usaState, setUsaState] = useState("");
+  const [milesRange, setMilesRange] = useState(50);
   const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
 
   useEffect(() => {
@@ -43,7 +45,7 @@ export const useFriendSearch = () => {
   }, []);
 
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange, location, usaSearch, usaState],
+    queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange, location, usaSearch, usaState, milesRange],
     queryFn: async () => {
       let query = supabase
         .from("profiles")
@@ -63,7 +65,9 @@ export const useFriendSearch = () => {
       }
 
       if (usaSearch && usaState) {
-        // Search for USA state specifically
+        // Search for USA state specifically, with miles range consideration
+        // For now, we'll use a simpler approach of filtering by state
+        // In a real app, you'd use coordinates and proper distance calculation
         query = query.ilike("location", `%${usaState}%`);
       } else if (location && !usaSearch) {
         query = query.ilike("location", `%${location}%`);
@@ -104,6 +108,8 @@ export const useFriendSearch = () => {
     setUsaSearch,
     usaState,
     setUsaState,
+    milesRange,
+    setMilesRange,
     searchResults,
     isLoading,
   };

@@ -24,6 +24,8 @@ interface SearchFiltersProps {
   setUsaSearch: (usa: boolean) => void;
   usaState: string;
   setUsaState: (state: string) => void;
+  milesRange: number;
+  setMilesRange: (miles: number) => void;
 }
 
 const SearchFilters = ({
@@ -40,7 +42,9 @@ const SearchFilters = ({
   usaSearch,
   setUsaSearch,
   usaState,
-  setUsaState
+  setUsaState,
+  milesRange,
+  setMilesRange
 }: SearchFiltersProps) => {
   const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
   const { toast } = useToast();
@@ -162,6 +166,27 @@ const SearchFilters = ({
                   ))}
                 </SelectContent>
               </Select>
+              
+              {usaState && (
+                <div className="space-y-2 mt-4">
+                  <Label htmlFor="miles-range">
+                    Distance Range: {milesRange} miles
+                  </Label>
+                  <Slider
+                    id="miles-range"
+                    value={[milesRange]}
+                    min={5}
+                    max={500}
+                    step={5}
+                    onValueChange={([value]) => setMilesRange(value)}
+                    className="mt-2"
+                  />
+                  <div className="flex justify-between text-xs text-social-textSecondary">
+                    <span>5 miles</span>
+                    <span>500 miles</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

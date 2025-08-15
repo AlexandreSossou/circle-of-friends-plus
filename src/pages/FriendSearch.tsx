@@ -20,6 +20,8 @@ const FriendSearch = () => {
     setUsaSearch,
     usaState,
     setUsaState,
+    milesRange,
+    setMilesRange,
     searchResults,
     isLoading,
   } = useFriendSearch();
@@ -39,13 +41,15 @@ const FriendSearch = () => {
           ageRange={ageRange}
           setAgeRange={setAgeRange}
           location={location}
-          setLocation={setLocation}
-          usaSearch={usaSearch}
-          setUsaSearch={setUsaSearch}
-          usaState={usaState}
-          setUsaState={setUsaState}
-        />
-      </div>
+            setLocation={setLocation}
+            usaSearch={usaSearch}
+            setUsaSearch={setUsaSearch}
+            usaState={usaState}
+            setUsaState={setUsaState}
+            milesRange={milesRange}
+            setMilesRange={setMilesRange}
+          />
+        </div>
       
       <SearchResults
         searchResults={searchResults}
