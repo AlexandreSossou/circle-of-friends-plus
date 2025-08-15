@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Announcement } from "@/types/announcement";
-import { ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AnnouncementCarouselProps {
@@ -13,6 +13,7 @@ interface AnnouncementCarouselProps {
 export const AnnouncementCarousel = ({ userLocation }: AnnouncementCarouselProps) => {
   const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Fetch regional announcements
   const { data: announcements = [] } = useQuery({
@@ -91,15 +92,24 @@ export const AnnouncementCarousel = ({ userLocation }: AnnouncementCarouselProps
       <div className="social-card p-4 mb-6">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-sm">Local Announcements</h3>
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-1 hover:bg-social-gray rounded-full transition-colors"
+            aria-label={isCollapsed ? "Expand announcements" : "Collapse announcements"}
+          >
+            {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+          </button>
         </div>
-        <div className="text-center py-4">
-          <p className="text-xs text-social-textSecondary mb-2">
-            No local announcements yet
-          </p>
-          <p className="text-xs text-social-textSecondary">
-            Searching in: {userLocation}
-          </p>
-        </div>
+        {!isCollapsed && (
+          <div className="text-center py-4">
+            <p className="text-xs text-social-textSecondary mb-2">
+              No local announcements yet
+            </p>
+            <p className="text-xs text-social-textSecondary">
+              Searching in: {userLocation}
+            </p>
+          </div>
+        )}
       </div>
     );
   }
@@ -111,80 +121,93 @@ export const AnnouncementCarousel = ({ userLocation }: AnnouncementCarouselProps
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-sm">Local Announcements</h3>
         <div className="flex items-center gap-1">
+          {!isCollapsed && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="p-1 hover:bg-social-gray rounded-full transition-colors"
+                aria-label="Previous announcement"
+              >
+                <ChevronLeft className="w-3 h-3" />
+              </button>
+              <button
+                onClick={nextSlide}
+                className="p-1 hover:bg-social-gray rounded-full transition-colors"
+                aria-label="Next announcement"
+              >
+                <ChevronRight className="w-3 h-3" />
+              </button>
+            </>
+          )}
           <button
-            onClick={prevSlide}
+            onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-1 hover:bg-social-gray rounded-full transition-colors"
-            aria-label="Previous announcement"
+            aria-label={isCollapsed ? "Expand announcements" : "Collapse announcements"}
           >
-            <ChevronLeft className="w-3 h-3" />
-          </button>
-          <button
-            onClick={nextSlide}
-            className="p-1 hover:bg-social-gray rounded-full transition-colors"
-            aria-label="Next announcement"
-          >
-            <ChevronRight className="w-3 h-3" />
+            {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      <div className="relative overflow-hidden">
-        <div className="transition-transform duration-300 ease-in-out">
-          <div className="flex items-start gap-3">
-            <Avatar className="w-8 h-8 flex-shrink-0">
-              <AvatarImage 
-                src={currentAnnouncement.profiles.avatar_url || "/placeholder.svg"} 
-                alt={currentAnnouncement.profiles.full_name || "User"} 
-              />
-              <AvatarFallback className="text-xs">
-                {getUserInitials(currentAnnouncement.profiles.full_name)}
-              </AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-sm truncate">
-                {currentAnnouncement.title}
-              </h4>
+      {!isCollapsed && (
+        <div className="relative overflow-hidden">
+          <div className="transition-transform duration-300 ease-in-out">
+            <div className="flex items-start gap-3">
+              <Avatar className="w-8 h-8 flex-shrink-0">
+                <AvatarImage 
+                  src={currentAnnouncement.profiles.avatar_url || "/placeholder.svg"} 
+                  alt={currentAnnouncement.profiles.full_name || "User"} 
+                />
+                <AvatarFallback className="text-xs">
+                  {getUserInitials(currentAnnouncement.profiles.full_name)}
+                </AvatarFallback>
+              </Avatar>
               
-              <p className="text-xs text-social-textSecondary mb-1">
-                by {currentAnnouncement.profiles.full_name || "Anonymous"}
-              </p>
-              
-              {currentAnnouncement.description && (
-                <p className="text-xs text-social-textPrimary line-clamp-2 mb-2">
-                  {currentAnnouncement.description}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-medium text-sm truncate">
+                  {currentAnnouncement.title}
+                </h4>
+                
+                <p className="text-xs text-social-textSecondary mb-1">
+                  by {currentAnnouncement.profiles.full_name || "Anonymous"}
                 </p>
-              )}
-              
-              <div className="flex items-center gap-2 text-xs text-social-textSecondary">
-                <div className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
-                  <span className="truncate">{currentAnnouncement.location}</span>
-                </div>
-                <div className="px-1.5 py-0.5 bg-social-lightblue text-social-blue rounded-full text-xs font-medium">
-                  {currentAnnouncement.category}
+                
+                {currentAnnouncement.description && (
+                  <p className="text-xs text-social-textPrimary line-clamp-2 mb-2">
+                    {currentAnnouncement.description}
+                  </p>
+                )}
+                
+                <div className="flex items-center gap-2 text-xs text-social-textSecondary">
+                  <div className="flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    <span className="truncate">{currentAnnouncement.location}</span>
+                  </div>
+                  <div className="px-1.5 py-0.5 bg-social-lightblue text-social-blue rounded-full text-xs font-medium">
+                    {currentAnnouncement.category}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Progress indicators */}
-        {announcements.length > 1 && (
-          <div className="flex justify-center gap-1 mt-3">
-            {announcements.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  index === currentIndex ? "bg-social-blue" : "bg-social-gray"
-                }`}
-                aria-label={`Go to announcement ${index + 1}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+          {/* Progress indicators */}
+          {announcements.length > 1 && (
+            <div className="flex justify-center gap-1 mt-3">
+              {announcements.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                    index === currentIndex ? "bg-social-blue" : "bg-social-gray"
+                  }`}
+                  aria-label={`Go to announcement ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
