@@ -79,14 +79,13 @@ export const AnnouncementForm = ({ data, onInputChange, onSubmit, isLoading }: A
 
       <div>
         <Label htmlFor="visibility">Visibility</Label>
-        <Select value={data.visibility} onValueChange={(value) => onInputChange("visibility", value as "public" | "friends" | "private")}>
+        <Select value={data.visibility} onValueChange={(value) => onInputChange("visibility", value as "public" | "friends")}>
           <SelectTrigger>
             <SelectValue placeholder="Select visibility" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="public">Public - Everyone can see</SelectItem>
             <SelectItem value="friends">Friends - Only friends can see</SelectItem>
-            <SelectItem value="private">Private - Only you can see</SelectItem>
           </SelectContent>
         </Select>
       </div>

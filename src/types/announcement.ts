@@ -20,5 +20,5 @@ export interface AnnouncementFormData {
   description: string;
   location: string;
   category: string;
-  visibility: "public" | "friends" | "private";
+  visibility: "public" | "friends";
 }

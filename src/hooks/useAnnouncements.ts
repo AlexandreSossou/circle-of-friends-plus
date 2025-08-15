@@ -15,7 +15,7 @@ export const useAnnouncements = () => {
     description: "",
     location: "",
     category: "general",
-    visibility: "public"
+    visibility: "public" as "public" | "friends"
   });
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -80,7 +80,7 @@ export const useAnnouncements = () => {
         description: "",
         location: "",
         category: "general",
-        visibility: "public"
+        visibility: "public" as "public" | "friends"
       });
       setIsAddDialogOpen(false);
       toast({
