@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Announcement, AnnouncementFormData } from "@/types/announcement";
 import { useToast } from "@/hooks/use-toast";
+import { canUserCreateAnnouncement } from "@/services/announcementLimits/announcementLimitService";
 
 export const useAnnouncements = () => {
   const { user } = useAuth();
@@ -19,6 +20,24 @@ export const useAnnouncements = () => {
   });
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [canCreate, setCanCreate] = useState(true);
+  const [limitReason, setLimitReason] = useState<string | undefined>();
+
+  // Check announcement limits when user changes
+  useEffect(() => {
+    const checkLimits = async () => {
+      if (!user) {
+        setCanCreate(false);
+        return;
+      }
+
+      const result = await canUserCreateAnnouncement(user.id);
+      setCanCreate(result.canCreate);
+      setLimitReason(result.limitReason);
+    };
+
+    checkLimits();
+  }, [user]);
 
   // Fetch announcements
   const { data: announcements = [], isLoading } = useQuery({
@@ -130,7 +149,7 @@ export const useAnnouncements = () => {
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!announcementData.title.trim() || !announcementData.location.trim()) {
       toast({
         title: "Error",
@@ -139,6 +158,27 @@ export const useAnnouncements = () => {
       });
       return;
     }
+
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create announcements",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check limits before submitting
+    const result = await canUserCreateAnnouncement(user.id);
+    if (!result.canCreate) {
+      toast({
+        title: "Announcement Limit Reached",
+        description: result.limitReason || "You have reached your announcement limit",
+        variant: "destructive",
+      });
+      return;
+    }
+
     addAnnouncementMutation.mutate(announcementData);
   };
 
@@ -152,5 +192,7 @@ export const useAnnouncements = () => {
     deleteAnnouncementMutation,
     handleInputChange,
     handleSubmit,
+    canCreate,
+    limitReason,
   };
 };
