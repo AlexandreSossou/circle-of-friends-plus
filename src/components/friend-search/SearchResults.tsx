@@ -50,14 +50,14 @@ const SearchResults = ({
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to send friend request.",
+        description: "Failed to send Lovarino request.",
         variant: "destructive",
       });
       console.error(error);
     } else {
       toast({
         title: "Success",
-        description: "Friend request sent!",
+        description: "Lovarino request sent!",
       });
     }
   };
@@ -113,7 +113,7 @@ const SearchResults = ({
                 onClick={() => handleSendFriendRequest(profile.id)}
               >
                 <UserPlus className="w-4 h-4" />
-                <span>Add Friend</span>
+                <span>Add Lovarino</span>
               </Button>
             </div>
           ))}
@@ -122,7 +122,7 @@ const SearchResults = ({
         <div className="text-center py-8 text-social-textSecondary">
           {searchTerm || gender || maritalStatus || ageRange[0] > 18 || ageRange[1] < 80 || location
             ? "No users found matching your search criteria."
-            : "Use the search filters above to find friends."}
+            : "Use the search filters above to find Lovarinos."}
         </div>
       )}
     </div>

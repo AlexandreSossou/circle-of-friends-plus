@@ -40,11 +40,11 @@ const Sidebar = () => {
             </Link>
             <Link to="/friends" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
               <Users className="w-5 h-5 mr-3" />
-              <span>Friends</span>
+              <span>Lovarinos</span>
             </Link>
             <Link to="/friend-search" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
               <Search className="w-5 h-5 mr-3" />
-              <span>Find Friends</span>
+              <span>Find Lovarinos</span>
             </Link>
             <Link to="/messages" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
               <MessageCircle className="w-5 h-5 mr-3" />

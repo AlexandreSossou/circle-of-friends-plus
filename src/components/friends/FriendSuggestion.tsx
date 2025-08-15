@@ -20,7 +20,7 @@ const FriendSuggestion = ({ suggestion, onAddFriend }: FriendSuggestionProps) =>
           </Avatar>
           <div>
             <h3 className="font-medium">{suggestion.name}</h3>
-            <p className="text-xs text-social-textSecondary">{suggestion.mutualFriends} mutual friends</p>
+            <p className="text-xs text-social-textSecondary">{suggestion.mutualFriends} mutual Lovarinos</p>
           </div>
         </div>
         <Button 

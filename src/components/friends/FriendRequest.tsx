@@ -20,7 +20,7 @@ const FriendRequest = ({ request, onAccept, onDecline }: FriendRequestProps) => 
           </Avatar>
           <div>
             <h3 className="font-medium">{request.name}</h3>
-            <p className="text-xs text-social-textSecondary">{request.mutualFriends} mutual friends</p>
+            <p className="text-xs text-social-textSecondary">{request.mutualFriends} mutual Lovarinos</p>
           </div>
         </div>
         <div className="flex gap-2">

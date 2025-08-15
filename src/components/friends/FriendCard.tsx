@@ -77,7 +77,7 @@ const FriendCard = ({
               </div>
             )}
           </div>
-          <p className="text-xs text-social-textSecondary">{friend.mutualFriends} mutual friends</p>
+          <p className="text-xs text-social-textSecondary">{friend.mutualFriends} mutual Lovarinos</p>
         </div>
       </div>
       <div className="flex items-center">

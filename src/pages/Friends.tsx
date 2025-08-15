@@ -24,14 +24,14 @@ const Friends = () => {
   
   const handleAcceptRequest = (id: string, name: string) => {
     toast({
-      title: "Friend request accepted",
-      description: `You are now friends with ${name}`,
+      title: "Lovarino request accepted",
+      description: `You are now Lovarinos with ${name}`,
     });
   };
   
   const handleDeclineRequest = (id: string) => {
     toast({
-      title: "Friend request declined",
+      title: "Lovarino request declined",
     });
   };
   
@@ -46,12 +46,12 @@ const Friends = () => {
   return (
     <MainLayout>
       <div className="social-card p-6 mb-6">
-        <h1 className="text-2xl font-bold mb-6">Friends</h1>
+        <h1 className="text-2xl font-bold mb-6">Lovarinos</h1>
         
         <Tabs defaultValue="all-friends">
           <TabsList className="mb-6">
-            <TabsTrigger value="all-friends">All Friends</TabsTrigger>
-            <TabsTrigger value="close-friends">Close Friends</TabsTrigger>
+            <TabsTrigger value="all-friends">All Lovarinos</TabsTrigger>
+            <TabsTrigger value="close-friends">Close Lovarinos</TabsTrigger>
             <TabsTrigger value="acquaintances">Acquaintances</TabsTrigger>
             <TabsTrigger value="requests">
               Requests

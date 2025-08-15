@@ -51,7 +51,7 @@ const GroupChatCreator = ({
           className="mb-2"
         />
         <p className="text-xs text-social-textSecondary mb-2">
-          Add up to 5 friends to create a group chat (6 people total including you)
+          Add up to 5 Lovarinos to create a group chat (6 people total including you)
         </p>
         
         {selectedMembers.length > 0 && (
@@ -78,7 +78,7 @@ const GroupChatCreator = ({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-social-textSecondary h-4 w-4" />
           <Input
             type="text"
-            placeholder="Search friends..."
+            placeholder="Search Lovarinos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -113,7 +113,7 @@ const GroupChatCreator = ({
           </div>
         ) : (
           <div className="text-center py-4 text-social-textSecondary">
-            {searchTerm ? "No friends found matching your search" : "No more friends available to add"}
+            {searchTerm ? "No Lovarinos found matching your search" : "No more Lovarinos available to add"}
           </div>
         )}
       </ScrollArea>

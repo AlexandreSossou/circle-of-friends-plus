@@ -24,7 +24,7 @@ export const EventCard = ({ event, onDelete }: EventCardProps) => {
   const getVisibilityLabel = () => {
     switch (event.visibility) {
       case "public": return "Public";
-      case "friends": return "Friends Only";
+      case "friends": return "Lovarinos Only";
       case "private": return "Private";
       default: return "Public";
     }

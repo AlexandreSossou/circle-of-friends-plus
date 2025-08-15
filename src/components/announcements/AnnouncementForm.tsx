@@ -85,7 +85,7 @@ export const AnnouncementForm = ({ data, onInputChange, onSubmit, isLoading }: A
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="public">Public - Everyone can see</SelectItem>
-            <SelectItem value="friends">Friends - Only friends can see</SelectItem>
+            <SelectItem value="friends">Lovarinos - Only Lovarinos can see</SelectItem>
           </SelectContent>
         </Select>
       </div>

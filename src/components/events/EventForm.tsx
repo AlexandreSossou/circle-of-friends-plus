@@ -113,7 +113,7 @@ export const EventForm = ({
           <SelectContent>
             <SelectGroup>
               <SelectItem value="public">Public</SelectItem>
-              <SelectItem value="friends">Friends Only</SelectItem>
+              <SelectItem value="friends">Lovarinos Only</SelectItem>
               <SelectItem value="private">Private</SelectItem>
             </SelectGroup>
           </SelectContent>
