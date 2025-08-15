@@ -18,6 +18,7 @@ import FriendSearch from "./pages/FriendSearch";
 import Groups from "./pages/Groups";
 import Travels from "./pages/Travels";
 import Events from "./pages/Events";
+import Announcements from "./pages/Announcements";
 import News from "./pages/News";
 import Messages from "./pages/Messages";
 import MessagePreferences from "./pages/MessagePreferences";
@@ -53,6 +54,7 @@ const App = () => (
                   <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
                   <Route path="/travels" element={<ProtectedRoute><Travels /></ProtectedRoute>} />
                   <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+                  <Route path="/announcements" element={<ProtectedRoute><Announcements /></ProtectedRoute>} />
                   <Route path="/news" element={<ProtectedRoute><News /></ProtectedRoute>} />
                   <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
                   <Route path="/message-preferences" element={<ProtectedRoute><MessagePreferences /></ProtectedRoute>} />

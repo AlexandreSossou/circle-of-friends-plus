@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.12 (cd3cf9e)"
@@ -41,6 +41,42 @@ export type Database = {
           id?: string
           target_id?: string | null
           target_type?: string
+        }
+        Relationships: []
+      }
+      announcements: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          location: string
+          title: string
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location: string
+          title: string
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          visibility?: string
         }
         Relationships: []
       }
@@ -839,57 +875,57 @@ export type Database = {
       get_safe_profile: {
         Args: { profile_id: string }
         Returns: {
-          id: string
-          created_at: string
-          updated_at: string
           age: number
+          avatar_url: string
+          banned_by: string
+          banned_reason: string
+          banned_until: string
+          bio: string
+          created_at: string
+          email: string
+          full_name: string
+          gender: string
+          id: string
+          is_banned: boolean
+          libido: string
+          location: string
+          looking_for: string[]
+          marital_status: string
           partner_id: string
           partners: string[]
+          private_marital_status: string
           private_partner_id: string
           private_partners: string[]
-          is_banned: boolean
-          banned_until: string
-          banned_by: string
-          username: string
-          full_name: string
-          avatar_url: string
-          bio: string
-          location: string
-          gender: string
           sexual_orientation: string
-          libido: string
-          marital_status: string
-          private_marital_status: string
-          looking_for: string[]
-          banned_reason: string
-          email: string
+          updated_at: string
+          username: string
         }[]
       }
       get_safe_profiles_list: {
         Args: { profile_ids?: string[] }
         Returns: {
-          id: string
-          created_at: string
-          updated_at: string
           age: number
+          avatar_url: string
+          banned_by: string
+          banned_reason: string
+          banned_until: string
+          bio: string
+          created_at: string
+          email: string
+          full_name: string
+          gender: string
+          id: string
+          is_banned: boolean
+          location: string
+          looking_for: string[]
+          marital_status: string
           partner_id: string
           partners: string[]
+          private_marital_status: string
           private_partner_id: string
           private_partners: string[]
-          is_banned: boolean
-          banned_until: string
-          banned_by: string
+          updated_at: string
           username: string
-          full_name: string
-          avatar_url: string
-          bio: string
-          location: string
-          gender: string
-          marital_status: string
-          private_marital_status: string
-          looking_for: string[]
-          banned_reason: string
-          email: string
         }[]
       }
       get_user_role: {
@@ -898,8 +934,8 @@ export type Database = {
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
@@ -907,8 +943,8 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           profiles_count: number
-          user_roles_count: number
           trigger_exists: boolean
+          user_roles_count: number
         }[]
       }
       validate_content_input: {
