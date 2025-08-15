@@ -1,8 +1,15 @@
 
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AnnouncementCarousel } from "@/components/announcements/AnnouncementCarousel";
+import { useAuth } from "@/context/AuthContext";
 
 const RightSidebar = () => {
+  const { user } = useAuth();
+  
+  // Get user location from profile metadata or default to a general area
+  const userLocation = user?.user_metadata?.location || "New York";
+  
   const ongoingEvents = [
     { id: 1, name: "Tech Conference 2025", time: "Tomorrow, 10:00 AM" },
     { id: 2, name: "Book Club Meeting", time: "Today, 7:00 PM" }
@@ -10,6 +17,7 @@ const RightSidebar = () => {
 
   return (
     <div className="space-y-6">
+      <AnnouncementCarousel userLocation={userLocation} />
       <div className="social-card p-4">
         <h3 className="font-semibold mb-3">Upcoming Events</h3>
         <div className="space-y-3">
