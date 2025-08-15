@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Megaphone, Plus } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Megaphone, Plus, Info, Plane } from "lucide-react";
+import { Link } from "react-router-dom";
 import { AnnouncementForm } from "@/components/announcements/AnnouncementForm";
 import { AnnouncementList } from "@/components/announcements/AnnouncementList";
 import { EmptyAnnouncementState } from "@/components/announcements/EmptyAnnouncementState";
@@ -66,6 +68,19 @@ const Announcements = () => {
             </DialogContent>
           </Dialog>
         </div>
+
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>When to use Announcements:</strong> Perfect for finding someone right now or within the next day. 
+            Looking for plans more than 1 day away? Use our{" "}
+            <Link to="/travels" className="text-social-blue hover:underline inline-flex items-center gap-1">
+              <Plane className="w-3 h-3" />
+              Travel feature
+            </Link>{" "}
+            instead to plan ahead and connect with travelers.
+          </AlertDescription>
+        </Alert>
 
         {announcements.length > 0 ? (
           <AnnouncementList
