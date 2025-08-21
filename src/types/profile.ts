@@ -6,6 +6,7 @@ export interface ProfileData {
   private_username?: string; // New field for private profile username
   avatar_url: string;
   private_avatar_url?: string; // New field for private profile avatar
+  cover_photo_url?: string; // New field for cover photo
   bio?: string;
   private_bio?: string; // New field for private profile bio
   location?: string;

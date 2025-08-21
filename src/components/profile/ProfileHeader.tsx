@@ -64,6 +64,26 @@ const ProfileHeader = ({
     setIsEditing(false);
   };
 
+  const handleAvatarUpdate = async (url: string) => {
+    if (onProfileUpdate) {
+      const updates: Partial<ProfileData> = {};
+      
+      if (profileType === "public") {
+        updates.avatar_url = url;
+      } else {
+        updates.private_avatar_url = url;
+      }
+      
+      await onProfileUpdate(updates);
+    }
+  };
+
+  const handleCoverUpdate = async (url: string) => {
+    if (onProfileUpdate) {
+      await onProfileUpdate({ cover_photo_url: url });
+    }
+  };
+
   // Get the appropriate avatar based on profile type
   const currentAvatar = profileType === "private" && profileData?.private_avatar_url
     ? profileData.private_avatar_url
@@ -78,10 +98,15 @@ const ProfileHeader = ({
         <CalmModeToggle />
       </div>
       
-      <ProfileCover isOwnProfile={isOwnProfile} />
+      <ProfileCover 
+        isOwnProfile={isOwnProfile} 
+        coverPhotoUrl={profileData?.cover_photo_url}
+        onCoverUpdate={handleCoverUpdate}
+      />
       <ProfileAvatar 
         avatarUrl={currentAvatar} 
         isOwnProfile={isOwnProfile} 
+        onAvatarUpdate={handleAvatarUpdate}
       />
 
       <div className="p-4 md:p-6 pt-16 md:pt-20">

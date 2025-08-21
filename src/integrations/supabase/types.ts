@@ -561,6 +561,7 @@ export type Database = {
           banned_reason: string | null
           banned_until: string | null
           bio: string | null
+          cover_photo_url: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -590,6 +591,7 @@ export type Database = {
           banned_reason?: string | null
           banned_until?: string | null
           bio?: string | null
+          cover_photo_url?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -619,6 +621,7 @@ export type Database = {
           banned_reason?: string | null
           banned_until?: string | null
           bio?: string | null
+          cover_photo_url?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
