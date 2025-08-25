@@ -875,6 +875,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_friend_profile_data: {
+        Args: { profile_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          bio: string
+          full_name: string
+          gender: string
+          id: string
+          location: string
+          looking_for: string[]
+          marital_status: string
+          sexual_orientation: string
+          username: string
+        }[]
+      }
+      get_public_profile_discovery: {
+        Args: { profile_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          gender: string
+          id: string
+          location: string
+          username: string
+        }[]
+      }
       get_safe_profile: {
         Args: { profile_id: string }
         Returns: {
