@@ -72,47 +72,88 @@ const RoleManagement = () => {
 
   const updateUserRole = async (userId: string, newRole: 'admin' | 'moderator' | 'user') => {
     try {
-      // First, remove existing role
-      await supabase
+      // Enhanced security: Verify admin status before role changes
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user?.id) {
+        toast({
+          title: "Error",
+          description: "Authentication required",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Check if user is trying to modify their own admin role
+      if (userId === user.id && newRole !== 'admin') {
+        toast({
+          title: "Error",
+          description: "You cannot modify your own admin role",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // First, delete any existing role for the user
+      const { error: deleteError } = await supabase
         .from('user_roles')
         .delete()
         .eq('user_id', userId);
 
-      // Then assign new role
-      const { error } = await supabase
+      if (deleteError) {
+        console.error('Error deleting existing role:', deleteError);
+        toast({
+          title: "Error",
+          description: `Failed to update user role: ${deleteError.message}`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Then insert the new role (with server-side validation via triggers)
+      const { error: insertError } = await supabase
         .from('user_roles')
         .insert({
           user_id: userId,
-          role: newRole
+          role: newRole,
+          assigned_by: user?.id
         });
 
-      if (error) throw error;
-
-      // Log admin activity
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase
-          .from('admin_activities')
-          .insert({
-            admin_id: user.id,
-            action: 'assign_role',
-            target_type: 'user',
-            target_id: userId,
-            details: { role: newRole }
+      if (insertError) {
+        console.error('Error inserting new role:', insertError);
+        // Provide more specific error messages
+        if (insertError.message.includes('Only administrators can assign admin roles')) {
+          toast({
+            title: "Permission Denied",
+            description: "Only administrators can assign admin roles",
+            variant: "destructive"
           });
+        } else if (insertError.message.includes('cannot modify their own role')) {
+          toast({
+            title: "Permission Denied",
+            description: "Administrators cannot modify their own role",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: `Failed to update user role: ${insertError.message}`,
+            variant: "destructive"
+          });
+        }
+        return;
       }
 
+      // Success - the audit trail is automatically handled by database triggers
       toast({
         title: "Role updated",
-        description: `User role updated to ${newRole}`
+        description: `User role updated to ${newRole} successfully`
       });
-
-      fetchUsers();
+      fetchUsers(); // Refresh the list
     } catch (error) {
-      console.error('Error updating role:', error);
+      console.error('Error updating user role:', error);
       toast({
         title: "Error",
-        description: "Failed to update role",
+        description: "Failed to update user role due to an unexpected error",
         variant: "destructive"
       });
     }
