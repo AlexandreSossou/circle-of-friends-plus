@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +30,18 @@ interface NavbarMessagesDropdownProps {
 }
 
 const NavbarMessagesDropdown = ({ unreadMessages }: NavbarMessagesDropdownProps) => {
+  const queryClient = useQueryClient();
+
+  const handleMessageClick = async (messageId: string) => {
+    // Mark message as read
+    await supabase
+      .from("messages")
+      .update({ read: true })
+      .eq("id", messageId);
+    
+    // Invalidate queries to update UI
+    queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -58,6 +72,7 @@ const NavbarMessagesDropdown = ({ unreadMessages }: NavbarMessagesDropdownProps)
               <Link 
                 to={`/messages?contact=${message.sender_id}`}
                 className="flex items-start gap-3 cursor-pointer p-3 hover:bg-social-gray"
+                onClick={() => handleMessageClick(message.id)}
               >
                 <Avatar className="w-8 h-8 mt-1">
                   <AvatarImage 

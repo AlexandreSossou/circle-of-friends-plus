@@ -20,7 +20,7 @@ const Navbar = () => {
   const { user } = useAuth();
 
   // Fetch unread messages for mobile menu
-  const { data: unreadMessages } = useQuery({
+  const { data: unreadMessages, refetch: refetchUnreadMessages } = useQuery({
     queryKey: ["unreadMessages", user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -41,8 +41,29 @@ const Navbar = () => {
       return data || [];
     },
     enabled: !!user,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
+
+  // Subscribe to real-time message updates
+  useEffect(() => {
+    if (!user) return;
+    
+    const channel = supabase
+      .channel('navbar-messages-channel')
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'messages',
+        filter: `recipient_id=eq.${user.id}` 
+      }, () => {
+        refetchUnreadMessages();
+      })
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, refetchUnreadMessages]);
 
   useEffect(() => {
     const handleScroll = () => {

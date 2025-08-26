@@ -43,10 +43,8 @@ const Profile = () => {
   }, [profileData]);
 
   const handleAddFriend = () => {
-    toast({
-      title: "Friend request sent",
-      description: "Your friend request has been sent",
-    });
+    // This function is no longer needed as friend requests are handled in ProfileActions
+    console.log("Friend request logic moved to ProfileActions component");
   };
 
   const handleProfileVisibilityChange = (settings: { publicEnabled: boolean; privateEnabled: boolean }) => {

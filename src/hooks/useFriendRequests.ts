@@ -70,6 +70,7 @@ export const useFriendRequests = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
       queryClient.invalidateQueries({ queryKey: ["friends"] });
+      queryClient.invalidateQueries({ queryKey: ["friendshipStatus"] });
       toast({
         title: "Friend request accepted",
         description: "You are now Lovarinos!",
@@ -138,6 +139,7 @@ export const useFriendRequests = () => {
       if (error) throw error;
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friendshipStatus"] });
       toast({
         title: "Success",
         description: "Lovarino request sent!",

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
@@ -23,6 +23,7 @@ type Message = {
 export const useMessages = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -100,12 +101,14 @@ export const useMessages = () => {
       );
       
       if (unreadMessages.length > 0) {
-        unreadMessages.forEach(async (msg) => {
-          await supabase
-            .from("messages")
-            .update({ read: true })
-            .eq("id", msg.id);
-        });
+        const messageIds = unreadMessages.map(msg => msg.id);
+        await supabase
+          .from("messages")
+          .update({ read: true })
+          .in("id", messageIds);
+        
+        // Invalidate unread messages query to update navbar notifications
+        queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
       }
 
       return data || [];
