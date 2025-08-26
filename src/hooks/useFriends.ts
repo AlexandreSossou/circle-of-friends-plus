@@ -1,110 +1,157 @@
-
 import { useState, useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Friend } from "@/types/friends";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export const useFriends = () => {
-  const [allFriends, setAllFriends] = useState<Friend[]>([
-    { id: "f8f8f8f8-f8f8-f8f8-f8f8-f8f8f8f8f8f8", name: "Emma Watson", avatar: "/placeholder.svg", initials: "EW", mutualFriends: 5, relationshipType: "friend", location: "London, United Kingdom" },
-    { id: "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1", name: "James Smith", avatar: "/placeholder.svg", initials: "JS", mutualFriends: 3, relationshipType: "friend", location: "Paris, France" },
-    { id: "b2b2b2b2-b2b2-b2b2-b2b2-b2b2b2b2b2b2", name: "Sarah Johnson", avatar: "/placeholder.svg", initials: "SJ", mutualFriends: 7, relationshipType: "friend", location: "Barcelona, Spain" },
-    { id: "c3c3c3c3-c3c3-c3c3-c3c3-c3c3c3c3c3c3", name: "Michael Brown", avatar: "/placeholder.svg", initials: "MB", mutualFriends: 2, relationshipType: "acquaintance", location: "Rome, Italy" },
-    { id: "d4d4d4d4-d4d4-d4d4-d4d4-d4d4d4d4d4d4", name: "Jessica Taylor", avatar: "/placeholder.svg", initials: "JT", mutualFriends: 1, relationshipType: "acquaintance", location: "Berlin, Germany" },
-    { id: "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5", name: "David Lee", avatar: "/placeholder.svg", initials: "DL", mutualFriends: 4, relationshipType: "acquaintance", location: "Amsterdam, Netherlands" }
-  ]);
-  
-  const friendRequests: Friend[] = [
-    { id: "aa1b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d", name: "Olivia Martinez", avatar: "/placeholder.svg", initials: "OM", mutualFriends: 2 },
-    { id: "2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e", name: "Ryan Cooper", avatar: "/placeholder.svg", initials: "RC", mutualFriends: 8 }
-  ];
-  
+  const { user } = useAuth();
   const { toast } = useToast();
-  
-  // Check for expired temporary relationships
-  useEffect(() => {
-    const checkExpiredRelationships = () => {
-      const now = new Date();
-      setAllFriends(currentFriends => {
-        const updatedFriends = currentFriends.map(friend => {
-          if (friend.temporaryUpgradeUntil && new Date(friend.temporaryUpgradeUntil) < now) {
-            // Revert the relationship type
-            toast({
-              title: "Temporary status expired",
-              description: `${friend.name} has been moved back to acquaintance.`,
-            });
-            return { 
-              ...friend, 
-              relationshipType: 'acquaintance' as const, 
-              temporaryUpgradeUntil: null 
-            };
-          }
-          return friend;
-        });
-        return updatedFriends;
+  const queryClient = useQueryClient();
+
+  // Fetch friends from database
+  const { data: allFriends = [], isLoading } = useQuery({
+    queryKey: ["friends", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from("friends")
+        .select(`
+          id,
+          friend_id,
+          user_id,
+          relationship_type,
+          friend_profile:profiles!friend_id(id, full_name, avatar_url, location),
+          user_profile:profiles!user_id(id, full_name, avatar_url, location)
+        `)
+        .eq("status", "accepted")
+        .or(`user_id.eq.${user.id},friend_id.eq.${user.id}`);
+
+      if (error) {
+        console.error("Error fetching friends:", error);
+        return [];
+      }
+
+      return data?.map(friendship => {
+        // Determine which profile is the friend (not the current user)
+        const friendProfile = friendship.friend_id === user.id 
+          ? friendship.user_profile 
+          : friendship.friend_profile;
+        
+        const friendId = friendship.friend_id === user.id 
+          ? friendship.user_id 
+          : friendship.friend_id;
+
+        return {
+          id: friendId,
+          name: friendProfile?.full_name || "Unknown User",
+          avatar: friendProfile?.avatar_url || "/placeholder.svg",
+          initials: friendProfile?.full_name?.split(" ").map(n => n[0]).join("") || "?",
+          mutualFriends: 0, // TODO: Calculate mutual friends
+          relationshipType: friendship.relationship_type as 'friend' | 'acquaintance',
+          location: friendProfile?.location || undefined
+        } as Friend;
+      }) || [];
+    },
+    enabled: !!user,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+
+  // Update relationship type mutation
+  const updateRelationshipMutation = useMutation({
+    mutationFn: async ({ friendId, relationshipType }: { friendId: string, relationshipType: 'friend' | 'acquaintance' }) => {
+      if (!user) throw new Error("Not authenticated");
+
+      const { error } = await supabase
+        .from("friends")
+        .update({ relationship_type: relationshipType })
+        .or(`and(user_id.eq.${user.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${user.id})`);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["friends"] });
+      toast({
+        title: "Relationship updated",
+        description: "Friend status has been updated",
       });
-    };
-    
-    // Check on component mount and every minute
-    const interval = setInterval(checkExpiredRelationships, 60000);
-    
-    return () => clearInterval(interval);
-  }, [toast]);
-  
-  // Add function to update relationship type
-  const updateRelationshipType = async (friendId: string, relationshipType: 'friend' | 'acquaintance') => {
-    // In a real app, we would update the database here
-    console.log(`Updating ${friendId} to ${relationshipType}`);
-    
-    // For now, we'll just update our local state
-    setAllFriends(prevFriends => 
-      prevFriends.map(friend => 
-        friend.id === friendId 
-          ? { ...friend, relationshipType, temporaryUpgradeUntil: null } 
-          : friend
-      )
-    );
-    
-    // In a real app with Supabase, you'd do something like:
-    // await supabase
-    //   .from('friends')
-    //   .update({ relationship_type: relationshipType })
-    //   .eq('friend_id', friendId)
-    //   .eq('user_id', user.id);
+    },
+    onError: (error) => {
+      console.error("Error updating relationship:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update friend status",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateRelationshipType = (friendId: string, relationshipType: 'friend' | 'acquaintance') => {
+    updateRelationshipMutation.mutate({ friendId, relationshipType });
   };
-  
-  // Add function to temporarily upgrade a relationship
-  const temporarilyUpgradeRelationship = async (friendId: string, durationMinutes: number) => {
-    // Calculate expiration time
+
+  // Temporary relationship upgrade (local state only for now)
+  const [localUpgrades, setLocalUpgrades] = useState<{[friendId: string]: Date}>({});
+
+  const temporarilyUpgradeRelationship = (friendId: string, durationMinutes: number) => {
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + durationMinutes);
     
-    // Update local state
-    setAllFriends(prevFriends => 
-      prevFriends.map(friend => 
-        friend.id === friendId 
-          ? { 
-              ...friend, 
-              relationshipType: 'friend' as const, 
-              temporaryUpgradeUntil: expiresAt 
-            } 
-          : friend
-      )
-    );
-    
-    // In a real app with Supabase, you'd store the temporary status
-    // along with the expiration timestamp
+    setLocalUpgrades(prev => ({
+      ...prev,
+      [friendId]: expiresAt
+    }));
     
     toast({
       title: "Temporary close friend added",
       description: `Contact will revert to acquaintance in ${durationMinutes} minute${durationMinutes !== 1 ? 's' : ''}.`,
     });
   };
-  
+
+  // Check for expired temporary relationships
+  useEffect(() => {
+    const checkExpiredRelationships = () => {
+      const now = new Date();
+      setLocalUpgrades(prev => {
+        const updated = { ...prev };
+        let hasExpired = false;
+        
+        Object.keys(updated).forEach(friendId => {
+          if (updated[friendId] < now) {
+            delete updated[friendId];
+            hasExpired = true;
+            const friend = allFriends.find(f => f.id === friendId);
+            if (friend) {
+              toast({
+                title: "Temporary status expired",
+                description: `${friend.name} has been moved back to acquaintance.`,
+              });
+            }
+          }
+        });
+        
+        return hasExpired ? updated : prev;
+      });
+    };
+    
+    const interval = setInterval(checkExpiredRelationships, 60000);
+    return () => clearInterval(interval);
+  }, [toast, allFriends]);
+
+  // Apply temporary upgrades to friends list
+  const friendsWithUpgrades = allFriends.map(friend => ({
+    ...friend,
+    relationshipType: localUpgrades[friend.id] ? 'friend' as const : friend.relationshipType,
+    temporaryUpgradeUntil: localUpgrades[friend.id] || null
+  }));
+
   return {
-    allFriends,
-    friendRequests,
+    allFriends: friendsWithUpgrades,
+    isLoading,
     updateRelationshipType,
-    temporarilyUpgradeRelationship
+    temporarilyUpgradeRelationship,
+    isUpdating: updateRelationshipMutation.isPending
   };
 };
