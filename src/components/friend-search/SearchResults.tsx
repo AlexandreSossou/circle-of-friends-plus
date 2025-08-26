@@ -38,26 +38,55 @@ const SearchResults = ({
 }: SearchResultsProps) => {
   const { toast } = useToast();
 
-  const handleSendFriendRequest = async (userId: string) => {
-    const { error } = await supabase
-      .from("friends")
-      .insert({
-        user_id: (await supabase.auth.getUser()).data.user?.id,
-        friend_id: userId,
-        status: "pending"
-      });
+  const [sendingRequests, setSendingRequests] = useState<Set<string>>(new Set());
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send Lovarino request.",
-        variant: "destructive",
-      });
-      console.error(error);
-    } else {
+  const handleSendFriendRequest = async (userId: string) => {
+    setSendingRequests(prev => new Set(prev).add(userId));
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Check if request already exists
+      const { data: existing } = await supabase
+        .from("friends")
+        .select("id")
+        .or(`and(user_id.eq.${user.id},friend_id.eq.${userId}),and(user_id.eq.${userId},friend_id.eq.${user.id})`);
+
+      if (existing && existing.length > 0) {
+        throw new Error("Friend request already exists");
+      }
+
+      const { error } = await supabase
+        .from("friends")
+        .insert({
+          user_id: user.id,
+          friend_id: userId,
+          status: "pending"
+        });
+
+      if (error) throw error;
+
       toast({
         title: "Success",
         description: "Lovarino request sent!",
+      });
+    } catch (error: any) {
+      console.error("Error sending friend request:", error);
+      const message = error.message === "Friend request already exists" 
+        ? "Friend request already exists or you are already friends"
+        : "Failed to send Lovarino request";
+      
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setSendingRequests(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
       });
     }
   };
@@ -111,9 +140,10 @@ const SearchResults = ({
                 size="sm" 
                 className="flex items-center gap-1"
                 onClick={() => handleSendFriendRequest(profile.id)}
+                disabled={sendingRequests.has(profile.id)}
               >
                 <UserPlus className="w-4 h-4" />
-                <span>Add Lovarino</span>
+                <span>{sendingRequests.has(profile.id) ? "Sending..." : "Add Lovarino"}</span>
               </Button>
             </div>
           ))}

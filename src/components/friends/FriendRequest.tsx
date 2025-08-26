@@ -5,7 +5,7 @@ import { Friend } from "@/types/friends";
 
 interface FriendRequestProps {
   request: Friend;
-  onAccept: (id: string, name: string) => void;
+  onAccept: (id: string) => void;
   onDecline: (id: string) => void;
 }
 
@@ -25,7 +25,7 @@ const FriendRequest = ({ request, onAccept, onDecline }: FriendRequestProps) => 
         </div>
         <div className="flex gap-2">
           <Button 
-            onClick={() => onAccept(request.id, request.name)}
+            onClick={() => onAccept(request.id)}
             className="bg-social-blue hover:bg-social-darkblue"
           >
             Accept

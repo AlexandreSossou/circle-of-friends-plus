@@ -7,12 +7,14 @@ import { useAuth } from "@/context/AuthContext";
 import FriendsList from "@/components/friends/FriendsList";
 import FriendRequests from "@/components/friends/FriendRequests";
 import { useFriends } from "@/hooks/useFriends";
+import { useFriendRequests } from "@/hooks/useFriendRequests";
 
 const Friends = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { allFriends, friendRequests, updateRelationshipType, temporarilyUpgradeRelationship } = useFriends();
+  const { allFriends, updateRelationshipType, temporarilyUpgradeRelationship } = useFriends();
+  const { incomingRequests, acceptRequest, declineRequest } = useFriendRequests();
   
   // Filter friends based on relationship type, including temporary close friends
   const closeFriends = allFriends.filter(friend => friend.relationshipType === 'friend');
@@ -22,17 +24,12 @@ const Friends = () => {
     navigate(`/profile/${id}`);
   };
   
-  const handleAcceptRequest = (id: string, name: string) => {
-    toast({
-      title: "Lovarino request accepted",
-      description: `You are now Lovarinos with ${name}`,
-    });
+  const handleAcceptRequest = (requestId: string) => {
+    acceptRequest(requestId);
   };
   
-  const handleDeclineRequest = (id: string) => {
-    toast({
-      title: "Lovarino request declined",
-    });
+  const handleDeclineRequest = (requestId: string) => {
+    declineRequest(requestId);
   };
   
   const handleUpdateRelationshipType = (friendId: string, relationshipType: 'friend' | 'acquaintance') => {
@@ -55,9 +52,9 @@ const Friends = () => {
             <TabsTrigger value="acquaintances">Acquaintances</TabsTrigger>
             <TabsTrigger value="requests">
               Requests
-              {friendRequests.length > 0 && (
+              {incomingRequests.length > 0 && (
                 <span className="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {friendRequests.length}
+                  {incomingRequests.length}
                 </span>
               )}
             </TabsTrigger>
@@ -92,8 +89,14 @@ const Friends = () => {
           
           <TabsContent value="requests">
             <FriendRequests 
-              requests={friendRequests}
-              onAccept={handleAcceptRequest}
+              requests={incomingRequests.map(req => ({
+                id: req.id,
+                name: req.profile.full_name || "Unknown User",
+                avatar: req.profile.avatar_url || "/placeholder.svg",
+                initials: req.profile.full_name?.split(" ").map(n => n[0]).join("") || "?",
+                mutualFriends: 0
+              }))}
+              onAccept={(requestId) => handleAcceptRequest(requestId)}
               onDecline={handleDeclineRequest}
             />
           </TabsContent>

@@ -47,46 +47,54 @@ export const useFriendSearch = () => {
   const { data: searchResults, isLoading } = useQuery({
     queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange, location, usaSearch, usaState, milesRange],
     queryFn: async () => {
-      let query = supabase
-        .from("profiles")
-        .select("*")
-        .order("full_name", { ascending: true });
+      // Get current user to exclude from results
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
 
-      if (searchTerm) {
-        query = query.ilike("full_name", `%${searchTerm}%`);
-      }
-
-      if (gender) {
-        query = query.eq("gender", gender);
-      }
-
-      if (maritalStatus) {
-        query = query.eq("marital_status", maritalStatus);
-      }
-
-      if (usaSearch && usaState) {
-        // Search for USA state specifically, with miles range consideration
-        // For now, we'll use a simpler approach of filtering by state
-        // In a real app, you'd use coordinates and proper distance calculation
-        query = query.ilike("location", `%${usaState}%`);
-      } else if (location && !usaSearch) {
-        query = query.ilike("location", `%${location}%`);
-      }
-
-      // Enforce the age restriction in the query as well
-      const minAge = currentUserAge && currentUserAge > 40 ? Math.max(22, ageRange[0]) : ageRange[0];
-      if (minAge > 18 || ageRange[1] < 80) {
-        query = query.gte("age", minAge).lte("age", ageRange[1]);
-      }
-
-      const { data, error } = await query;
+      // Use the secure function to get profiles
+      const { data: profiles, error } = await supabase.rpc('get_safe_profiles_list');
 
       if (error) {
-        console.error("Error fetching friends:", error);
+        console.error("Error fetching profiles:", error);
         return [];
       }
 
-      return data || [];
+      if (!profiles) return [];
+
+      // Filter results based on search criteria
+      let filteredProfiles = profiles.filter(profile => {
+        // Exclude current user and banned users
+        if (profile.id === user.id || profile.is_banned) return false;
+
+        // Search term filter
+        if (searchTerm && !profile.full_name?.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return false;
+        }
+
+        // Gender filter
+        if (gender && profile.gender !== gender) return false;
+
+        // Marital status filter
+        if (maritalStatus && profile.marital_status !== maritalStatus) return false;
+
+        // Location filter
+        if (usaSearch && usaState) {
+          if (!profile.location?.toLowerCase().includes(usaState.toLowerCase())) return false;
+        } else if (location && !usaSearch) {
+          if (!profile.location?.toLowerCase().includes(location.toLowerCase())) return false;
+        }
+
+        // Age filter
+        const minAge = currentUserAge && currentUserAge > 40 ? Math.max(22, ageRange[0]) : ageRange[0];
+        if (profile.age && (profile.age < minAge || profile.age > ageRange[1])) return false;
+
+        return true;
+      });
+
+      // Sort by full name
+      filteredProfiles.sort((a, b) => (a.full_name || '').localeCompare(b.full_name || ''));
+
+      return filteredProfiles;
     },
     enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes

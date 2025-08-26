@@ -4,7 +4,7 @@ import { Friend } from "@/types/friends";
 
 interface FriendRequestsProps {
   requests: Friend[];
-  onAccept: (id: string, name: string) => void;
+  onAccept: (id: string) => void;
   onDecline: (id: string) => void;
 }
 
