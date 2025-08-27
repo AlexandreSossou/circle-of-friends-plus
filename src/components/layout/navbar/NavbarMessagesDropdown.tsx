@@ -45,9 +45,12 @@ const NavbarMessagesDropdown = ({ unreadMessages }: NavbarMessagesDropdownProps)
         return;
       }
       
-      // Invalidate all unread message queries to update UI
-      queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
-      queryClient.invalidateQueries({ queryKey: ["messages"] });
+      // Force invalidate all unread message queries with exact keys
+      await queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
+      await queryClient.invalidateQueries({ queryKey: ["messages"] });
+      
+      // Force refetch to update counts immediately
+      queryClient.refetchQueries({ queryKey: ["unreadMessages"] });
     } catch (error) {
       console.error("Failed to mark message as read:", error);
     }

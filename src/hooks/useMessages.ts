@@ -107,8 +107,9 @@ export const useMessages = () => {
           .update({ read: true })
           .in("id", messageIds);
         
-        // Invalidate unread messages query to update navbar notifications
-        queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
+        // Force invalidate and refetch unread messages query to update navbar notifications
+        await queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
+        queryClient.refetchQueries({ queryKey: ["unreadMessages"] });
       }
 
       return data || [];
