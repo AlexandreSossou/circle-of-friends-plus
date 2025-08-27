@@ -3,12 +3,36 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AnnouncementCarousel } from "@/components/announcements/AnnouncementCarousel";
 import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const RightSidebar = () => {
   const { user } = useAuth();
   
-  // Get user location from profile metadata or default to a general area
-  const userLocation = user?.user_metadata?.location || "New York";
+  // Fetch user profile to get location
+  const { data: userProfile } = useQuery({
+    queryKey: ["userProfile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("location")
+        .eq("id", user.id)
+        .single();
+      
+      if (error) {
+        console.error("Error fetching user profile:", error);
+        return null;
+      }
+      
+      return data;
+    },
+    enabled: !!user,
+  });
+  
+  // Use profile location or fallback to New York
+  const userLocation = userProfile?.location || "New York";
   
   const ongoingEvents = [
     { id: 1, name: "Tech Conference 2025", time: "Tomorrow, 10:00 AM" },

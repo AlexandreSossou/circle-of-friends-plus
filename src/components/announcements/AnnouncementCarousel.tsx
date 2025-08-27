@@ -21,18 +21,30 @@ export const AnnouncementCarousel = ({ userLocation }: AnnouncementCarouselProps
     queryFn: async () => {
       if (!userLocation) return [];
 
+      // Try multiple location matching strategies
+      const locationVariants = [
+        userLocation,
+        userLocation.toLowerCase(),
+        userLocation.split(',')[0].trim(), // Remove state/country part
+        userLocation.replace(/,.*/, '').trim(), // Remove everything after comma
+      ];
+
+      console.log("Searching for announcements in locations:", locationVariants);
+
       const { data: announcementData, error } = await supabase
         .from("announcements")
         .select("*")
         .eq("visibility", "public")
-        .ilike("location", `%${userLocation}%`)
+        .or(locationVariants.map(variant => `location.ilike.%${variant}%`).join(','))
         .order("created_at", { ascending: false })
-        .limit(5);
+        .limit(10);
 
       if (error) {
         console.error("Error fetching regional announcements:", error);
         return [];
       }
+
+      console.log("Found announcements:", announcementData);
 
       // Fetch profile data for each announcement
       const announcementsWithProfiles = await Promise.all(

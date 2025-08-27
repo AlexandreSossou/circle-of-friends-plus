@@ -33,14 +33,24 @@ const NavbarMessagesDropdown = ({ unreadMessages }: NavbarMessagesDropdownProps)
   const queryClient = useQueryClient();
 
   const handleMessageClick = async (messageId: string) => {
-    // Mark message as read
-    await supabase
-      .from("messages")
-      .update({ read: true })
-      .eq("id", messageId);
-    
-    // Invalidate queries to update UI
-    queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
+    try {
+      // Mark message as read
+      const { error } = await supabase
+        .from("messages")
+        .update({ read: true })
+        .eq("id", messageId);
+
+      if (error) {
+        console.error("Error marking message as read:", error);
+        return;
+      }
+      
+      // Invalidate all unread message queries to update UI
+      queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
+      queryClient.invalidateQueries({ queryKey: ["messages"] });
+    } catch (error) {
+      console.error("Failed to mark message as read:", error);
+    }
   };
   return (
     <DropdownMenu>
