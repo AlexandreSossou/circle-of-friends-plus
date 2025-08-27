@@ -49,6 +49,7 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
+          expires_at: string
           id: string
           location: string
           title: string
@@ -60,6 +61,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          expires_at?: string
           id?: string
           location: string
           title: string
@@ -71,6 +73,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          expires_at?: string
           id?: string
           location?: string
           title?: string

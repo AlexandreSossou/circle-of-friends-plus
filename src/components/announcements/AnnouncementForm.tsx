@@ -78,6 +78,23 @@ export const AnnouncementForm = ({ data, onInputChange, onSubmit, isLoading }: A
       </div>
 
       <div>
+        <Label htmlFor="duration">Duration</Label>
+        <Select value={data.duration} onValueChange={(value) => onInputChange("duration", value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="How long should this be active?" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="30">30 minutes</SelectItem>
+            <SelectItem value="60">1 hour</SelectItem>
+            <SelectItem value="120">2 hours</SelectItem>
+            <SelectItem value="240">4 hours</SelectItem>
+            <SelectItem value="480">8 hours</SelectItem>
+            <SelectItem value="720">12 hours (Max)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
         <Label htmlFor="visibility">Visibility</Label>
         <Select value={data.visibility} onValueChange={(value) => onInputChange("visibility", value as "public" | "friends")}>
           <SelectTrigger>

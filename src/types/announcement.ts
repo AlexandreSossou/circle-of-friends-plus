@@ -6,6 +6,7 @@ export interface Announcement {
   location: string;
   category: string;
   visibility: "public" | "friends" | "private";
+  expires_at: string;
   created_at: string;
   updated_at: string;
   profiles: {
@@ -21,4 +22,5 @@ export interface AnnouncementFormData {
   location: string;
   category: string;
   visibility: "public" | "friends";
+  duration: string; // in minutes: "30", "60", "120", "240", "480", "720"
 }

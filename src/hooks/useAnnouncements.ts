@@ -16,7 +16,8 @@ export const useAnnouncements = () => {
     description: "",
     location: "",
     category: "general",
-    visibility: "public" as "public" | "friends"
+    visibility: "public" as "public" | "friends",
+    duration: "720" // Default to 12 hours (720 minutes)
   });
   
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -39,13 +40,14 @@ export const useAnnouncements = () => {
     checkLimits();
   }, [user]);
 
-  // Fetch announcements
+  // Fetch announcements (only non-expired ones)
   const { data: announcements = [], isLoading } = useQuery({
     queryKey: ["announcements"],
     queryFn: async () => {
       const { data: announcementData, error } = await supabase
         .from("announcements")
         .select("*")
+        .gt("expires_at", new Date().toISOString()) // Only get non-expired announcements
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -79,6 +81,10 @@ export const useAnnouncements = () => {
     mutationFn: async (data: AnnouncementFormData) => {
       if (!user) throw new Error("User not authenticated");
 
+      // Calculate expires_at based on duration
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + parseInt(data.duration));
+
       const { error } = await supabase
         .from("announcements")
         .insert({
@@ -88,6 +94,7 @@ export const useAnnouncements = () => {
           location: data.location,
           category: data.category,
           visibility: data.visibility,
+          expires_at: expiresAt.toISOString(),
         });
 
       if (error) throw error;
@@ -99,7 +106,8 @@ export const useAnnouncements = () => {
         description: "",
         location: "",
         category: "general",
-        visibility: "public" as "public" | "friends"
+        visibility: "public" as "public" | "friends",
+        duration: "720"
       });
       setIsAddDialogOpen(false);
       toast({
