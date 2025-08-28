@@ -35,6 +35,7 @@ export const AnnouncementCarousel = ({ userLocation }: AnnouncementCarouselProps
         .from("announcements")
         .select("*")
         .eq("visibility", "public")
+        .gt("expires_at", new Date().toISOString()) // Only get non-expired announcements
         .or(locationVariants.map(variant => `location.ilike.%${variant}%`).join(','))
         .order("created_at", { ascending: false })
         .limit(10);
