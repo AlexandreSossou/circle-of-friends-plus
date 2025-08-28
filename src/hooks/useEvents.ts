@@ -25,29 +25,45 @@ export const useEvents = () => {
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch events first
+      const { data: eventsData, error: eventsError } = await supabase
         .from("events")
-        .select(`
-          *,
-          profiles:user_id (
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select("*")
         .order("start_date", { ascending: true });
 
-      if (error) {
-        throw error;
+      if (eventsError) {
+        throw eventsError;
       }
+
+      if (!eventsData || eventsData.length === 0) {
+        return [];
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(eventsData.map(event => event.user_id))];
       
-      // Transform the data to match the Event type
-      return (data as any[]).map(event => ({
+      // Fetch profiles for those users
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", userIds);
+
+      if (profilesError) {
+        throw profilesError;
+      }
+
+      // Create a map for quick profile lookup
+      const profilesMap = new Map(
+        profilesData?.map(profile => [profile.id, profile]) || []
+      );
+
+      // Combine events with profile data
+      return eventsData.map(event => ({
         ...event,
-        profiles: {
-          id: event.profiles?.id || "",
-          full_name: event.profiles?.full_name || null,
-          avatar_url: event.profiles?.avatar_url || null
+        profiles: profilesMap.get(event.user_id) || {
+          id: event.user_id,
+          full_name: null,
+          avatar_url: null
         }
       })) as Event[];
     },
