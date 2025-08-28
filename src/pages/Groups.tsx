@@ -5,87 +5,43 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Plus, Users } from "lucide-react";
+import { Search, Plus, Users, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useGroups } from "@/hooks/useGroups";
+import { GroupFormData } from "@/types/group";
 
 const Groups = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [newGroupName, setNewGroupName] = useState("");
-  const [newGroupDescription, setNewGroupDescription] = useState("");
-  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [formData, setFormData] = useState<GroupFormData>({
+    name: "",
+    description: "",
+    category: "general",
+    is_public: true
+  });
   const { toast } = useToast();
   
-  const yourGroups = [
-    { 
-      id: "group-1", 
-      name: "Tech Enthusiasts", 
-      avatar: "/placeholder.svg", 
-      initials: "TE", 
-      members: 542,
-      category: "Technology",
-      isAdmin: true
-    },
-    { 
-      id: "group-2", 
-      name: "Travel Bugs", 
-      avatar: "/placeholder.svg", 
-      initials: "TB", 
-      members: 1023,
-      category: "Travel",
-      isAdmin: false
-    },
-    { 
-      id: "group-3", 
-      name: "Cooking Masters", 
-      avatar: "/placeholder.svg", 
-      initials: "CM", 
-      members: 327,
-      category: "Food",
-      isAdmin: false
-    }
-  ];
+  const {
+    userGroups,
+    publicGroups,
+    isLoadingUserGroups,
+    isLoadingPublicGroups,
+    createGroupMutation,
+    joinGroupMutation,
+  } = useGroups();
   
-  const suggestedGroups = [
-    { 
-      id: "group-4", 
-      name: "Photography Club", 
-      avatar: "/placeholder.svg", 
-      initials: "PC", 
-      members: 823,
-      category: "Photography"
-    },
-    { 
-      id: "group-5", 
-      name: "Book Readers", 
-      avatar: "/placeholder.svg", 
-      initials: "BR", 
-      members: 612,
-      category: "Books"
-    },
-    { 
-      id: "group-6", 
-      name: "Fitness Motivation", 
-      avatar: "/placeholder.svg", 
-      initials: "FM", 
-      members: 1548,
-      category: "Fitness"
-    },
-    { 
-      id: "group-7", 
-      name: "Gaming Community", 
-      avatar: "/placeholder.svg", 
-      initials: "GC", 
-      members: 2356,
-      category: "Gaming"
-    }
+  const categories = [
+    "General", "Technology", "Travel", "Books", "Photography", 
+    "Fitness", "Gaming", "Food", "Music", "Art", "Sports"
   ];
   
   const handleCreateGroup = () => {
-    if (!newGroupName.trim()) {
+    if (!formData.name.trim()) {
       toast({
         title: "Error",
         description: "Please enter a group name",
@@ -94,32 +50,30 @@ const Groups = () => {
       return;
     }
     
-    setIsCreatingGroup(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsCreatingGroup(false);
-      setNewGroupName("");
-      setNewGroupDescription("");
-      setDialogOpen(false);
-      
-      toast({
-        title: "Group created",
-        description: `Your group "${newGroupName}" has been created successfully`,
-      });
-    }, 1000);
-  };
-  
-  const handleJoinGroup = (groupId: string, groupName: string) => {
-    toast({
-      title: "Group joined",
-      description: `You have successfully joined "${groupName}"`,
+    createGroupMutation.mutate(formData, {
+      onSuccess: () => {
+        setFormData({
+          name: "",
+          description: "",
+          category: "general",
+          is_public: true
+        });
+        setDialogOpen(false);
+      }
     });
   };
   
-  const filteredGroups = yourGroups.filter(group => 
+  const handleJoinGroup = (groupId: string, groupName: string) => {
+    joinGroupMutation.mutate(groupId);
+  };
+  
+  const filteredGroups = userGroups.filter(group => 
     group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const getGroupInitials = (name: string) => {
+    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  };
   
   return (
     <MainLayout>
@@ -150,8 +104,8 @@ const Groups = () => {
                     id="groupName"
                     placeholder="Group name"
                     className="col-span-3"
-                    value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
+                    value={formData.name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
@@ -162,18 +116,52 @@ const Groups = () => {
                     id="groupDescription"
                     placeholder="Group description"
                     className="col-span-3"
-                    value={newGroupDescription}
-                    onChange={(e) => setNewGroupDescription(e.target.value)}
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="groupCategory" className="text-right">
+                    Category
+                  </Label>
+                  <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(category => (
+                        <SelectItem key={category.toLowerCase()} value={category.toLowerCase()}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="groupPublic" className="text-right">
+                    Public
+                  </Label>
+                  <Switch
+                    id="groupPublic"
+                    checked={formData.is_public}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public: checked }))}
                   />
                 </div>
               </div>
               <DialogFooter>
                 <Button 
                   onClick={handleCreateGroup} 
-                  disabled={isCreatingGroup}
+                  disabled={createGroupMutation.isPending}
                   className="bg-social-blue hover:bg-social-darkblue"
                 >
-                  {isCreatingGroup ? "Creating..." : "Create Group"}
+                  {createGroupMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    "Create Group"
+                  )}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -200,22 +188,26 @@ const Groups = () => {
               </div>
             </div>
             
-            {filteredGroups.length > 0 ? (
+{isLoadingUserGroups ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+            ) : filteredGroups.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredGroups.map((group) => (
                   <div key={group.id} className="social-card p-4">
                     <Link to={`/groups/${group.id}`} className="flex items-center">
                       <Avatar className="w-16 h-16 mr-4">
-                        <AvatarImage src={group.avatar} alt={group.name} />
-                        <AvatarFallback>{group.initials}</AvatarFallback>
+                        <AvatarImage src={group.avatar_url || "/placeholder.svg"} alt={group.name} />
+                        <AvatarFallback>{getGroupInitials(group.name)}</AvatarFallback>
                       </Avatar>
                       <div>
                         <h3 className="font-medium text-lg">{group.name}</h3>
-                        <p className="text-sm text-social-textSecondary">{group.category}</p>
+                        <p className="text-sm text-social-textSecondary capitalize">{group.category}</p>
                         <div className="flex items-center mt-1 text-xs text-social-textSecondary">
                           <Users className="w-3 h-3 mr-1" />
-                          <span>{group.members} members</span>
-                          {group.isAdmin && (
+                          <span>{group.member_count || 0} members</span>
+                          {group.user_role === 'admin' && (
                             <span className="ml-3 px-2 py-0.5 bg-social-blue text-white rounded-full text-xs">
                               Admin
                             </span>
@@ -228,41 +220,56 @@ const Groups = () => {
               </div>
             ) : (
               <div className="text-center py-10 text-social-textSecondary">
-                <p>No groups match your search.</p>
+                <p>{searchQuery ? "No groups match your search." : "You haven't joined any groups yet."}</p>
               </div>
             )}
           </TabsContent>
           
           <TabsContent value="discover">
-            <h3 className="font-semibold text-lg mb-4">Suggested Groups</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {suggestedGroups.map((group) => (
-                <div key={group.id} className="social-card p-4">
-                  <div className="flex items-center justify-between">
-                    <Link to={`/groups/${group.id}`} className="flex items-center flex-1">
-                      <Avatar className="w-16 h-16 mr-4">
-                        <AvatarImage src={group.avatar} alt={group.name} />
-                        <AvatarFallback>{group.initials}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-medium text-lg">{group.name}</h3>
-                        <p className="text-sm text-social-textSecondary">{group.category}</p>
-                        <div className="flex items-center mt-1 text-xs text-social-textSecondary">
-                          <Users className="w-3 h-3 mr-1" />
-                          <span>{group.members} members</span>
+            <h3 className="font-semibold text-lg mb-4">Discover Groups</h3>
+            {isLoadingPublicGroups ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+            ) : publicGroups.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {publicGroups.filter(group => !userGroups.some(ug => ug.id === group.id)).map((group) => (
+                  <div key={group.id} className="social-card p-4">
+                    <div className="flex items-center justify-between">
+                      <Link to={`/groups/${group.id}`} className="flex items-center flex-1">
+                        <Avatar className="w-16 h-16 mr-4">
+                          <AvatarImage src={group.avatar_url || "/placeholder.svg"} alt={group.name} />
+                          <AvatarFallback>{getGroupInitials(group.name)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="font-medium text-lg">{group.name}</h3>
+                          <p className="text-sm text-social-textSecondary capitalize">{group.category}</p>
+                          <div className="flex items-center mt-1 text-xs text-social-textSecondary">
+                            <Users className="w-3 h-3 mr-1" />
+                            <span>{group.member_count || 0} members</span>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                    <Button
-                      onClick={() => handleJoinGroup(group.id, group.name)}
-                      className="bg-social-blue hover:bg-social-darkblue"
-                    >
-                      Join
-                    </Button>
+                      </Link>
+                      <Button
+                        onClick={() => handleJoinGroup(group.id, group.name)}
+                        disabled={joinGroupMutation.isPending}
+                        className="bg-social-blue hover:bg-social-darkblue"
+                      >
+                        {joinGroupMutation.isPending ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          "Join"
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-10 text-social-textSecondary">
+                <p>No public groups available to join.</p>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
