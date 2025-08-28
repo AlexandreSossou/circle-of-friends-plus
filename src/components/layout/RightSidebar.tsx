@@ -5,6 +5,7 @@ import { AnnouncementCarousel } from "@/components/announcements/AnnouncementCar
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { format, parseISO } from "date-fns";
 
 const RightSidebar = () => {
   const { user } = useAuth();
@@ -34,10 +35,28 @@ const RightSidebar = () => {
   // Use profile location or fallback to New York
   const userLocation = userProfile?.location || "New York";
   
-  const ongoingEvents = [
-    { id: 1, name: "Tech Conference 2025", time: "Tomorrow, 10:00 AM" },
-    { id: 2, name: "Book Club Meeting", time: "Today, 7:00 PM" }
-  ];
+  // Fetch upcoming events
+  const { data: upcomingEvents = [] } = useQuery({
+    queryKey: ["upcomingEvents"],
+    queryFn: async () => {
+      // Get events starting from today
+      const today = new Date().toISOString().split('T')[0];
+      
+      const { data: eventsData, error: eventsError } = await supabase
+        .from("events")
+        .select("id, title, start_date, time")
+        .gte("start_date", today)
+        .order("start_date", { ascending: true })
+        .limit(3);
+
+      if (eventsError) {
+        throw eventsError;
+      }
+
+      return eventsData || [];
+    },
+    enabled: !!user,
+  });
 
   return (
     <div className="space-y-6">
@@ -45,12 +64,19 @@ const RightSidebar = () => {
       <div className="social-card p-4">
         <h3 className="font-semibold mb-3">Upcoming Events</h3>
         <div className="space-y-3">
-          {ongoingEvents.map((event) => (
-            <Link to={`/events/${event.id}`} key={event.id} className="block p-2 hover:bg-social-gray rounded-lg">
-              <p className="font-medium">{event.name}</p>
-              <p className="text-xs text-social-textSecondary">{event.time}</p>
-            </Link>
-          ))}
+          {upcomingEvents.length > 0 ? (
+            upcomingEvents.map((event) => (
+              <Link to={`/events/${event.id}`} key={event.id} className="block p-2 hover:bg-social-gray rounded-lg">
+                <p className="font-medium">{event.title}</p>
+                <p className="text-xs text-social-textSecondary">
+                  {format(parseISO(event.start_date), 'MMM d, yyyy')}
+                  {event.time && ` • ${event.time}`}
+                </p>
+              </Link>
+            ))
+          ) : (
+            <p className="text-sm text-social-textSecondary">No upcoming events</p>
+          )}
         </div>
         <Link to="/events" className="block mt-3 text-social-blue text-sm font-medium">
           See all events
