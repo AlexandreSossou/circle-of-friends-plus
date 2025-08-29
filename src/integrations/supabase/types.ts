@@ -1063,6 +1063,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_group_admin: {
+        Args: { group_uuid: string }
+        Returns: boolean
+      }
       test_user_creation: {
         Args: Record<PropertyKey, never>
         Returns: {
