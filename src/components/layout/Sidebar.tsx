@@ -3,9 +3,11 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Group, Home, Newspaper, Settings, Users, Plane, Search, MessageCircle, Video, Megaphone } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useGroups } from "@/hooks/useGroups";
 
 const Sidebar = () => {
   const { user } = useAuth();
+  const { userGroups = [], isLoadingUserGroups } = useGroups();
   
   // Get user initials for avatar fallback
   const getUserInitials = () => {
@@ -84,32 +86,33 @@ const Sidebar = () => {
       
       <div className="social-card p-4">
         <h3 className="font-semibold mb-3">Your Groups</h3>
-        <div className="space-y-2">
-          <Link to="/groups/tech" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
-            <Avatar className="w-8 h-8 mr-3">
-              <AvatarImage src="/placeholder.svg" alt="Tech Group" />
-              <AvatarFallback>TG</AvatarFallback>
-            </Avatar>
-            <span>Tech Enthusiasts</span>
-          </Link>
-          <Link to="/groups/travel" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
-            <Avatar className="w-8 h-8 mr-3">
-              <AvatarImage src="/placeholder.svg" alt="Travel Group" />
-              <AvatarFallback>TR</AvatarFallback>
-            </Avatar>
-            <span>Travel Bugs</span>
-          </Link>
-          <Link to="/groups/cooking" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
-            <Avatar className="w-8 h-8 mr-3">
-              <AvatarImage src="/placeholder.svg" alt="Cooking Group" />
-              <AvatarFallback>CK</AvatarFallback>
-            </Avatar>
-            <span>Cooking Masters</span>
-          </Link>
-        </div>
-        <Link to="/groups" className="block mt-3 text-social-blue text-sm font-medium">
-          See all groups
-        </Link>
+        {isLoadingUserGroups ? (
+          <div className="text-sm text-social-textSecondary">Loading...</div>
+        ) : userGroups.length > 0 ? (
+          <>
+            <div className="space-y-2">
+              {userGroups.slice(0, 3).map((group) => (
+                <Link key={group.id} to={`/groups/${group.id}`} className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+                  <Avatar className="w-8 h-8 mr-3">
+                    <AvatarImage src={group.avatar_url || "/placeholder.svg"} alt={`${group.name} group`} />
+                    <AvatarFallback>{group.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}</AvatarFallback>
+                  </Avatar>
+                  <span>{group.name}</span>
+                </Link>
+              ))}
+            </div>
+            <Link to="/groups" className="block mt-3 text-social-blue text-sm font-medium">
+              See all groups
+            </Link>
+          </>
+        ) : (
+          <>
+            <div className="text-sm text-social-textSecondary">You haven&apos;t joined any groups yet.</div>
+            <Link to="/groups" className="block mt-3 text-social-blue text-sm font-medium">
+              Discover groups
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );
