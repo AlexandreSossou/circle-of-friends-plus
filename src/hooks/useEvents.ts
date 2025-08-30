@@ -29,7 +29,7 @@ export const useEvents = () => {
       // Fetch events first
       const { data: eventsData, error: eventsError } = await supabase
         .from("events")
-        .select("*")
+        .select("*, access_type")
         .order("start_date", { ascending: true });
 
       if (eventsError) {
