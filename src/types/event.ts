@@ -9,6 +9,7 @@ export interface Event {
   time: string | null;
   location: string | null;
   visibility: "public" | "friends" | "private";
+  access_type: "open" | "request";
   created_at: string;
   updated_at: string;
   profiles: {
@@ -26,4 +27,5 @@ export interface EventFormData {
   time?: string;
   location?: string;
   visibility: "public" | "friends" | "private";
+  access_type: "open" | "request";
 }

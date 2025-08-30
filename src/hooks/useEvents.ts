@@ -19,6 +19,7 @@ export const useEvents = () => {
     time: "",
     location: "",
     visibility: "public",
+    access_type: "open",
   });
 
   // Fetch events
@@ -84,6 +85,7 @@ export const useEvents = () => {
         time: data.time || null,
         location: data.location || null,
         visibility: data.visibility,
+        access_type: data.access_type,
       }).select().single();
 
       if (error) throw error;
@@ -99,6 +101,7 @@ export const useEvents = () => {
         time: "",
         location: "",
         visibility: "public",
+        access_type: "open",
       });
       setIsAddDialogOpen(false);
       toast({
@@ -142,6 +145,14 @@ export const useEvents = () => {
     setEventData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleVisibilityChange = (value: string) => {
+    setEventData((prev) => ({ ...prev, visibility: value as "public" | "friends" | "private" }));
+  };
+
+  const handleAccessTypeChange = (value: string) => {
+    setEventData((prev) => ({ ...prev, access_type: value as "open" | "request" }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     addEventMutation.mutate(eventData);
@@ -157,6 +168,8 @@ export const useEvents = () => {
     setEventData,
     setIsAddDialogOpen,
     handleInputChange,
+    handleVisibilityChange,
+    handleAccessTypeChange,
     handleSubmit,
   };
 };

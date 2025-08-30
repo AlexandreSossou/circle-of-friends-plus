@@ -18,6 +18,7 @@ interface EventFormProps {
   isPending: boolean;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onVisibilityChange: (value: string) => void;
+  onAccessTypeChange: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -26,6 +27,7 @@ export const EventForm = ({
   isPending,
   onInputChange,
   onVisibilityChange,
+  onAccessTypeChange,
   onSubmit
 }: EventFormProps) => {
   return (
@@ -115,6 +117,34 @@ export const EventForm = ({
               <SelectItem value="public">Public</SelectItem>
               <SelectItem value="friends">Lovarinos Only</SelectItem>
               <SelectItem value="private">Private</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="access_type">Access Control</Label>
+        <Select 
+          value={eventData.access_type} 
+          onValueChange={onAccessTypeChange}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select access type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="open">
+                <div className="flex flex-col">
+                  <span>Free Access</span>
+                  <span className="text-xs text-muted-foreground">Anyone can attend instantly</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="request">
+                <div className="flex flex-col">
+                  <span>Request to Attend</span>
+                  <span className="text-xs text-muted-foreground">Requires your approval</span>
+                </div>
+              </SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

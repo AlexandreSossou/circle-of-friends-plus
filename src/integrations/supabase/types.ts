@@ -180,6 +180,7 @@ export type Database = {
       }
       events: {
         Row: {
+          access_type: string
           created_at: string
           description: string | null
           end_date: string | null
@@ -193,6 +194,7 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          access_type?: string
           created_at?: string
           description?: string | null
           end_date?: string | null
@@ -206,6 +208,7 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          access_type?: string
           created_at?: string
           description?: string | null
           end_date?: string | null

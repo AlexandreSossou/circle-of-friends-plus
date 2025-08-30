@@ -122,7 +122,9 @@ export const EventCard = ({ event, onDelete }: EventCardProps) => {
       </div>
       
       <div className="mt-4 flex justify-end">
-        <Button>Attend</Button>
+        <Button>
+          {event.access_type === "request" ? "Ask to Attend" : "Attend"}
+        </Button>
       </div>
     </div>
   );

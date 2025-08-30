@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { CalendarPlus } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -17,9 +16,10 @@ const Events = () => {
     isAddDialogOpen,
     addEventMutation,
     deleteEventMutation,
-    setEventData,
     setIsAddDialogOpen,
     handleInputChange,
+    handleVisibilityChange,
+    handleAccessTypeChange,
     handleSubmit,
   } = useEvents();
 
@@ -42,7 +42,8 @@ const Events = () => {
                 eventData={eventData}
                 isPending={addEventMutation.isPending}
                 onInputChange={handleInputChange}
-                onVisibilityChange={(value) => setEventData((prev) => ({ ...prev, visibility: value as "public" | "friends" | "private" }))}
+                onVisibilityChange={handleVisibilityChange}
+                onAccessTypeChange={handleAccessTypeChange}
                 onSubmit={handleSubmit}
               />
             </DialogContent>
