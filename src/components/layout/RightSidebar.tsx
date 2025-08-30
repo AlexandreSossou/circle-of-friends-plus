@@ -6,9 +6,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
+import { useOnlineUsers } from "@/hooks/useOnlineUsers";
 
 const RightSidebar = () => {
   const { user } = useAuth();
+  const { onlineUsers } = useOnlineUsers();
   
   // Fetch user profile to get location
   const { data: userProfile } = useQuery({
@@ -84,32 +86,28 @@ const RightSidebar = () => {
       </div>
       
       <div className="social-card p-4">
-        <h3 className="font-semibold mb-3">Online</h3>
+        <h3 className="font-semibold mb-3">Online ({onlineUsers.length})</h3>
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="relative">
-                <Avatar className="mr-3">
-                  <AvatarImage src="/placeholder.svg" alt="David Lee" />
-                  <AvatarFallback>DL</AvatarFallback>
-                </Avatar>
-                <span className="absolute bottom-0 right-2 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
+          {onlineUsers.length > 0 ? (
+            onlineUsers.map((onlineUser) => (
+              <div key={onlineUser.id} className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <div className="relative">
+                    <Avatar className="mr-3">
+                      <AvatarImage src={onlineUser.avatar_url} alt={onlineUser.full_name} />
+                      <AvatarFallback>
+                        {onlineUser.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="absolute bottom-0 right-2 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
+                  </div>
+                  <span className="text-sm">{onlineUser.full_name}</span>
+                </div>
               </div>
-              <span>David Lee</span>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="relative">
-                <Avatar className="mr-3">
-                  <AvatarImage src="/placeholder.svg" alt="Jessica Taylor" />
-                  <AvatarFallback>JT</AvatarFallback>
-                </Avatar>
-                <span className="absolute bottom-0 right-2 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
-              </div>
-              <span>Jessica Taylor</span>
-            </div>
-          </div>
+            ))
+          ) : (
+            <p className="text-sm text-social-textSecondary">No users online</p>
+          )}
         </div>
       </div>
     </div>
