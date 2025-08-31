@@ -26,10 +26,26 @@ export const useEvents = () => {
   const { data: events, isLoading } = useQuery({
     queryKey: ["events"],
     queryFn: async () => {
-      // Fetch events first
+      // Get user's location first for proximity sorting
+      let userLocation = null;
+      if (user) {
+        const { data: userProfile } = await supabase
+          .from("profiles")
+          .select("location")
+          .eq("id", user.id)
+          .single();
+        userLocation = userProfile?.location;
+      }
+
+      // Fetch events with attendance data
       const { data: eventsData, error: eventsError } = await supabase
         .from("events")
-        .select("*, access_type")
+        .select(`
+          *, 
+          access_type,
+          profiles!events_user_id_fkey(id, full_name, avatar_url),
+          event_attendees(user_id, status)
+        `)
         .order("start_date", { ascending: true });
 
       if (eventsError) {
@@ -40,32 +56,36 @@ export const useEvents = () => {
         return [];
       }
 
-      // Get unique user IDs
-      const userIds = [...new Set(eventsData.map(event => event.user_id))];
-      
-      // Fetch profiles for those users
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", userIds);
-
-      if (profilesError) {
-        throw profilesError;
+      // Sort events by location proximity if user has location
+      let sortedEvents = eventsData;
+      if (userLocation) {
+        sortedEvents = eventsData.sort((a, b) => {
+          // Events in user's location come first
+          const aIsLocal = a.location?.toLowerCase().includes(userLocation.toLowerCase());
+          const bIsLocal = b.location?.toLowerCase().includes(userLocation.toLowerCase());
+          
+          if (aIsLocal && !bIsLocal) return -1;
+          if (!aIsLocal && bIsLocal) return 1;
+          
+          // Then sort by date
+          return new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
+        });
       }
 
-      // Create a map for quick profile lookup
-      const profilesMap = new Map(
-        profilesData?.map(profile => [profile.id, profile]) || []
-      );
-
-      // Combine events with profile data
-      return eventsData.map(event => ({
+      return sortedEvents.map(event => ({
         ...event,
-        profiles: profilesMap.get(event.user_id) || {
+        profiles: event.profiles || {
           id: event.user_id,
           full_name: null,
           avatar_url: null
-        }
+        },
+        isAttending: event.event_attendees?.some(
+          (attendee: any) => attendee.user_id === user?.id && attendee.status === 'attending'
+        ),
+        isPending: event.event_attendees?.some(
+          (attendee: any) => attendee.user_id === user?.id && attendee.status === 'pending'
+        ),
+        attendeeCount: event.event_attendees?.filter((a: any) => a.status === 'attending').length || 0
       })) as Event[];
     },
     enabled: !!user,
@@ -118,7 +138,72 @@ export const useEvents = () => {
     },
   });
 
-  // Delete event mutation
+  // Attend event mutation
+  const attendEventMutation = useMutation({
+    mutationFn: async ({ eventId, accessType }: { eventId: string; accessType: "open" | "request" }) => {
+      if (!user) throw new Error("You must be logged in to attend events");
+      
+      const status = accessType === "open" ? "attending" : "pending";
+      
+      const { data, error } = await supabase
+        .from("event_attendees")
+        .insert({
+          event_id: eventId,
+          user_id: user.id,
+          status
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast({
+        title: "Success!",
+        description: variables.accessType === "open" 
+          ? "You're now attending this event!" 
+          : "Your attendance request has been sent!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to join event",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Leave event mutation
+  const leaveEventMutation = useMutation({
+    mutationFn: async (eventId: string) => {
+      if (!user) throw new Error("You must be logged in");
+      
+      const { error } = await supabase
+        .from("event_attendees")
+        .delete()
+        .eq("event_id", eventId)
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      toast({
+        title: "Success!",
+        description: "You've left the event.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to leave event",
+        variant: "destructive",
+      });
+    },
+  });
   const deleteEventMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("events").delete().eq("id", id);
@@ -165,6 +250,8 @@ export const useEvents = () => {
     isAddDialogOpen,
     addEventMutation,
     deleteEventMutation,
+    attendEventMutation,
+    leaveEventMutation,
     setEventData,
     setIsAddDialogOpen,
     handleInputChange,

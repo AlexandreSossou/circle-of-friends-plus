@@ -16,6 +16,8 @@ const Events = () => {
     isAddDialogOpen,
     addEventMutation,
     deleteEventMutation,
+    attendEventMutation,
+    leaveEventMutation,
     setIsAddDialogOpen,
     handleInputChange,
     handleVisibilityChange,
@@ -57,7 +59,9 @@ const Events = () => {
         ) : events && events.length > 0 ? (
           <EventList 
             events={events} 
-            onDelete={(id) => deleteEventMutation.mutate(id)} 
+            onDelete={(id) => deleteEventMutation.mutate(id)}
+            onAttend={(eventId, accessType) => attendEventMutation.mutate({ eventId, accessType })}
+            onLeave={(eventId) => leaveEventMutation.mutate(eventId)}
           />
         ) : (
           <EmptyEventState onAddClick={() => setIsAddDialogOpen(true)} />

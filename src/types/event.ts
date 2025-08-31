@@ -17,6 +17,9 @@ export interface Event {
     full_name: string | null;
     avatar_url: string | null;
   };
+  isAttending?: boolean;
+  isPending?: boolean;
+  attendeeCount?: number;
 }
 
 export interface EventFormData {

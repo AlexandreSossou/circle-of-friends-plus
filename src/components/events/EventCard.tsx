@@ -16,9 +16,11 @@ import { format } from "date-fns";
 interface EventCardProps {
   event: Event;
   onDelete: (id: string) => void;
+  onAttend: (eventId: string, accessType: "open" | "request") => void;
+  onLeave: (eventId: string) => void;
 }
 
-export const EventCard = ({ event, onDelete }: EventCardProps) => {
+export const EventCard = ({ event, onDelete, onAttend, onLeave }: EventCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getVisibilityLabel = () => {
@@ -121,10 +123,27 @@ export const EventCard = ({ event, onDelete }: EventCardProps) => {
         </div>
       </div>
       
-      <div className="mt-4 flex justify-end">
-        <Button>
-          {event.access_type === "request" ? "Ask to Attend" : "Attend"}
-        </Button>
+      <div className="mt-4 flex justify-between items-center">
+        <div className="text-sm text-social-textSecondary">
+          {event.attendeeCount > 0 && (
+            <span>{event.attendeeCount} attending</span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {event.isAttending ? (
+            <Button variant="outline" onClick={() => onLeave(event.id)}>
+              Leave Event
+            </Button>
+          ) : event.isPending ? (
+            <Button variant="outline" disabled>
+              Request Pending
+            </Button>
+          ) : (
+            <Button onClick={() => onAttend(event.id, event.access_type)}>
+              {event.access_type === "request" ? "Ask to Attend" : "Attend"}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
