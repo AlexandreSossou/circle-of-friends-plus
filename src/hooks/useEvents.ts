@@ -42,8 +42,7 @@ export const useEvents = () => {
         .from("events")
         .select(`
           *, 
-          access_type,
-          profiles!events_user_id_fkey(id, full_name, avatar_url),
+          profiles!user_id(id, full_name, avatar_url),
           event_attendees(user_id, status)
         `)
         .order("start_date", { ascending: true });
