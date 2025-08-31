@@ -1034,6 +1034,52 @@ export type Database = {
           username: string
         }[]
       }
+      get_safe_announcement_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          author_name: string
+          category: string
+          created_at: string
+          description: string
+          expires_at: string
+          id: string
+          location: string
+          title: string
+          updated_at: string
+          visibility: string
+        }[]
+      }
+      get_safe_event_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          access_type: string
+          attendee_count: number
+          created_at: string
+          creator_name: string
+          description: string
+          end_date: string
+          event_time: string
+          id: string
+          location: string
+          start_date: string
+          title: string
+          updated_at: string
+          visibility: string
+        }[]
+      }
+      get_safe_group_data: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string
+          category: string
+          created_at: string
+          description: string
+          id: string
+          is_public: boolean
+          member_count: number
+          name: string
+        }[]
+      }
       get_safe_profile: {
         Args: { profile_id: string }
         Returns: {
