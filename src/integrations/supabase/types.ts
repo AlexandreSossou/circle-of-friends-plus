@@ -1109,6 +1109,19 @@ export type Database = {
           username: string
         }[]
       }
+      get_safe_profile_discovery: {
+        Args: { profile_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          bio: string
+          full_name: string
+          gender: string
+          id: string
+          location: string
+          username: string
+        }[]
+      }
       get_safe_profiles_list: {
         Args: { profile_ids?: string[] }
         Returns: {
