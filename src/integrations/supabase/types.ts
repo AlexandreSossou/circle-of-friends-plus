@@ -1151,6 +1151,10 @@ export type Database = {
         Args: { group_uuid: string }
         Returns: boolean
       }
+      log_security_access: {
+        Args: { access_type: string; table_name: string; user_id?: string }
+        Returns: undefined
+      }
       test_user_creation: {
         Args: Record<PropertyKey, never>
         Returns: {
