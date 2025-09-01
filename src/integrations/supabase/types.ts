@@ -1164,6 +1164,10 @@ export type Database = {
         Args: { group_uuid: string }
         Returns: boolean
       }
+      is_user_group_member: {
+        Args: { group_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
       log_security_access: {
         Args: { access_type: string; table_name: string; user_id?: string }
         Returns: undefined
