@@ -79,7 +79,9 @@ const ProfileHeader = ({
   };
 
   const handleCoverUpdate = async (url: string) => {
+    console.log('ProfileHeader handleCoverUpdate called with URL:', url);
     if (onProfileUpdate) {
+      console.log('Calling onProfileUpdate with cover_photo_url:', url);
       await onProfileUpdate({ cover_photo_url: url });
     }
   };

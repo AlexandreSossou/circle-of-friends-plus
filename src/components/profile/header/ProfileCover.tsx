@@ -45,9 +45,12 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate }: ProfileCov
     setIsUploading(true);
 
     try {
+      console.log('Starting cover photo upload for user:', user.id);
       const result = await uploadPhoto(file, 'covers', user.id);
+      console.log('Upload result:', result);
       
       if (result.success && result.url) {
+        console.log('Calling onCoverUpdate with URL:', result.url);
         onCoverUpdate(result.url);
         toast({
           title: "Cover photo updated",

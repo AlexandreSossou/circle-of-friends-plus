@@ -67,20 +67,29 @@ const Profile = () => {
   const handleProfileUpdate = async (updates: Partial<ProfileData>) => {
     if (!profileId) return;
     
+    console.log('Profile.tsx handleProfileUpdate called with updates:', updates);
+    console.log('Profile ID:', profileId);
+    
     try {
       // Update the database
+      console.log('Updating database with:', updates);
       const { error } = await supabase
         .from('profiles')
         .update(updates)
         .eq('id', profileId);
 
       if (error) {
+        console.error('Database update error:', error);
         throw error;
       }
+
+      console.log('Database update successful');
 
       // Update local state
       if (localProfileData) {
         const updatedProfile = { ...localProfileData, ...updates };
+        console.log('Updating local state. Old profile data:', localProfileData);
+        console.log('New profile data:', updatedProfile);
         setLocalProfileData(updatedProfile);
       }
       
