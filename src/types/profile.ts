@@ -12,6 +12,7 @@ export interface ProfileData {
   location?: string;
   gender?: string;
   sexual_orientation?: string;
+  expression?: string;
   libido?: string;
   age?: number;
   marital_status?: string;

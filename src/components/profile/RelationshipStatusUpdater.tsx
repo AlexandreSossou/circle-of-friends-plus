@@ -15,6 +15,7 @@ import RelationshipStatusDisplay from "./relationship/RelationshipStatusDisplay"
 import LookingForSelector from "./relationship/LookingForSelector";
 import GenderSelector from "./GenderSelector";
 import SexualOrientationSelector from "./SexualOrientationSelector";
+import ExpressionSelector from "./ExpressionSelector";
 import { LibidoSelector } from "./LibidoSelector";
 import { ProfileType } from "@/types/profile";
 
@@ -27,9 +28,11 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
   const { toast } = useToast();
   const [gender, setGender] = useState<string>("");
   const [sexualOrientation, setSexualOrientation] = useState<string>("");
+  const [expression, setExpression] = useState<string>("");
   const [libido, setLibido] = useState<string | null>(null);
   const [isUpdatingGender, setIsUpdatingGender] = useState(false);
   const [isUpdatingOrientation, setIsUpdatingOrientation] = useState(false);
+  const [isUpdatingExpression, setIsUpdatingExpression] = useState(false);
   const [isUpdatingLibido, setIsUpdatingLibido] = useState(false);
   
   const {
@@ -62,13 +65,14 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
       
       const { data, error } = await supabase
         .from('profiles')
-        .select('gender, sexual_orientation, libido')
+        .select('gender, sexual_orientation, expression, libido')
         .eq('id', user.id)
         .single();
       
       if (data && !error) {
         setGender(data.gender || "");
         setSexualOrientation(data.sexual_orientation || "");
+        setExpression(data.expression || "");
         setLibido(data.libido || null);
       }
     };
@@ -136,6 +140,36 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
       });
     } finally {
       setIsUpdatingOrientation(false);
+    }
+  };
+
+  const handleExpressionUpdate = async (newExpression: string) => {
+    if (!user?.id) return;
+    
+    setIsUpdatingExpression(true);
+    setExpression(newExpression);
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ expression: newExpression })
+        .eq('id', user.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Expression updated",
+        description: "Your expression has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Error updating expression:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update expression. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingExpression(false);
     }
   };
 
@@ -302,6 +336,11 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
           onSexualOrientationChange={handleSexualOrientationUpdate}
         />
         
+        <ExpressionSelector 
+          expression={expression}
+          onExpressionChange={handleExpressionUpdate}
+        />
+        
         <LibidoSelector
           libido={libido}
           onLibidoChange={handleLibidoUpdate}
@@ -314,10 +353,10 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
         
         <Button 
           onClick={() => handleUpdateStatus(profileType)} 
-          disabled={isUpdating || isUpdatingGender || isUpdatingOrientation || isUpdatingLibido || (currentStatus !== "Single" && !currentPartner && currentPartners.length === 0)}
+          disabled={isUpdating || isUpdatingGender || isUpdatingOrientation || isUpdatingExpression || isUpdatingLibido || (currentStatus !== "Single" && !currentPartner && currentPartners.length === 0)}
           className="w-full"
         >
-          {isUpdating || isUpdatingGender || isUpdatingOrientation || isUpdatingLibido ? (
+          {isUpdating || isUpdatingGender || isUpdatingOrientation || isUpdatingExpression || isUpdatingLibido ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Updating...
