@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { AnnouncementCarousel } from "@/components/announcements/AnnouncementCarousel";
+import { LocalAlertCarousel } from "@/components/announcements/LocalAlertCarousel";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,7 +62,7 @@ const RightSidebar = () => {
 
   return (
     <div className="space-y-6">
-      <AnnouncementCarousel userLocation={userLocation} />
+      <LocalAlertCarousel userLocation={userLocation} />
       <div className="social-card p-4">
         <h3 className="font-semibold mb-3">Upcoming Events</h3>
         <div className="space-y-3">

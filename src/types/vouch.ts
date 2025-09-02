@@ -5,7 +5,7 @@ export type Reviewer = {
   initials: string;
 };
 
-export type Review = {
+export type Vouch = {
   id: string;
   rating: number;
   content: string;

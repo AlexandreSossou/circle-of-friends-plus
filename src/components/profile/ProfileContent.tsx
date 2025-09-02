@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfilePosts from "./ProfilePosts";
 import ProfileFriends from "./ProfileFriends";
 import PhotoAlbum from "./PhotoAlbum";
-import SafetyReview from "./SafetyReview";
+import Vouch from "./Vouch";
 import ProfileTypeSelector from "./ProfileTypeSelector";
 import ProfileVisibilitySettings from "./ProfileVisibilitySettings";
 import ProfileIdentityManager from "./ProfileIdentityManager";
@@ -140,7 +140,7 @@ const ProfileContent = ({
         </TabsContent>
 
         <TabsContent value="safety">
-          <SafetyReview 
+          <Vouch 
             profileId={isOwnProfile && currentUserId ? currentUserId : ""}
             isOwnProfile={isOwnProfile}
             currentUserId={currentUserId}

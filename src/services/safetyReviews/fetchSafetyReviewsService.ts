@@ -1,8 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Review, Reviewer } from "@/types/safetyReview";
+import { Vouch, Reviewer } from "@/types/vouch";
 
-export const fetchSafetyReviews = async (profileId: string): Promise<Review[]> => {
+export const fetchVouches = async (profileId: string): Promise<Vouch[]> => {
   if (!profileId) return [];
 
   try {
@@ -20,7 +20,7 @@ export const fetchSafetyReviews = async (profileId: string): Promise<Review[]> =
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching safety reviews:", error.message);
+      console.error("Error fetching vouches:", error.message);
       return [];
     }
 
@@ -43,7 +43,7 @@ export const fetchSafetyReviews = async (profileId: string): Promise<Review[]> =
       };
     });
   } catch (error) {
-    console.error("Unexpected error fetching safety reviews:", error);
+    console.error("Unexpected error fetching vouches:", error);
     return [];
   }
 };

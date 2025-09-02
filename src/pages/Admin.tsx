@@ -11,7 +11,7 @@ import SystemSettings from '@/components/admin/SystemSettings';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import RoleManagement from '@/components/admin/RoleManagement';
 import NewsManagement from '@/components/admin/NewsManagement';
-import AnnouncementManagement from '@/components/admin/AnnouncementManagement';
+import LocalAlertManagement from '@/components/admin/LocalAlertManagement';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ const Admin = () => {
             </TabsTrigger>
             <TabsTrigger value="announcements" className="flex items-center gap-2">
               <Megaphone className="w-4 h-4" />
-              Announcements
+              Local Alerts
             </TabsTrigger>
             <TabsTrigger value="roles" className="flex items-center gap-2">
               <Shield className="w-4 h-4" />
@@ -115,10 +115,10 @@ const Admin = () => {
           <TabsContent value="announcements">
             <Card>
               <CardHeader>
-                <CardTitle>Announcement Management</CardTitle>
+                <CardTitle>Local Alert Management</CardTitle>
               </CardHeader>
               <CardContent>
-                <AnnouncementManagement />
+                <LocalAlertManagement />
               </CardContent>
             </Card>
           </TabsContent>

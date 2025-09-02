@@ -1,4 +1,4 @@
-export interface Announcement {
+export interface LocalAlert {
   id: string;
   user_id: string;
   title: string;
@@ -16,7 +16,7 @@ export interface Announcement {
   };
 }
 
-export interface AnnouncementFormData {
+export interface LocalAlertFormData {
   title: string;
   description: string;
   location: string;
