@@ -1,39 +1,38 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Friend } from "@/types/profile";
-import { Review } from "@/types/safetyReview";
+import type { Vouch } from "@/types/vouch";
 import { useToast } from "@/hooks/use-toast";
-import { fetchSafetyReviews, submitSafetyReview } from "@/services/safetyReviews";
+import { fetchVouches, submitVouch } from "@/services/safetyReviews";
 import SafetyRatingSummary from "./SafetyRatingSummary";
-import SafetyReviewForm from "./SafetyReviewForm";
-import SafetyReviewList from "./SafetyReviewList";
+import VouchForm from "./VouchForm";
+import VouchList from "./VouchList";
 
-type SafetyReviewProps = {
+type VouchProps = {
   profileId: string;
   isOwnProfile: boolean;
   currentUserId?: string;
   friends: Friend[];
 };
 
-const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: SafetyReviewProps) => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+const Vouch = ({ profileId, isOwnProfile, currentUserId, friends }: VouchProps) => {
+  const [vouches, setVouches] = useState<Vouch[]>([]);
   const [isInRelationship, setIsInRelationship] = useState(false);
   const [relationshipDetail, setRelationshipDetail] = useState<string>("");
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Fetch safety reviews
+  // Fetch vouches
   useEffect(() => {
     if (!profileId) return;
     
-    const getReviews = async () => {
-      const data = await fetchSafetyReviews(profileId);
-      setReviews(data);
+    const getVouches = async () => {
+      const data = await fetchVouches(profileId);
+      setVouches(data);
     };
     
-    getReviews();
+    getVouches();
   }, [profileId]);
   
   // Check if users are in a relationship
@@ -89,34 +88,34 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
     checkRelationshipStatus();
   }, [currentUserId, profileId, isOwnProfile]);
   
-  // Check if current user can leave a review (must be logged in, not own profile, and not in a relationship)
+  // Check if current user can leave a vouch (must be logged in, not own profile, and not in a relationship)
   const canReview = !isOwnProfile && !!currentUserId && !isInRelationship;
   
   // Calculate the average rating
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length 
+  const averageRating = vouches.length > 0 
+    ? vouches.reduce((acc, vouch) => acc + vouch.rating, 0) / vouches.length 
     : 0;
   
-  const handleSubmitReview = async (rating: number, reviewText: string) => {
+  const handleSubmitVouch = async (rating: number, reviewText: string) => {
     if (!canReview || rating === 0 || !reviewText.trim()) return;
     
-    const result = await submitSafetyReview(profileId, rating, reviewText);
+    const result = await submitVouch(profileId, rating, reviewText);
     
     if (result.success) {
-      // Refresh reviews
-      const updatedReviews = await fetchSafetyReviews(profileId);
-      setReviews(updatedReviews);
+      // Refresh vouches
+      const updatedVouches = await fetchVouches(profileId);
+      setVouches(updatedVouches);
       
       toast({
-        title: "Review submitted",
-        description: "Your safety review has been submitted",
+        title: "Vouch submitted",
+        description: "Your vouch has been submitted",
       });
       
       return Promise.resolve();
     } else {
       toast({
         title: "Error",
-        description: result.error || "Failed to submit your review. Please try again.",
+        description: result.error || "Failed to submit your vouch. Please try again.",
         variant: "destructive",
       });
       
@@ -127,22 +126,22 @@ const SafetyReview = ({ profileId, isOwnProfile, currentUserId, friends }: Safet
   return (
     <div className="space-y-6">
       {/* Safety Rating Summary */}
-      <SafetyRatingSummary averageRating={averageRating} reviewsCount={reviews.length} />
+      <SafetyRatingSummary averageRating={averageRating} reviewsCount={vouches.length} />
       
-      {/* Leave a Review Form */}
+      {/* Leave a Vouch Form */}
       {currentUserId && !isOwnProfile && (
-        <SafetyReviewForm 
+        <VouchForm 
           isInRelationship={isInRelationship}
           relationshipDetail={relationshipDetail}
           canReview={canReview} 
-          onSubmit={handleSubmitReview} 
+          onSubmit={handleSubmitVouch} 
         />
       )}
       
-      {/* Reviews List */}
-      <SafetyReviewList reviews={reviews} />
+      {/* Vouches List */}
+      <VouchList vouches={vouches} />
     </div>
   );
 };
 
-export default SafetyReview;
+export default Vouch;

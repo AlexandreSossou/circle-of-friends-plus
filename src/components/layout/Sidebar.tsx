@@ -66,7 +66,7 @@ const Sidebar = () => {
             </Link>
             <Link to="/announcements" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
               <Megaphone className="w-5 h-5 mr-3" />
-              <span>Announcements</span>
+              <span>Local Alerts</span>
             </Link>
             <Link to="/news" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
               <Newspaper className="w-5 h-5 mr-3" />

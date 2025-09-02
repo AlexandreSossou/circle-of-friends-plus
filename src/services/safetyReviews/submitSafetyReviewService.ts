@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-export const submitSafetyReview = async (
+export const submitVouch = async (
   profileId: string,
   rating: number,
   content: string

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Star, HeartOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,14 +5,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
-type SafetyReviewFormProps = {
+type VouchFormProps = {
   isInRelationship: boolean;
   relationshipDetail?: string;
   canReview: boolean;
   onSubmit: (rating: number, reviewText: string) => Promise<void>;
 };
 
-const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onSubmit }: SafetyReviewFormProps) => {
+const VouchForm = ({ isInRelationship, relationshipDetail, canReview, onSubmit }: VouchFormProps) => {
   const [rating, setRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,14 +37,14 @@ const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onS
       setReviewText("");
       
       toast({
-        title: "Review submitted",
-        description: "Your safety review has been submitted",
+        title: "Vouch submitted",
+        description: "Your vouch has been submitted",
       });
     } catch (error) {
-      console.error("Error submitting review:", error);
+      console.error("Error submitting vouch:", error);
       toast({
         title: "Error",
-        description: "Failed to submit your review. Please try again.",
+        description: "Failed to submit your vouch. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -56,7 +55,7 @@ const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onS
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Leave a Safety Review</CardTitle>
+        <CardTitle>Leave a Vouch</CardTitle>
         <CardDescription>
           Share your experience regarding this user's safety and trustworthiness
         </CardDescription>
@@ -66,7 +65,7 @@ const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onS
           <div className="p-4 border border-amber-200 bg-amber-50 rounded-md flex items-center gap-2">
             <HeartOff className="h-5 w-5 text-amber-500" />
             <div className="text-amber-700">
-              <p>You cannot leave a review for someone you are in a relationship with.</p>
+              <p>You cannot leave a vouch for someone you are in a relationship with.</p>
               {relationshipDetail && <p className="text-sm mt-1">{relationshipDetail}</p>}
             </div>
           </div>
@@ -87,9 +86,9 @@ const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onS
               </div>
             </div>
             <div>
-              <p className="mb-2 text-sm font-medium">Your review</p>
+              <p className="mb-2 text-sm font-medium">Your vouch</p>
               <Textarea
-                placeholder="Write your safety review here..."
+                placeholder="Write your vouch here..."
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 disabled={isSubmitting}
@@ -105,7 +104,7 @@ const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onS
             onClick={handleSubmitReview}
             disabled={rating === 0 || !reviewText.trim() || isSubmitting}
           >
-            {isSubmitting ? "Submitting..." : "Submit Review"}
+            {isSubmitting ? "Submitting..." : "Submit Vouch"}
           </Button>
         </CardFooter>
       )}
@@ -113,4 +112,4 @@ const SafetyReviewForm = ({ isInRelationship, relationshipDetail, canReview, onS
   );
 };
 
-export default SafetyReviewForm;
+export default VouchForm;
