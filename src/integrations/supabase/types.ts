@@ -696,6 +696,7 @@ export type Database = {
           cover_photo_url: string | null
           created_at: string
           email: string | null
+          expression: string | null
           full_name: string | null
           gender: string | null
           id: string
@@ -726,6 +727,7 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           email?: string | null
+          expression?: string | null
           full_name?: string | null
           gender?: string | null
           id: string
@@ -756,6 +758,7 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           email?: string | null
+          expression?: string | null
           full_name?: string | null
           gender?: string | null
           id?: string
