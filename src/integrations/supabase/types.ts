@@ -1094,6 +1094,7 @@ export type Database = {
           bio: string
           created_at: string
           email: string
+          expression: string
           full_name: string
           gender: string
           id: string

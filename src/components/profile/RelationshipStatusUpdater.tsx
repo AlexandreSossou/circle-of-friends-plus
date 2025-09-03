@@ -70,10 +70,10 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
         .single();
       
       if (data && !error) {
-        setGender(data.gender || "");
-        setSexualOrientation(data.sexual_orientation || "");
-        setExpression(data.expression || "");
-        setLibido(data.libido || null);
+        setGender((data as any).gender || "");
+        setSexualOrientation((data as any).sexual_orientation || "");
+        setExpression((data as any).expression || "");
+        setLibido((data as any).libido || null);
       }
     };
     
@@ -152,7 +152,7 @@ const RelationshipStatusUpdater = ({ profileType = "public" }: RelationshipStatu
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ expression: newExpression })
+        .update({ expression: newExpression } as any)
         .eq('id', user.id);
       
       if (error) throw error;
