@@ -1,12 +1,7 @@
-
 export enum RelationshipStatus {
   Single = "Single",
-  InRelationship = "In a relationship",
-  Engaged = "Engaged",
-  Married = "Married",
-  Complicated = "It's complicated",
-  OpenRelationship = "Open relationship",
-  JustDating = "Just dating",
+  CoupleMarried = "Couple / Married", 
+  OpenRelationship = "Open Relationship",
   Polyamorous = "Polyamorous"
 }
 

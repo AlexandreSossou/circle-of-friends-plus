@@ -1,4 +1,3 @@
-
 import { useFriendSearch } from "@/hooks/useFriendSearch";
 import SearchFilters from "@/components/friend-search/SearchFilters";
 import SearchResults from "@/components/friend-search/SearchResults";
@@ -10,8 +9,8 @@ const FriendSearch = () => {
     setSearchTerm,
     gender,
     setGender,
-    maritalStatus,
-    setMaritalStatus,
+    relationshipStatus,
+    setRelationshipStatus,
     ageRange,
     setAgeRange,
     location,
@@ -36,27 +35,27 @@ const FriendSearch = () => {
           setSearchTerm={setSearchTerm}
           gender={gender}
           setGender={setGender}
-          maritalStatus={maritalStatus}
-          setMaritalStatus={setMaritalStatus}
+          relationshipStatus={relationshipStatus}
+          setRelationshipStatus={setRelationshipStatus}
           ageRange={ageRange}
           setAgeRange={setAgeRange}
           location={location}
-            setLocation={setLocation}
-            usaSearch={usaSearch}
-            setUsaSearch={setUsaSearch}
-            usaState={usaState}
-            setUsaState={setUsaState}
-            milesRange={milesRange}
-            setMilesRange={setMilesRange}
-          />
-        </div>
+          setLocation={setLocation}
+          usaSearch={usaSearch}
+          setUsaSearch={setUsaSearch}
+          usaState={usaState}
+          setUsaState={setUsaState}
+          milesRange={milesRange}
+          setMilesRange={setMilesRange}
+        />
+      </div>
       
       <SearchResults
         searchResults={searchResults}
         isLoading={isLoading}
         searchTerm={searchTerm}
         gender={gender}
-        maritalStatus={maritalStatus}
+        maritalStatus={relationshipStatus}
         ageRange={ageRange}
         location={usaSearch ? usaState : location}
       />

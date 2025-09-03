@@ -1,14 +1,9 @@
-
 import { Badge } from "@/components/ui/badge";
 import { RelationshipStatus } from "@/types/relationship";
 import { 
   Heart, 
   UserIcon, 
-  HeartHandshake, 
   Users, 
-  HeartCrack, 
-  Sparkles, 
-  Diamond, 
   Network
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -42,35 +37,15 @@ const RelationshipStatusDisplay = ({
           icon: <UserIcon className="h-3 w-3" />,
           color: "bg-gray-200 text-gray-700",
         };
-      case RelationshipStatus.InRelationship:
+      case RelationshipStatus.CoupleMarried:
         return {
           icon: <Heart className="h-3 w-3" />,
           color: "bg-pink-100 text-pink-700",
-        };
-      case RelationshipStatus.Engaged:
-        return {
-          icon: <Diamond className="h-3 w-3" />,
-          color: "bg-purple-100 text-purple-700",
-        };
-      case RelationshipStatus.Married:
-        return {
-          icon: <HeartHandshake className="h-3 w-3" />,
-          color: "bg-red-100 text-red-700",
-        };
-      case RelationshipStatus.Complicated:
-        return {
-          icon: <HeartCrack className="h-3 w-3" />,
-          color: "bg-orange-100 text-orange-700",
         };
       case RelationshipStatus.OpenRelationship:
         return {
           icon: <Users className="h-3 w-3" />,
           color: "bg-indigo-100 text-indigo-700",
-        };
-      case RelationshipStatus.JustDating:
-        return {
-          icon: <Sparkles className="h-3 w-3" />,
-          color: "bg-blue-100 text-blue-700",
         };
       case RelationshipStatus.Polyamorous:
         return {

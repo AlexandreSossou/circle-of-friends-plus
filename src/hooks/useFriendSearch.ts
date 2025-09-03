@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface SearchFilters {
   searchTerm: string;
   gender: string | undefined;
-  maritalStatus: string | undefined;
+  relationshipStatus: string | undefined;
   ageRange: [number, number];
   location: string;
   usaSearch: boolean;
@@ -17,7 +16,7 @@ export interface SearchFilters {
 export const useFriendSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [gender, setGender] = useState<string | undefined>(undefined);
-  const [maritalStatus, setMaritalStatus] = useState<string | undefined>(undefined);
+  const [relationshipStatus, setRelationshipStatus] = useState<string | undefined>(undefined);
   const [ageRange, setAgeRange] = useState<[number, number]>([18, 80]);
   const [location, setLocation] = useState("");
   const [usaSearch, setUsaSearch] = useState(false);
@@ -45,7 +44,7 @@ export const useFriendSearch = () => {
   }, []);
 
   const { data: searchResults, isLoading } = useQuery({
-    queryKey: ["friendSearch", searchTerm, gender, maritalStatus, ageRange, location, usaSearch, usaState, milesRange],
+    queryKey: ["friendSearch", searchTerm, gender, relationshipStatus, ageRange, location, usaSearch, usaState, milesRange],
     queryFn: async () => {
       // Get current user to exclude from results
       const { data: { user } } = await supabase.auth.getUser();
@@ -74,8 +73,8 @@ export const useFriendSearch = () => {
         // Gender filter
         if (gender && profile.gender !== gender) return false;
 
-        // Marital status filter
-        if (maritalStatus && profile.marital_status !== maritalStatus) return false;
+        // Relationship status filter
+        if (relationshipStatus && profile.marital_status !== relationshipStatus) return false;
 
         // Location filter
         if (usaSearch && usaState) {
@@ -98,7 +97,7 @@ export const useFriendSearch = () => {
     },
     enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (previously called cacheTime)
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 
   return {
@@ -106,8 +105,8 @@ export const useFriendSearch = () => {
     setSearchTerm,
     gender,
     setGender,
-    maritalStatus,
-    setMaritalStatus,
+    relationshipStatus,
+    setRelationshipStatus,
     ageRange,
     setAgeRange,
     location,

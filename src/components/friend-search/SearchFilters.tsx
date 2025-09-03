@@ -14,8 +14,8 @@ interface SearchFiltersProps {
   setSearchTerm: (term: string) => void;
   gender: string | undefined;
   setGender: (gender: string) => void;
-  maritalStatus: string | undefined;
-  setMaritalStatus: (status: string) => void;
+  relationshipStatus: string | undefined;
+  setRelationshipStatus: (status: string) => void;
   ageRange: [number, number];
   setAgeRange: (range: [number, number]) => void;
   location: string;
@@ -33,8 +33,8 @@ const SearchFilters = ({
   setSearchTerm,
   gender,
   setGender,
-  maritalStatus,
-  setMaritalStatus,
+  relationshipStatus,
+  setRelationshipStatus,
   ageRange,
   setAgeRange,
   location,
@@ -210,18 +210,17 @@ const SearchFilters = ({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="maritalStatus">Marital Status</Label>
-          <Select value={maritalStatus} onValueChange={setMaritalStatus}>
-            <SelectTrigger id="maritalStatus">
+          <Label htmlFor="relationshipStatus">Relationship Status</Label>
+          <Select value={relationshipStatus} onValueChange={setRelationshipStatus}>
+            <SelectTrigger id="relationshipStatus">
               <SelectValue placeholder="Any status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any status</SelectItem>
-              <SelectItem value="single">Single</SelectItem>
-              <SelectItem value="married">Married</SelectItem>
-              <SelectItem value="divorced">Divorced</SelectItem>
-              <SelectItem value="widowed">Widowed</SelectItem>
-              <SelectItem value="complicated">It's complicated</SelectItem>
+              <SelectItem value="Single">Single</SelectItem>
+              <SelectItem value="Couple / Married">Couple / Married</SelectItem>
+              <SelectItem value="Open Relationship">Open Relationship</SelectItem>
+              <SelectItem value="Polyamorous">Polyamorous</SelectItem>
             </SelectContent>
           </Select>
         </div>
