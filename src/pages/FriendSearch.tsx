@@ -55,7 +55,7 @@ const FriendSearch = () => {
         isLoading={isLoading}
         searchTerm={searchTerm}
         gender={gender}
-        maritalStatus={relationshipStatus}
+        relationshipStatus={relationshipStatus}
         ageRange={ageRange}
         location={usaSearch ? usaState : location}
       />

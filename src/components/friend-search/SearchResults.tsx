@@ -13,7 +13,7 @@ interface Profile {
   avatar_url: string | null;
   age: number | null;
   gender: string | null;
-  marital_status: string | null;
+  marital_status?: string | null;
   location: string | null;
 }
 
@@ -22,7 +22,7 @@ interface SearchResultsProps {
   isLoading: boolean;
   searchTerm: string;
   gender: string | undefined;
-  maritalStatus: string | undefined;
+  relationshipStatus: string | undefined;
   ageRange: [number, number];
   location: string;
 }
@@ -32,7 +32,7 @@ const SearchResults = ({
   isLoading, 
   searchTerm, 
   gender, 
-  maritalStatus, 
+  relationshipStatus, 
   ageRange,
   location
 }: SearchResultsProps) => {
@@ -150,7 +150,7 @@ const SearchResults = ({
         </div>
       ) : (
         <div className="text-center py-8 text-social-textSecondary">
-          {searchTerm || gender || maritalStatus || ageRange[0] > 18 || ageRange[1] < 80 || location
+          {searchTerm || gender || relationshipStatus || ageRange[0] > 18 || ageRange[1] < 80 || location
             ? "No users found matching your search criteria."
             : "Use the search filters above to find Lovarinos."}
         </div>

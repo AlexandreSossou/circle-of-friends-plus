@@ -15,10 +15,15 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 const genderOptions = [
-  { value: "male", label: "Male" },
-  { value: "female", label: "Female" },
-  { value: "non-binary", label: "Non-binary" },
-  { value: "other", label: "Other" },
+  { value: "Man", label: "Man" },
+  { value: "Woman", label: "Woman" },
+  { value: "Trans man", label: "Trans man" },
+  { value: "Trans woman", label: "Trans woman" },
+  { value: "Non-binary", label: "Non-binary" },
+  { value: "Genderfluid", label: "Genderfluid" },
+  { value: "Agender", label: "Agender" },
+  { value: "Genderqueer", label: "Genderqueer" },
+  { value: "Trav (Male Cross-Dresser)", label: "Trav (Male Cross-Dresser)" },
 ];
 
 const maritalStatusOptions = [

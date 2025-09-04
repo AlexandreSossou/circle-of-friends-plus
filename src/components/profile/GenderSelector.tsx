@@ -8,12 +8,15 @@ interface GenderSelectorProps {
 }
 
 const genderOptions = [
-  { value: "Male", label: "Male" },
-  { value: "Female", label: "Female" },
+  { value: "Man", label: "Man" },
+  { value: "Woman", label: "Woman" },
+  { value: "Trans man", label: "Trans man" },
+  { value: "Trans woman", label: "Trans woman" },
   { value: "Non-binary", label: "Non-binary" },
-  { value: "Transgender", label: "Transgender" },
-  { value: "Prefer not to say", label: "Prefer not to say" },
-  { value: "Other", label: "Other" },
+  { value: "Genderfluid", label: "Genderfluid" },
+  { value: "Agender", label: "Agender" },
+  { value: "Genderqueer", label: "Genderqueer" },
+  { value: "Trav (Male Cross-Dresser)", label: "Trav (Male Cross-Dresser)" },
 ];
 
 const GenderSelector = ({ gender, onGenderChange }: GenderSelectorProps) => {

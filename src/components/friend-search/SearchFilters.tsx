@@ -201,10 +201,15 @@ const SearchFilters = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Any gender</SelectItem>
-              <SelectItem value="male">Male</SelectItem>
-              <SelectItem value="female">Female</SelectItem>
-              <SelectItem value="non-binary">Non-binary</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="Man">Man</SelectItem>
+              <SelectItem value="Woman">Woman</SelectItem>
+              <SelectItem value="Trans man">Trans man</SelectItem>
+              <SelectItem value="Trans woman">Trans woman</SelectItem>
+              <SelectItem value="Non-binary">Non-binary</SelectItem>
+              <SelectItem value="Genderfluid">Genderfluid</SelectItem>
+              <SelectItem value="Agender">Agender</SelectItem>
+              <SelectItem value="Genderqueer">Genderqueer</SelectItem>
+              <SelectItem value="Trav (Male Cross-Dresser)">Trav (Male Cross-Dresser)</SelectItem>
             </SelectContent>
           </Select>
         </div>
