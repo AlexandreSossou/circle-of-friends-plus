@@ -21,8 +21,8 @@ interface SearchResultsProps {
   searchResults: Profile[] | null;
   isLoading: boolean;
   searchTerm: string;
-  gender: string | undefined;
-  relationshipStatus: string | undefined;
+  gender: string[];
+  relationshipStatus: string[];
   ageRange: [number, number];
   location: string;
 }
@@ -150,7 +150,7 @@ const SearchResults = ({
         </div>
       ) : (
         <div className="text-center py-8 text-social-textSecondary">
-          {searchTerm || gender || relationshipStatus || ageRange[0] > 18 || ageRange[1] < 80 || location
+          {searchTerm || gender.length > 0 || relationshipStatus.length > 0 || ageRange[0] > 18 || ageRange[1] < 80 || location
             ? "No users found matching your search criteria."
             : "Use the search filters above to find Lovarinos."}
         </div>

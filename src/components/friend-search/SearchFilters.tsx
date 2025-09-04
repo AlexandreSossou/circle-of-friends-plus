@@ -12,10 +12,10 @@ import { supabase } from "@/integrations/supabase/client";
 interface SearchFiltersProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
-  gender: string | undefined;
-  setGender: (gender: string) => void;
-  relationshipStatus: string | undefined;
-  setRelationshipStatus: (status: string) => void;
+  gender: string[];
+  setGender: (gender: string[]) => void;
+  relationshipStatus: string[];
+  setRelationshipStatus: (status: string[]) => void;
   ageRange: [number, number];
   setAgeRange: (range: [number, number]) => void;
   location: string;
@@ -194,40 +194,51 @@ const SearchFilters = ({
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="gender">Gender</Label>
-          <Select value={gender} onValueChange={setGender}>
-            <SelectTrigger id="gender">
-              <SelectValue placeholder="Any gender" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Any gender</SelectItem>
-              <SelectItem value="Man">Man</SelectItem>
-              <SelectItem value="Woman">Woman</SelectItem>
-              <SelectItem value="Trans man">Trans man</SelectItem>
-              <SelectItem value="Trans woman">Trans woman</SelectItem>
-              <SelectItem value="Non-binary">Non-binary</SelectItem>
-              <SelectItem value="Genderfluid">Genderfluid</SelectItem>
-              <SelectItem value="Agender">Agender</SelectItem>
-              <SelectItem value="Genderqueer">Genderqueer</SelectItem>
-              <SelectItem value="Trav (Male Cross-Dresser)">Trav (Male Cross-Dresser)</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label>Gender</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {["Man", "Woman", "Trans man", "Trans woman", "Non-binary", "Genderfluid", "Agender", "Genderqueer", "Trav (Male Cross-Dresser)"].map((genderOption) => (
+              <div key={genderOption} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`gender-${genderOption}`}
+                  checked={gender.includes(genderOption)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setGender([...gender, genderOption]);
+                    } else {
+                      setGender(gender.filter(g => g !== genderOption));
+                    }
+                  }}
+                />
+                <Label htmlFor={`gender-${genderOption}`} className="text-sm">
+                  {genderOption}
+                </Label>
+              </div>
+            ))}
+          </div>
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="relationshipStatus">Relationship Status</Label>
-          <Select value={relationshipStatus} onValueChange={setRelationshipStatus}>
-            <SelectTrigger id="relationshipStatus">
-              <SelectValue placeholder="Any status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Any status</SelectItem>
-              <SelectItem value="Single">Single</SelectItem>
-              <SelectItem value="Couple / Married">Couple / Married</SelectItem>
-              <SelectItem value="Open Relationship">Open Relationship</SelectItem>
-              <SelectItem value="Polyamorous">Polyamorous</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label>Relationship Status</Label>
+          <div className="space-y-2">
+            {["Single", "Couple / Married", "Open Relationship", "Polyamorous"].map((statusOption) => (
+              <div key={statusOption} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`status-${statusOption}`}
+                  checked={relationshipStatus.includes(statusOption)}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      setRelationshipStatus([...relationshipStatus, statusOption]);
+                    } else {
+                      setRelationshipStatus(relationshipStatus.filter(s => s !== statusOption));
+                    }
+                  }}
+                />
+                <Label htmlFor={`status-${statusOption}`} className="text-sm">
+                  {statusOption}
+                </Label>
+              </div>
+            ))}
+          </div>
         </div>
         
         <div className="space-y-2">

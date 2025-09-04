@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface SearchFilters {
   searchTerm: string;
-  gender: string | undefined;
-  relationshipStatus: string | undefined;
+  gender: string[];
+  relationshipStatus: string[];
   ageRange: [number, number];
   location: string;
   usaSearch: boolean;
@@ -15,8 +15,8 @@ export interface SearchFilters {
 
 export const useFriendSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [gender, setGender] = useState<string | undefined>(undefined);
-  const [relationshipStatus, setRelationshipStatus] = useState<string | undefined>(undefined);
+  const [gender, setGender] = useState<string[]>([]);
+  const [relationshipStatus, setRelationshipStatus] = useState<string[]>([]);
   const [ageRange, setAgeRange] = useState<[number, number]>([18, 80]);
   const [location, setLocation] = useState("");
   const [usaSearch, setUsaSearch] = useState(false);
@@ -71,10 +71,10 @@ export const useFriendSearch = () => {
         }
 
         // Gender filter
-        if (gender && profile.gender !== gender) return false;
+        if (gender.length > 0 && !gender.includes(profile.gender || '')) return false;
 
         // Relationship status filter
-        if (relationshipStatus && profile.marital_status !== relationshipStatus) return false;
+        if (relationshipStatus.length > 0 && !relationshipStatus.includes(profile.marital_status || '')) return false;
 
         // Location filter
         if (usaSearch && usaState) {
