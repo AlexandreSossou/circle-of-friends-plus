@@ -6,8 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
-import { SearchIcon, MapPin, Flag } from "lucide-react";
+import { SearchIcon, MapPin, Flag, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface SearchFiltersProps {
@@ -48,6 +49,8 @@ const SearchFilters = ({
   setMilesRange
 }: SearchFiltersProps) => {
   const [currentUserAge, setCurrentUserAge] = useState<number | null>(null);
+  const [isGenderOpen, setIsGenderOpen] = useState(true);
+  const [isRelationshipOpen, setIsRelationshipOpen] = useState(true);
   const { toast } = useToast();
 
   // US States list
@@ -195,98 +198,120 @@ const SearchFilters = ({
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Gender Filter */}
-        <div className="social-card p-4 space-y-4">
-          <div className="flex items-center space-x-2 border-b border-social-border pb-2">
-            <div className="w-2 h-2 rounded-full bg-social-primary"></div>
-            <Label className="text-base font-semibold text-social-textPrimary">Gender</Label>
-          </div>
-          <div className="space-y-3">
-            {["Man", "Woman", "Trans man", "Trans woman", "Non-binary", "Genderfluid", "Agender", "Genderqueer", "Trav (Male Cross-Dresser)"].map((genderOption) => (
-              <div 
-                key={genderOption} 
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-social-hover transition-colors duration-200 cursor-pointer"
-                onClick={() => {
-                  if (gender.includes(genderOption)) {
-                    setGender(gender.filter(g => g !== genderOption));
-                  } else {
-                    setGender([...gender, genderOption]);
-                  }
-                }}
-              >
-                <Checkbox
-                  id={`gender-${genderOption}`}
-                  checked={gender.includes(genderOption)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setGender([...gender, genderOption]);
-                    } else {
+        <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen}>
+          <div className="social-card p-4 space-y-4">
+            <CollapsibleTrigger className="w-full">
+              <div className="flex items-center justify-between border-b border-social-border pb-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-social-primary"></div>
+                  <Label className="text-base font-semibold text-social-textPrimary">Gender</Label>
+                </div>
+                <ChevronDown 
+                  className={`h-4 w-4 text-social-textSecondary transition-transform duration-200 ${
+                    isGenderOpen ? 'rotate-180' : ''
+                  }`} 
+                />
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3">
+              {["Man", "Woman", "Trans man", "Trans woman", "Non-binary", "Genderfluid", "Agender", "Genderqueer", "Trav (Male Cross-Dresser)"].map((genderOption) => (
+                <div 
+                  key={genderOption} 
+                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-social-hover transition-colors duration-200 cursor-pointer"
+                  onClick={() => {
+                    if (gender.includes(genderOption)) {
                       setGender(gender.filter(g => g !== genderOption));
+                    } else {
+                      setGender([...gender, genderOption]);
                     }
                   }}
-                  className="data-[state=checked]:bg-social-primary data-[state=checked]:border-social-primary"
-                />
-                <Label 
-                  htmlFor={`gender-${genderOption}`} 
-                  className="text-sm font-medium text-social-textPrimary cursor-pointer flex-1"
                 >
-                  {genderOption}
-                </Label>
-              </div>
-            ))}
+                  <Checkbox
+                    id={`gender-${genderOption}`}
+                    checked={gender.includes(genderOption)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setGender([...gender, genderOption]);
+                      } else {
+                        setGender(gender.filter(g => g !== genderOption));
+                      }
+                    }}
+                    className="data-[state=checked]:bg-social-primary data-[state=checked]:border-social-primary"
+                  />
+                  <Label 
+                    htmlFor={`gender-${genderOption}`} 
+                    className="text-sm font-medium text-social-textPrimary cursor-pointer flex-1"
+                  >
+                    {genderOption}
+                  </Label>
+                </div>
+              ))}
+              {gender.length > 0 && (
+                <div className="text-xs text-social-textSecondary bg-social-hover rounded-lg p-2">
+                  {gender.length} selected
+                </div>
+              )}
+            </CollapsibleContent>
           </div>
-          {gender.length > 0 && (
-            <div className="text-xs text-social-textSecondary bg-social-hover rounded-lg p-2">
-              {gender.length} selected
-            </div>
-          )}
-        </div>
+        </Collapsible>
         
         {/* Relationship Status Filter */}
-        <div className="social-card p-4 space-y-4">
-          <div className="flex items-center space-x-2 border-b border-social-border pb-2">
-            <div className="w-2 h-2 rounded-full bg-social-accent"></div>
-            <Label className="text-base font-semibold text-social-textPrimary">Relationship Status</Label>
-          </div>
-          <div className="space-y-3">
-            {["Single", "Couple / Married", "Open Relationship", "Polyamorous"].map((statusOption) => (
-              <div 
-                key={statusOption} 
-                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-social-hover transition-colors duration-200 cursor-pointer"
-                onClick={() => {
-                  if (relationshipStatus.includes(statusOption)) {
-                    setRelationshipStatus(relationshipStatus.filter(s => s !== statusOption));
-                  } else {
-                    setRelationshipStatus([...relationshipStatus, statusOption]);
-                  }
-                }}
-              >
-                <Checkbox
-                  id={`status-${statusOption}`}
-                  checked={relationshipStatus.includes(statusOption)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setRelationshipStatus([...relationshipStatus, statusOption]);
-                    } else {
+        <Collapsible open={isRelationshipOpen} onOpenChange={setIsRelationshipOpen}>
+          <div className="social-card p-4 space-y-4">
+            <CollapsibleTrigger className="w-full">
+              <div className="flex items-center justify-between border-b border-social-border pb-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-social-accent"></div>
+                  <Label className="text-base font-semibold text-social-textPrimary">Relationship Status</Label>
+                </div>
+                <ChevronDown 
+                  className={`h-4 w-4 text-social-textSecondary transition-transform duration-200 ${
+                    isRelationshipOpen ? 'rotate-180' : ''
+                  }`} 
+                />
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-3">
+              {["Single", "Couple / Married", "Open Relationship", "Polyamorous"].map((statusOption) => (
+                <div 
+                  key={statusOption} 
+                  className="flex items-center space-x-3 p-2 rounded-lg hover:bg-social-hover transition-colors duration-200 cursor-pointer"
+                  onClick={() => {
+                    if (relationshipStatus.includes(statusOption)) {
                       setRelationshipStatus(relationshipStatus.filter(s => s !== statusOption));
+                    } else {
+                      setRelationshipStatus([...relationshipStatus, statusOption]);
                     }
                   }}
-                  className="data-[state=checked]:bg-social-accent data-[state=checked]:border-social-accent"
-                />
-                <Label 
-                  htmlFor={`status-${statusOption}`} 
-                  className="text-sm font-medium text-social-textPrimary cursor-pointer flex-1"
                 >
-                  {statusOption}
-                </Label>
-              </div>
-            ))}
+                  <Checkbox
+                    id={`status-${statusOption}`}
+                    checked={relationshipStatus.includes(statusOption)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setRelationshipStatus([...relationshipStatus, statusOption]);
+                      } else {
+                        setRelationshipStatus(relationshipStatus.filter(s => s !== statusOption));
+                      }
+                    }}
+                    className="data-[state=checked]:bg-social-accent data-[state=checked]:border-social-accent"
+                  />
+                  <Label 
+                    htmlFor={`status-${statusOption}`} 
+                    className="text-sm font-medium text-social-textPrimary cursor-pointer flex-1"
+                  >
+                    {statusOption}
+                  </Label>
+                </div>
+              ))}
+              {relationshipStatus.length > 0 && (
+                <div className="text-xs text-social-textSecondary bg-social-hover rounded-lg p-2">
+                  {relationshipStatus.length} selected
+                </div>
+              )}
+            </CollapsibleContent>
           </div>
-          {relationshipStatus.length > 0 && (
-            <div className="text-xs text-social-textSecondary bg-social-hover rounded-lg p-2">
-              {relationshipStatus.length} selected
-            </div>
-          )}
-        </div>
+        </Collapsible>
         
         {/* Age Range Filter */}
         <div className="social-card p-4 space-y-4">
