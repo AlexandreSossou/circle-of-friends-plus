@@ -1,12 +1,13 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Edit, UserPlus, MessageCircle, X, Images, UserCheck, Clock } from "lucide-react";
+import { Edit, UserPlus, MessageCircle, X, Images, UserCheck, Clock, Users } from "lucide-react";
 import WinkButton from "../WinkButton";
 import SharePhotosDialog from "../SharePhotosDialog";
 import { useState } from "react";
 import { useFriendshipStatus } from "@/hooks/useFriendshipStatus";
 import { useFriendRequests } from "@/hooks/useFriendRequests";
+import { ProfileData } from "@/types/profile";
 
 interface ProfileActionsProps {
   profileId: string;
@@ -16,6 +17,7 @@ interface ProfileActionsProps {
   onCancelEdit: () => void;
   onSaveProfile: () => void;
   handleAddFriend: () => void;
+  profileData?: ProfileData;
 }
 
 const ProfileActions = ({
@@ -25,11 +27,18 @@ const ProfileActions = ({
   onEditClick,
   onCancelEdit,
   onSaveProfile,
-  handleAddFriend
+  handleAddFriend,
+  profileData
 }: ProfileActionsProps) => {
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const { friendshipStatus, isLoading } = useFriendshipStatus(profileId);
   const { sendRequest, isSending } = useFriendRequests();
+
+  // Check if user has partners to show "Message Couple" button
+  const hasPartners = profileData && (
+    (profileData.partners && profileData.partners.length > 0) ||
+    (profileData.private_partners && profileData.private_partners.length > 0)
+  );
 
   const handleSendFriendRequest = () => {
     sendRequest(profileId);
@@ -92,16 +101,26 @@ const ProfileActions = ({
               Message
             </Button>
           </Link>
+          {hasPartners && (
+            <Link to="/messages" className="flex-1">
+              <Button variant="outline" className="w-full bg-blue-50 border-blue-300 hover:bg-blue-100">
+                <Users className="w-4 h-4 mr-2" />
+                Message Couple
+              </Button>
+            </Link>
+          )}
+        </div>
+        <div className="flex gap-2 w-full">
+          <Button 
+            variant="outline" 
+            className="flex-1 text-purple-600 border-purple-300 hover:bg-purple-50"
+            onClick={() => setShareDialogOpen(true)}
+          >
+            <Images className="w-4 h-4 mr-2" />
+            Pics Share
+          </Button>
           <WinkButton recipientId={profileId} />
         </div>
-        <Button 
-          variant="outline" 
-          className="w-full text-purple-600 border-purple-300 hover:bg-purple-50"
-          onClick={() => setShareDialogOpen(true)}
-        >
-          <Images className="w-4 h-4 mr-2" />
-          Pics Share
-        </Button>
         
         <SharePhotosDialog 
           open={shareDialogOpen} 

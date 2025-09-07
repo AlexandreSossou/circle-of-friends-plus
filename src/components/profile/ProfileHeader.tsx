@@ -147,6 +147,7 @@ const ProfileHeader = ({
                 onCancelEdit={handleCancelEdit}
                 onSaveProfile={handleSaveProfile}
                 handleAddFriend={handleAddFriend}
+                profileData={profileData}
               />
             </div>
           </div>
