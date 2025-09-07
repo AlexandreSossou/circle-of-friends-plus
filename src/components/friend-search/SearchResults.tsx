@@ -15,13 +15,13 @@ interface Profile {
   gender: string | null;
   marital_status?: string | null;
   location: string | null;
-  partner?: {
+  partners?: {
     id: string;
     full_name: string | null;
     avatar_url: string | null;
     age: number | null;
     gender: string | null;
-  } | null;
+  }[] | null;
 }
 
 interface SearchResultsProps {
@@ -122,8 +122,8 @@ const SearchResults = ({
               className="py-4 flex items-center justify-between"
             >
               <div className="flex items-center flex-1">
-                {/* Display couple side by side if partner exists */}
-                {profile.partner ? (
+                {/* Display couple/partners side by side if partners exist */}
+                {profile.partners && profile.partners.length > 0 ? (
                   <div className="flex items-center space-x-6">
                     {/* Primary user */}
                     <div className="flex items-center">
@@ -146,29 +146,34 @@ const SearchResults = ({
                       </div>
                     </div>
                     
-                    {/* Connector */}
-                    <div className="text-social-textSecondary font-medium">+</div>
-                    
-                    {/* Partner */}
-                    <div className="flex items-center">
-                      <Avatar className="mr-3">
-                        <AvatarImage src={profile.partner.avatar_url || "/placeholder.svg"} alt={profile.partner.full_name || ""} />
-                        <AvatarFallback>
-                          {profile.partner.full_name?.split(" ").map(name => name[0]).join("") || "?"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-medium">
-                          <Link to={`/profile/${profile.partner.id}`} className="hover:underline">
-                            {profile.partner.full_name}
-                          </Link>
-                        </h3>
-                        <div className="text-sm text-social-textSecondary">
-                          {profile.partner.age && <span>{profile.partner.age} years</span>}
-                          {profile.partner.gender && <span> • {profile.partner.gender}</span>}
+                    {/* Partners */}
+                    {profile.partners.map((partner, index) => (
+                      <div key={partner.id} className="flex items-center space-x-3">
+                        {/* Connector */}
+                        <div className="text-social-textSecondary font-medium">+</div>
+                        
+                        {/* Partner */}
+                        <div className="flex items-center">
+                          <Avatar className="mr-3">
+                            <AvatarImage src={partner.avatar_url || "/placeholder.svg"} alt={partner.full_name || ""} />
+                            <AvatarFallback>
+                              {partner.full_name?.split(" ").map(name => name[0]).join("") || "?"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="font-medium">
+                              <Link to={`/profile/${partner.id}`} className="hover:underline">
+                                {partner.full_name}
+                              </Link>
+                            </h3>
+                            <div className="text-sm text-social-textSecondary">
+                              {partner.age && <span>{partner.age} years</span>}
+                              {partner.gender && <span> • {partner.gender}</span>}
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    ))}
                     
                     {/* Relationship status and location */}
                     <div className="ml-4">

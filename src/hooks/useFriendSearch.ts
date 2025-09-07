@@ -60,16 +60,34 @@ export const useFriendSearch = () => {
 
       if (!profiles) return [];
 
-      // Fetch partner data for couples/married users
+      // Fetch partner data for users in relationships
       const profilesWithPartners = await Promise.all(
         profiles.map(async (profile) => {
-          if ((profile.marital_status === 'Couple / Married' || profile.marital_status === 'Open Relationship' || profile.marital_status === 'Polyamorous') && profile.partner_id) {
+          if (profile.marital_status === 'Couple / Married' || profile.marital_status === 'Open Relationship' || profile.marital_status === 'Polyamorous') {
             try {
-              const { data: partnerData } = await supabase.rpc('get_safe_profile', { profile_id: profile.partner_id });
-              if (partnerData && partnerData.length > 0) {
+              let partners = [];
+              
+              // For polyamorous users, fetch all partners
+              if (profile.marital_status === 'Polyamorous' && profile.partners && profile.partners.length > 0) {
+                const partnerPromises = profile.partners.map(async (partnerId: string) => {
+                  const { data: partnerData } = await supabase.rpc('get_safe_profile', { profile_id: partnerId });
+                  return partnerData && partnerData.length > 0 ? partnerData[0] : null;
+                });
+                const partnerResults = await Promise.all(partnerPromises);
+                partners = partnerResults.filter(p => p !== null);
+              }
+              // For other relationship types, fetch single partner
+              else if (profile.partner_id) {
+                const { data: partnerData } = await supabase.rpc('get_safe_profile', { profile_id: profile.partner_id });
+                if (partnerData && partnerData.length > 0) {
+                  partners = [partnerData[0]];
+                }
+              }
+              
+              if (partners.length > 0) {
                 return {
                   ...profile,
-                  partner: partnerData[0]
+                  partners: partners
                 };
               }
             } catch (e) {
