@@ -69,6 +69,17 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
       
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
+        try {
+          // Ensure inline playback across browsers
+          videoRef.current.muted = true;
+          (videoRef.current as any).playsInline = true;
+          await (videoRef.current as HTMLVideoElement).play();
+        } catch (e) {
+          console.warn('Autoplay blocked, will try after metadata', e);
+          videoRef.current.addEventListener('loadedmetadata', () => {
+            videoRef.current?.play().catch(() => {});
+          }, { once: true });
+        }
       }
       
       toast({
@@ -169,7 +180,7 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
   
   // Default video state
   return (
-    <div className={`w-full ${calmMode ? 'bg-calm-card' : 'bg-black'} relative min-h-[300px]`}>
+    <div className={`w-full ${calmMode ? 'bg-calm-card' : 'bg-black'} relative h-full min-h-[300px]`}>
       {/* Current language badge */}
       {availableLanguages.length > 0 && (
         <div className="absolute top-4 right-4 z-10">
