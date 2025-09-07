@@ -113,32 +113,34 @@ const ProfileHeader = ({
 
       <div className="p-4 md:p-6 pt-16 md:pt-20">
         <div className="flex flex-col md:flex-row md:items-end mb-4 md:mb-6 gap-4 md:gap-6">
-          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-32 md:ml-40 mr-4">
-            <ProfileInfo 
-              fullName={profileData?.full_name}
-              username={profileData?.username}
-              privateUsername={profileData?.private_username}
-              location={profileData?.location}
-              age={profileData?.age}
-              gender={profileData?.gender}
-              sexualOrientation={profileData?.sexual_orientation}
-              libido={profileData?.libido}
-              maritalStatus={profileData?.marital_status}
-              privateMaritalStatus={profileData?.private_marital_status}
-              partnerId={profileData?.partner_id}
-              privatePartnerId={profileData?.private_partner_id}
-              partners={profileData?.partners}
-              privatePartners={profileData?.private_partners}
-              partnerName={profileData?.partner?.full_name || undefined}
-              lookingFor={profileData?.looking_for}
-              isEditing={isEditing}
-              editedLocation={editedLocation}
-              onLocationChange={setEditedLocation}
-              profileType={profileType}
-              isOwnProfile={isOwnProfile}
-            />
+          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-20 md:ml-24 mr-4">
+            <div className="flex-1 min-w-0">
+              <ProfileInfo 
+                fullName={profileData?.full_name}
+                username={profileData?.username}
+                privateUsername={profileData?.private_username}
+                location={profileData?.location}
+                age={profileData?.age}
+                gender={profileData?.gender}
+                sexualOrientation={profileData?.sexual_orientation}
+                libido={profileData?.libido}
+                maritalStatus={profileData?.marital_status}
+                privateMaritalStatus={profileData?.private_marital_status}
+                partnerId={profileData?.partner_id}
+                privatePartnerId={profileData?.private_partner_id}
+                partners={profileData?.partners}
+                privatePartners={profileData?.private_partners}
+                partnerName={profileData?.partner?.full_name || undefined}
+                lookingFor={profileData?.looking_for}
+                isEditing={isEditing}
+                editedLocation={editedLocation}
+                onLocationChange={setEditedLocation}
+                profileType={profileType}
+                isOwnProfile={isOwnProfile}
+              />
+            </div>
             
-            <div className="flex-shrink-0 w-full md:w-auto md:min-w-[250px] max-w-[300px]">
+            <div className="flex-shrink-0 w-full md:w-auto md:min-w-[200px] max-w-[220px]">
               <ProfileActions 
                 profileId={profileId}
                 isOwnProfile={isOwnProfile}
