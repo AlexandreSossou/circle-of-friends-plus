@@ -15,6 +15,13 @@ interface Profile {
   gender: string | null;
   marital_status?: string | null;
   location: string | null;
+  partner?: {
+    id: string;
+    full_name: string | null;
+    avatar_url: string | null;
+    age: number | null;
+    gender: string | null;
+  } | null;
 }
 
 interface SearchResultsProps {
@@ -114,31 +121,93 @@ const SearchResults = ({
               key={profile.id} 
               className="py-4 flex items-center justify-between"
             >
-              <div className="flex items-center">
-                <Avatar className="mr-4">
-                  <AvatarImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.full_name || ""} />
-                  <AvatarFallback>
-                    {profile.full_name?.split(" ").map(name => name[0]).join("") || "?"}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-medium">
-                    <Link to={`/profile/${profile.id}`} className="hover:underline">
-                      {profile.full_name}
-                    </Link>
-                  </h3>
-                  <div className="text-sm text-social-textSecondary space-x-2">
-                    {profile.age && <span>{profile.age} years</span>}
-                    {profile.gender && <span>• {profile.gender}</span>}
-                    {profile.marital_status && <span>• {profile.marital_status}</span>}
-                    {profile.location && <span>• {profile.location}</span>}
+              <div className="flex items-center flex-1">
+                {/* Display couple side by side if partner exists */}
+                {profile.partner ? (
+                  <div className="flex items-center space-x-6">
+                    {/* Primary user */}
+                    <div className="flex items-center">
+                      <Avatar className="mr-3">
+                        <AvatarImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.full_name || ""} />
+                        <AvatarFallback>
+                          {profile.full_name?.split(" ").map(name => name[0]).join("") || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-medium">
+                          <Link to={`/profile/${profile.id}`} className="hover:underline">
+                            {profile.full_name}
+                          </Link>
+                        </h3>
+                        <div className="text-sm text-social-textSecondary">
+                          {profile.age && <span>{profile.age} years</span>}
+                          {profile.gender && <span> • {profile.gender}</span>}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Connector */}
+                    <div className="text-social-textSecondary font-medium">+</div>
+                    
+                    {/* Partner */}
+                    <div className="flex items-center">
+                      <Avatar className="mr-3">
+                        <AvatarImage src={profile.partner.avatar_url || "/placeholder.svg"} alt={profile.partner.full_name || ""} />
+                        <AvatarFallback>
+                          {profile.partner.full_name?.split(" ").map(name => name[0]).join("") || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-medium">
+                          <Link to={`/profile/${profile.partner.id}`} className="hover:underline">
+                            {profile.partner.full_name}
+                          </Link>
+                        </h3>
+                        <div className="text-sm text-social-textSecondary">
+                          {profile.partner.age && <span>{profile.partner.age} years</span>}
+                          {profile.partner.gender && <span> • {profile.partner.gender}</span>}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Relationship status and location */}
+                    <div className="ml-4">
+                      <div className="text-sm text-social-textSecondary">
+                        {profile.marital_status && <div className="font-medium">{profile.marital_status}</div>}
+                        {profile.location && <div>{profile.location}</div>}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  /* Single user display */
+                  <>
+                    <Avatar className="mr-4">
+                      <AvatarImage src={profile.avatar_url || "/placeholder.svg"} alt={profile.full_name || ""} />
+                      <AvatarFallback>
+                        {profile.full_name?.split(" ").map(name => name[0]).join("") || "?"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-medium">
+                        <Link to={`/profile/${profile.id}`} className="hover:underline">
+                          {profile.full_name}
+                        </Link>
+                      </h3>
+                      <div className="text-sm text-social-textSecondary space-x-2">
+                        {profile.age && <span>{profile.age} years</span>}
+                        {profile.gender && <span>• {profile.gender}</span>}
+                        {profile.marital_status && <span>• {profile.marital_status}</span>}
+                        {profile.location && <span>• {profile.location}</span>}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
+              
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 ml-4"
                 onClick={() => handleSendFriendRequest(profile.id)}
                 disabled={sendingRequests.has(profile.id)}
               >

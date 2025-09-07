@@ -60,8 +60,28 @@ export const useFriendSearch = () => {
 
       if (!profiles) return [];
 
+      // Fetch partner data for couples/married users
+      const profilesWithPartners = await Promise.all(
+        profiles.map(async (profile) => {
+          if ((profile.marital_status === 'Couple / Married' || profile.marital_status === 'Open Relationship' || profile.marital_status === 'Polyamorous') && profile.partner_id) {
+            try {
+              const { data: partnerData } = await supabase.rpc('get_safe_profile', { profile_id: profile.partner_id });
+              if (partnerData && partnerData.length > 0) {
+                return {
+                  ...profile,
+                  partner: partnerData[0]
+                };
+              }
+            } catch (e) {
+              console.error("Error fetching partner data:", e);
+            }
+          }
+          return profile;
+        })
+      );
+
       // Filter results based on search criteria
-      let filteredProfiles = profiles.filter(profile => {
+      let filteredProfiles = profilesWithPartners.filter(profile => {
         // Exclude current user and banned users
         if (profile.id === user.id || profile.is_banned) return false;
 
