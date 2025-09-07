@@ -48,7 +48,10 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
   // Connect to realtime session when dialog opens
   useEffect(() => {
     if (isOpen && !isConnected) {
-      connect();
+      const id = setTimeout(() => {
+        connect();
+      }, 150);
+      return () => clearTimeout(id);
     } else if (!isOpen && isConnected) {
       disconnect();
     }

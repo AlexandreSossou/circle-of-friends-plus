@@ -100,6 +100,11 @@ export const useLiveSessions = () => {
   }, [toast]);
   
   const joinSession = (sessionId: string) => {
+    // Prevent opening multiple viewers at once
+    if (isViewingLive) {
+      return;
+    }
+
     const session = sessions.find(s => s.id === sessionId);
     
     if (session) {
