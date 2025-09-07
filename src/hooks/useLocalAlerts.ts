@@ -52,34 +52,50 @@ export const useLocalAlerts = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data, error } = await supabase
+      // First, fetch announcements
+      const { data: announcements, error: announcementsError } = await supabase
         .from("announcements")
-        .select(`
-          *,
-          profiles:user_id(
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (announcementsError) {
+        console.error("Error fetching announcements:", announcementsError);
+        throw announcementsError;
+      }
 
-      // Get profiles for each local alert
-      const localAlertsWithProfiles = data?.map(localAlert => ({
-        ...localAlert,
-        profiles: {
-          id: localAlert.user_id,
+      if (!announcements || announcements.length === 0) {
+        return [];
+      }
+
+      // Get unique user IDs
+      const userIds = [...new Set(announcements.map(a => a.user_id))];
+      
+      // Fetch profiles for these users
+      const { data: profiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", userIds);
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        // Continue without profile data rather than failing completely
+      }
+
+      // Combine announcements with profile data
+      const localAlertsWithProfiles = announcements.map(announcement => ({
+        ...announcement,
+        profiles: profiles?.find(p => p.id === announcement.user_id) || {
+          id: announcement.user_id,
           full_name: null,
           avatar_url: null
         }
-      })) || [];
+      }));
 
       return localAlertsWithProfiles as LocalAlert[];
     },
     enabled: !!user?.id,
     refetchInterval: 30000, // Refetch every 30 seconds
+    retry: 2, // Reduce retry attempts for faster failure handling
   });
 
   // Add local alert mutation
