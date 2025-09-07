@@ -51,31 +51,62 @@ export const canUserCreateLocalAlert = async (userId: string): Promise<LocalAler
     // Check how many local alerts the user has created this month
     const currentCount = await getUserLocalAlertCountThisMonth(userId);
 
-    // Check if user is male
-    const isMale = profile.gender?.toLowerCase() === 'male';
-    
-    if (isMale) {
-      // Male users can only create 1 local alert per month
-      const MALE_MONTHLY_LIMIT = 1;
-      
-      if (currentCount >= MALE_MONTHLY_LIMIT) {
-        return {
-          canCreate: false,
-          remainingLocalAlerts: 0,
-          limitReason: `Male users are limited to 1 local alert per month. You have already created ${currentCount} local alert${currentCount > 1 ? 's' : ''} this month.`
-        };
-      }
+    // Get the limit configuration for this gender
+    const { data: limitConfig, error: limitError } = await supabase
+      .from("local_alert_limits")
+      .select("monthly_limit, is_active")
+      .eq("gender", profile.gender?.toLowerCase() || "")
+      .eq("is_active", true)
+      .single();
 
+    let monthlyLimit = 0; // Default to unlimited (0)
+    
+    if (limitError || !limitConfig) {
+      // If no specific config found, check for general gender categories
+      const fallbackGenders = [
+        profile.gender?.toLowerCase().includes('man') ? 'man' : null,
+        profile.gender?.toLowerCase().includes('woman') ? 'woman' : null,
+        profile.gender?.toLowerCase().includes('male') ? 'male' : null,
+        profile.gender?.toLowerCase().includes('female') ? 'female' : null,
+      ].filter(Boolean);
+
+      for (const fallbackGender of fallbackGenders) {
+        const { data: fallbackConfig } = await supabase
+          .from("local_alert_limits")
+          .select("monthly_limit, is_active")
+          .eq("gender", fallbackGender)
+          .eq("is_active", true)
+          .single();
+
+        if (fallbackConfig) {
+          monthlyLimit = fallbackConfig.monthly_limit;
+          break;
+        }
+      }
+    } else {
+      monthlyLimit = limitConfig.monthly_limit;
+    }
+
+    // If limit is 0, it means unlimited
+    if (monthlyLimit === 0) {
       return {
         canCreate: true,
-        remainingLocalAlerts: MALE_MONTHLY_LIMIT - currentCount
+        remainingLocalAlerts: Infinity
       };
     }
 
-    // Other users (female, non-binary, etc.) have no local alert limits
+    // Check if user has exceeded the limit
+    if (currentCount >= monthlyLimit) {
+      return {
+        canCreate: false,
+        remainingLocalAlerts: 0,
+        limitReason: `${profile.gender || 'Users'} are limited to ${monthlyLimit} local alert${monthlyLimit > 1 ? 's' : ''} per month. You have already created ${currentCount} local alert${currentCount > 1 ? 's' : ''} this month.`
+      };
+    }
+
     return {
       canCreate: true,
-      remainingLocalAlerts: Infinity
+      remainingLocalAlerts: monthlyLimit - currentCount
     };
   } catch (error) {
     console.error('Error checking local alert limits:', error);

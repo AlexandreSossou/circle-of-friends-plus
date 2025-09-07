@@ -430,6 +430,36 @@ export type Database = {
           },
         ]
       }
+      local_alert_limits: {
+        Row: {
+          created_at: string
+          gender: string
+          id: string
+          is_active: boolean
+          monthly_limit: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          gender: string
+          id?: string
+          is_active?: boolean
+          monthly_limit?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          gender?: string
+          id?: string
+          is_active?: boolean
+          monthly_limit?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       message_preferences: {
         Row: {
           allow_gender: string[] | null
