@@ -1010,12 +1010,45 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_admin_profile_data: {
+        Args: { profile_id: string }
+        Returns: {
+          age: number
+          avatar_url: string
+          banned_by: string
+          banned_reason: string
+          banned_until: string
+          bio: string
+          cover_photo_url: string
+          created_at: string
+          email: string
+          expression: string
+          full_name: string
+          gender: string
+          id: string
+          is_banned: boolean
+          libido: string
+          location: string
+          looking_for: string[]
+          marital_status: string
+          partner_id: string
+          partners: string[]
+          private_marital_status: string
+          private_partner_id: string
+          private_partners: string[]
+          sexual_orientation: string
+          updated_at: string
+          username: string
+        }[]
+      }
       get_friend_profile_data: {
         Args: { profile_id: string }
         Returns: {
           age: number
           avatar_url: string
           bio: string
+          cover_photo_url: string
+          expression: string
           full_name: string
           gender: string
           id: string
@@ -1033,7 +1066,6 @@ export type Database = {
           avatar_url: string
           gender: string
           id: string
-          location: string
           username: string
         }[]
       }
@@ -1110,19 +1142,6 @@ export type Database = {
           private_partners: string[]
           sexual_orientation: string
           updated_at: string
-          username: string
-        }[]
-      }
-      get_safe_profile_discovery: {
-        Args: { profile_id: string }
-        Returns: {
-          age: number
-          avatar_url: string
-          bio: string
-          full_name: string
-          gender: string
-          id: string
-          location: string
           username: string
         }[]
       }
