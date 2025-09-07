@@ -133,20 +133,6 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
     return flagMap[languageCode] || '🌐';
   };
   
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className={`w-full ${calmMode ? 'bg-calm-card' : 'bg-black'} relative flex items-center justify-center min-h-[300px]`}>
-        <div className="text-center text-white">
-          <div className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin mx-auto mb-4 border-white opacity-50"></div>
-          <h3 className="text-xl font-medium">Connecting to live stream...</h3>
-          <p className={`mt-2 ${calmMode ? 'text-calm-textSecondary' : 'text-gray-400'}`}>
-            Please wait while we establish the connection
-          </p>
-        </div>
-      </div>
-    );
-  }
   
   // Error state
   if (hasError) {
@@ -184,21 +170,30 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
           </Badge>
         </div>
       )}
-      
-      {/* Camera controls */}
-      {isHost && (
-        <div className="absolute top-4 left-4 z-10">
-          <Button
-            onClick={cameraEnabled ? stopCamera : startCamera}
-            variant={cameraEnabled ? "destructive" : "secondary"}
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            {cameraEnabled ? <CameraOff className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
-            {cameraEnabled ? "Stop Camera" : "Start Camera"}
-          </Button>
+
+      {/* Loading overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-20">
+          <div className="text-center text-white">
+            <div className="w-12 h-12 rounded-full border-4 border-t-transparent animate-spin mx-auto mb-4 border-white opacity-70"></div>
+            <h3 className="text-xl font-medium">Connecting to live stream...</h3>
+            <p className={`${calmMode ? 'text-calm-textSecondary' : 'text-gray-300'}`}>Preparing audio connection</p>
+          </div>
         </div>
       )}
+      
+      {/* Camera controls */}
+      <div className="absolute top-4 left-4 z-10">
+        <Button
+          onClick={cameraEnabled ? stopCamera : startCamera}
+          variant={cameraEnabled ? "destructive" : "secondary"}
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          {cameraEnabled ? <CameraOff className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
+          {cameraEnabled ? "Stop Camera" : "Start Camera"}
+        </Button>
+      </div>
       
       {/* Video stream or placeholder */}
       {cameraEnabled && !cameraError ? (

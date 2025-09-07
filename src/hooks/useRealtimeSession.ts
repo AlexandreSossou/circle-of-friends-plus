@@ -32,7 +32,7 @@ export const useRealtimeSession = () => {
       audioContextRef.current = new AudioContext({ sampleRate: 24000 });
       
       // Connect to WebSocket
-      const wsUrl = `wss://mcsltszqicdcvrhfnmtp.supabase.co/functions/v1/realtime-session`;
+      const wsUrl = `wss://zbsxyvclylkclixwsytr.supabase.co/functions/v1/realtime-session`;
       wsRef.current = new WebSocket(wsUrl);
 
       wsRef.current.onopen = () => {
