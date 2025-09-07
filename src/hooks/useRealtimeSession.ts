@@ -40,7 +40,7 @@ export const useRealtimeSession = () => {
       }
 
       // Connect to WebSocket
-      const wsUrl = `wss://zbsxyvclylkclixwsytr.supabase.co/functions/v1/realtime-session`;
+      const wsUrl = `wss://zbsxyvclylkclixwsytr.functions.supabase.co/realtime-session`;
       wsRef.current = new WebSocket(wsUrl);
 
       wsRef.current.onopen = () => {
@@ -125,6 +125,7 @@ export const useRealtimeSession = () => {
 
       wsRef.current.onclose = () => {
         console.log('WebSocket closed');
+        wsRef.current = null;
         setState(prev => ({ 
           ...prev, 
           isConnected: false,
