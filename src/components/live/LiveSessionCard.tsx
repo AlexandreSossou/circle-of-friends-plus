@@ -19,9 +19,10 @@ export interface LiveSession {
 interface LiveSessionCardProps {
   session: LiveSession;
   onJoin: (sessionId: string) => void;
+  disabled?: boolean;
 }
 
-const LiveSessionCard = ({ session, onJoin }: LiveSessionCardProps) => {
+const LiveSessionCard = ({ session, onJoin, disabled = false }: LiveSessionCardProps) => {
   const formattedDate = new Date(session.scheduledFor).toLocaleString();
   const { calmMode } = useCalmMode();
   
@@ -64,8 +65,9 @@ const LiveSessionCard = ({ session, onJoin }: LiveSessionCardProps) => {
               ? 'bg-calm-primary hover:bg-calm-primary/90 text-calm-text' 
               : 'bg-social-blue hover:bg-social-darkblue'}`}
           onClick={() => onJoin(session.id)}
+          disabled={!!disabled}
         >
-          {session.isLive ? 'Join Live Now' : 'Set Reminder'}
+          {disabled && session.isLive ? 'Joining…' : (session.isLive ? 'Join Live Now' : 'Set Reminder')}
         </Button>
       </CardFooter>
     </Card>

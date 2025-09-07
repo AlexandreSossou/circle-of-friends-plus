@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { LiveSession } from '@/components/live/LiveSessionCard';
 import { useToast } from '@/hooks/use-toast';
 
@@ -61,6 +61,7 @@ export const useLiveSessions = () => {
   const [sessions, setSessions] = useState<LiveSession[]>(mockSessions);
   const [activeSession, setActiveSession] = useState<LiveSession | null>(null);
   const [isViewingLive, setIsViewingLive] = useState(false);
+  const joiningRef = useRef(false);
   const { toast } = useToast();
   
   // In a real app, this would fetch from an API
@@ -100,10 +101,11 @@ export const useLiveSessions = () => {
   }, [toast]);
   
   const joinSession = (sessionId: string) => {
-    // Prevent opening multiple viewers at once
-    if (isViewingLive) {
+    // Prevent opening multiple viewers or rapid double-clicks
+    if (joiningRef.current || isViewingLive) {
       return;
     }
+    joiningRef.current = true;
 
     const session = sessions.find(s => s.id === sessionId);
     
@@ -126,8 +128,13 @@ export const useLiveSessions = () => {
           title: "Reminder Set",
           description: `We'll notify you when "${session.title}" goes live.`,
         });
+        // Not joining; allow future clicks
+        joiningRef.current = false;
+        return;
       }
     }
+    // Safety: reset joining flag after a short delay in case state batching delays
+    setTimeout(() => { joiningRef.current = false; }, 800);
   };
   
   const leaveSession = () => {
@@ -143,6 +150,7 @@ export const useLiveSessions = () => {
       
       setActiveSession(null);
       setIsViewingLive(false);
+      joiningRef.current = false;
     }
   };
 

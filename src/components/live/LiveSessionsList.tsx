@@ -7,9 +7,10 @@ import { useCalmMode } from '@/context/CalmModeContext';
 interface LiveSessionsListProps {
   sessions: LiveSession[];
   onJoinSession: (sessionId: string) => void;
+  isBusy?: boolean;
 }
 
-const LiveSessionsList = ({ sessions, onJoinSession }: LiveSessionsListProps) => {
+const LiveSessionsList = ({ sessions, onJoinSession, isBusy = false }: LiveSessionsListProps) => {
   const liveSessions = sessions.filter(session => session.isLive);
   const upcomingSessions = sessions.filter(session => !session.isLive);
   const { calmMode } = useCalmMode();
@@ -24,7 +25,8 @@ const LiveSessionsList = ({ sessions, onJoinSession }: LiveSessionsListProps) =>
               <LiveSessionCard 
                 key={session.id} 
                 session={session} 
-                onJoin={onJoinSession} 
+                onJoin={onJoinSession}
+                disabled={isBusy}
               />
             ))}
           </div>
@@ -39,7 +41,8 @@ const LiveSessionsList = ({ sessions, onJoinSession }: LiveSessionsListProps) =>
               <LiveSessionCard 
                 key={session.id} 
                 session={session} 
-                onJoin={onJoinSession} 
+                onJoin={onJoinSession}
+                disabled={isBusy}
               />
             ))}
           </div>

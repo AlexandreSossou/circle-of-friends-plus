@@ -26,6 +26,7 @@ const LiveSessions = () => {
         <LiveSessionsList 
           sessions={sessions}
           onJoinSession={joinSession}
+          isBusy={isViewingLive}
         />
         
         {activeSession && (
