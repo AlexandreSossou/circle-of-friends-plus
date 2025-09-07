@@ -46,14 +46,15 @@ const ProfileActions = ({
     profileData.private_marital_status === "Polyamorous"
   );
 
-  console.log("ProfileActions Debug:", {
-    profileData,
-    hasPartners,
-    partners: profileData?.partners,
-    privatePartners: profileData?.private_partners,
-    maritalStatus: profileData?.marital_status,
-    privateMaritalStatus: profileData?.private_marital_status
-  });
+  // Remove the debug console log for production
+  // console.log("ProfileActions Debug:", {
+  //   profileData,
+  //   hasPartners,
+  //   partners: profileData?.partners,
+  //   privatePartners: profileData?.private_partners,
+  //   maritalStatus: profileData?.marital_status,
+  //   privateMaritalStatus: profileData?.private_marital_status
+  // });
 
   const handleSendFriendRequest = () => {
     sendRequest(profileId);
@@ -107,34 +108,36 @@ const ProfileActions = ({
 
   if (!isOwnProfile) {
     return (
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 w-full">
         {renderFriendButton()}
-        <div className="flex gap-2 w-full">
-          <Link to={`/messages?recipient=${profileId}`} className="flex-1">
-            <Button variant="outline" className="w-full">
-              <MessageCircle className="w-4 h-4 mr-2" />
+        <div className="flex gap-1 w-full">
+          <Link to={`/messages?recipient=${profileId}`} className={hasPartners ? "flex-1" : "w-full"}>
+            <Button variant="outline" className="w-full text-sm px-2">
+              <MessageCircle className="w-4 h-4 mr-1" />
               Message
             </Button>
           </Link>
           {hasPartners && (
             <Link to="/messages" className="flex-1">
-              <Button variant="outline" className="w-full bg-blue-50 border-blue-300 hover:bg-blue-100">
-                <Users className="w-4 h-4 mr-2" />
-                Message Couple
+              <Button variant="outline" className="w-full text-sm px-2 bg-blue-50 border-blue-300 hover:bg-blue-100">
+                <Users className="w-4 h-4 mr-1" />
+                Couple
               </Button>
             </Link>
           )}
         </div>
-        <div className="flex gap-2 w-full">
+        <div className="flex gap-1 w-full">
           <Button 
             variant="outline" 
-            className="flex-1 text-purple-600 border-purple-300 hover:bg-purple-50"
+            className="flex-1 text-sm px-2 text-purple-600 border-purple-300 hover:bg-purple-50"
             onClick={() => setShareDialogOpen(true)}
           >
-            <Images className="w-4 h-4 mr-2" />
-            Pics Share
+            <Images className="w-4 h-4 mr-1" />
+            Pics
           </Button>
-          <WinkButton recipientId={profileId} />
+          <div className="flex-shrink-0">
+            <WinkButton recipientId={profileId} />
+          </div>
         </div>
         
         <SharePhotosDialog 

@@ -113,7 +113,7 @@ const ProfileHeader = ({
 
       <div className="p-4 md:p-6 pt-16 md:pt-20">
         <div className="flex flex-col md:flex-row md:items-end mb-4 md:mb-6 gap-4 md:gap-6">
-          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-32 md:ml-40">
+          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-32 md:ml-40 mr-4">
             <ProfileInfo 
               fullName={profileData?.full_name}
               username={profileData?.username}
@@ -138,7 +138,7 @@ const ProfileHeader = ({
               isOwnProfile={isOwnProfile}
             />
             
-            <div className="flex gap-2">
+            <div className="flex-shrink-0 w-full md:w-auto md:min-w-[250px] max-w-[300px]">
               <ProfileActions 
                 profileId={profileId}
                 isOwnProfile={isOwnProfile}
