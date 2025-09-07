@@ -28,9 +28,17 @@ export const useRealtimeSession = () => {
 
   const connect = useCallback(async () => {
     try {
-      // Initialize audio context
-      audioContextRef.current = new AudioContext({ sampleRate: 24000 });
-      
+      // Prevent duplicate connections (e.g., React StrictMode double effects)
+      if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
+        console.log('Realtime session already connecting/connected');
+        return;
+      }
+
+      // Initialize audio context (reuse if already created)
+      if (!audioContextRef.current) {
+        audioContextRef.current = new AudioContext({ sampleRate: 24000 });
+      }
+
       // Connect to WebSocket
       const wsUrl = `wss://zbsxyvclylkclixwsytr.supabase.co/functions/v1/realtime-session`;
       wsRef.current = new WebSocket(wsUrl);

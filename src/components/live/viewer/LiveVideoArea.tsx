@@ -46,7 +46,15 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
   // Camera access functions
   const startCamera = async () => {
     try {
+      if (cameraEnabled && stream) {
+        console.log('Camera already running');
+        return;
+      }
       setCameraError(null);
+      // Ensure any previous tracks are stopped before starting a new one
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+      }
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
