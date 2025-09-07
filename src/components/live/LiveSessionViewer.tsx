@@ -9,8 +9,6 @@ import LiveSessionHeader from './viewer/LiveSessionHeader';
 import LiveVideoArea from './viewer/LiveVideoArea';
 import LiveChatArea from './viewer/LiveChatArea';
 import { LiveMessage } from './viewer/LiveChatMessage';
-import { useLanguage } from '@/context/LanguageContext';
-import { useRealtimeSession } from '@/hooks/useRealtimeSession';
 
 interface LiveSessionViewerProps {
   session: LiveSession;
@@ -23,39 +21,21 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
   const { user } = useAuth();
   const { toast } = useToast();
   const { calmMode } = useCalmMode();
-  const { t } = useLanguage();
   
-  const [showChat, setShowChat] = useState(true);
+  const [showChat, setShowChat] = useState(false);
   const [currentMessage, setCurrentMessage] = useState('');
   const [viewerCount, setViewerCount] = useState(session.viewerCount);
   const [currentLanguage, setCurrentLanguage] = useState(session.language || 'en');
   const [isHost] = useState(user?.id === 'host-id'); // In real app, check if user is the session host
   const [availableLanguages] = useState(['en', 'es', 'fr', 'de', 'it']);
   
-  const {
-    isConnected,
-    isRecording,
-    isSpeaking,
-    messages,
-    error,
-    connect,
-    disconnect,
-    startRecording,
-    stopRecording,
-    sendTextMessage
-  } = useRealtimeSession();
+  // Simplified mode: no realtime connection, just camera preview
+  const [messages, setMessages] = useState<LiveMessage[]>([]);
+  const isRecording = false;
+  const isSpeaking = false;
+  const error: string | null = null;
   
-  // Connect to realtime session when dialog opens
-  useEffect(() => {
-    if (isOpen && !isConnected) {
-      const id = setTimeout(() => {
-        connect();
-      }, 150);
-      return () => clearTimeout(id);
-    } else if (!isOpen && isConnected) {
-      disconnect();
-    }
-  }, [isOpen, isConnected, connect, disconnect]);
+  // No realtime connect in simplified mode
   
   // Clean up when closing
   useEffect(() => {
@@ -65,22 +45,15 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
     }
   }, [isOpen, session.viewerCount]);
   
-  // Start recording on connect for hosts
-  useEffect(() => {
-    if (isConnected && isHost && !isRecording) {
-      startRecording();
-    }
-  }, [isConnected, isHost, isRecording, startRecording]);
   
-  // Simulate viewer count updates
+  // Simulate viewer count updates while open
   useEffect(() => {
-    if (isConnected) {
-      const timer = setInterval(() => {
-        setViewerCount(prev => prev + Math.floor(Math.random() * 2));
-      }, 10000);
-      return () => clearInterval(timer);
-    }
-  }, [isConnected]);
+    if (!isOpen) return;
+    const timer = setInterval(() => {
+      setViewerCount(prev => prev + Math.floor(Math.random() * 2));
+    }, 10000);
+    return () => clearInterval(timer);
+  }, [isOpen]);
   
   const handleLanguageChange = (language: string) => {
     setCurrentLanguage(language);
@@ -90,17 +63,17 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
     });
   };
   
-  const handleRetryConnection = () => {
-    disconnect();
-    setTimeout(() => {
-      connect();
-    }, 1000);
-  };
+  const handleRetryConnection = () => {};
   
   const sendMessage = () => {
     if (!currentMessage.trim()) return;
-    
-    sendTextMessage(currentMessage.trim());
+    const newMessage: LiveMessage = {
+      id: `user-${Date.now()}`,
+      sender: { id: 'user', name: 'You' },
+      content: currentMessage.trim(),
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, newMessage]);
     setCurrentMessage('');
   };
   
@@ -135,12 +108,9 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
             {/* Video area */}
             <div className={`${showChat ? 'w-2/3' : 'w-full'}`}>
               <LiveVideoArea 
-                isHost={isHost} 
-                onEndStream={onClose}
-                isLoading={!isConnected}
-                hasError={!!error}
-                errorMessage={error || ''}
-                onRetryConnection={handleRetryConnection}
+                isLoading={false}
+                hasError={false}
+                errorMessage={''}
                 availableLanguages={availableLanguages}
                 onLanguageChange={handleLanguageChange}
                 currentLanguage={currentLanguage}
@@ -156,7 +126,7 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
                 currentMessage={currentMessage}
                 onMessageChange={setCurrentMessage}
                 onSubmitMessage={handleQuestionSubmit}
-                disabled={!isConnected}
+                disabled={true}
               />
             )}
           </div>
