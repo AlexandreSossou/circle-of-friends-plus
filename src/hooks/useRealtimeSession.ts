@@ -25,10 +25,15 @@ export const useRealtimeSession = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
   const recorderRef = useRef<AudioRecorder | null>(null);
   const transcriptRef = useRef<string>('');
+  const connectingRef = useRef<boolean>(false);
 
   const connect = useCallback(async () => {
     try {
       // Prevent duplicate connections (e.g., React StrictMode double effects)
+      if (connectingRef.current) {
+        console.log('Realtime session connect already in progress');
+        return;
+      }
       if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
         console.log('Realtime session already connecting/connected');
         return;
@@ -40,11 +45,13 @@ export const useRealtimeSession = () => {
       }
 
       // Connect to WebSocket
-      const wsUrl = `wss://zbsxyvclylkclixwsytr.functions.supabase.co/realtime-session`;
+      connectingRef.current = true;
+      const wsUrl = `wss://zbsxyvclylkclixwsytr.supabase.co/functions/v1/realtime-session`;
       wsRef.current = new WebSocket(wsUrl);
 
       wsRef.current.onopen = () => {
         console.log('Connected to realtime session');
+        connectingRef.current = false;
         setState(prev => ({ ...prev, isConnected: true, error: null }));
         toast({
           title: "Connected",
@@ -120,11 +127,13 @@ export const useRealtimeSession = () => {
 
       wsRef.current.onerror = (error) => {
         console.error('WebSocket error:', error);
+        connectingRef.current = false;
         setState(prev => ({ ...prev, error: 'Connection error' }));
       };
 
       wsRef.current.onclose = () => {
         console.log('WebSocket closed');
+        connectingRef.current = false;
         wsRef.current = null;
         setState(prev => ({ 
           ...prev, 
@@ -136,6 +145,7 @@ export const useRealtimeSession = () => {
 
     } catch (error) {
       console.error('Failed to connect:', error);
+      connectingRef.current = false;
       setState(prev => ({ 
         ...prev, 
         error: error instanceof Error ? error.message : 'Connection failed' 
@@ -227,6 +237,7 @@ export const useRealtimeSession = () => {
   const disconnect = useCallback(() => {
     stopRecording();
     clearAudioQueue();
+    connectingRef.current = false;
     
     if (wsRef.current) {
       wsRef.current.close();
