@@ -10,6 +10,7 @@ import LiveVideoArea from './viewer/LiveVideoArea';
 import LiveChatArea from './viewer/LiveChatArea';
 import { LiveMessage } from './viewer/LiveChatMessage';
 import { useLanguage } from '@/context/LanguageContext';
+import { useRealtimeSession } from '@/hooks/useRealtimeSession';
 
 interface LiveSessionViewerProps {
   session: LiveSession;
@@ -19,196 +20,95 @@ interface LiveSessionViewerProps {
 }
 
 const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionViewerProps) => {
-  const [showChat, setShowChat] = useState(true);
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<LiveMessage[]>([]);
-  const [viewerCount, setViewerCount] = useState(session.viewerCount);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [currentLanguage, setCurrentLanguage] = useState(session.language || 'en');
   const { user } = useAuth();
   const { toast } = useToast();
   const { calmMode } = useCalmMode();
   const { t } = useLanguage();
   
-  // Available languages for this session (in a real app, this would come from the API)
-  // For demo, we'll simulate multiple language streams for the same session
-  const availableLanguages = ['en', 'es', 'fr', 'de', session.language].filter((v, i, a) => a.indexOf(v) === i);
+  const [showChat, setShowChat] = useState(true);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [viewerCount, setViewerCount] = useState(session.viewerCount);
+  const [currentLanguage, setCurrentLanguage] = useState(session.language || 'en');
+  const [isHost] = useState(user?.id === 'host-id'); // In real app, check if user is the session host
+  const [availableLanguages] = useState(['en', 'es', 'fr', 'de', 'it']);
   
-  // Handle stream connection and simulate loading/errors
+  const {
+    isConnected,
+    isRecording,
+    isSpeaking,
+    messages,
+    error,
+    connect,
+    disconnect,
+    startRecording,
+    stopRecording,
+    sendTextMessage
+  } = useRealtimeSession();
+  
+  // Connect to realtime session when dialog opens
   useEffect(() => {
-    if (isOpen) {
-      // Simulate connection loading
-      setIsLoading(true);
-      setHasError(false);
-      
-      const loadingTimer = setTimeout(() => {
-        setIsLoading(false);
-        
-        // Simulate random errors (1 in 10 chance for demo purposes)
-        if (Math.random() < 0.1) {
-          setHasError(true);
-          setErrorMessage('Could not connect to the stream. Please try again later.');
-          
-          toast({
-            title: "Connection failed",
-            description: "Unable to connect to the live stream. Please try again.",
-            variant: "destructive",
-          });
-        } else {
-          // Welcome message
-          const welcomeMessage: LiveMessage = {
-            id: `welcome-${Date.now()}`,
-            sender: {
-              id: 'system',
-              name: 'System',
-              isStaff: true,
-            },
-            content: `Welcome to "${session.title}" live session with ${session.hostName}! Ask your questions in the chat.`,
-            timestamp: new Date(),
-          };
-          
-          setMessages([welcomeMessage]);
-        }
-      }, 2000); // Simulate 2 seconds loading time
-      
-      // Simulate other viewers joining
-      const viewerTimer = setInterval(() => {
-        if (!hasError) {
-          setViewerCount(prev => prev + Math.floor(Math.random() * 2));
-        }
-      }, 10000);
-      
-      return () => {
-        clearTimeout(loadingTimer);
-        clearInterval(viewerTimer);
-      };
+    if (isOpen && !isConnected) {
+      connect();
+    } else if (!isOpen && isConnected) {
+      disconnect();
     }
-  }, [isOpen, session, toast, hasError]);
+  }, [isOpen, isConnected, connect, disconnect]);
   
-  // Handle language change
-  const handleLanguageChange = (lang: string) => {
-    if (lang === currentLanguage) return;
-    
-    setIsLoading(true);
-    
-    // Simulate language stream switching
-    setTimeout(() => {
-      setIsLoading(false);
-      setCurrentLanguage(lang);
-      
-      toast({
-        title: "Language changed",
-        description: `Streaming now in ${lang.toUpperCase()}`,
-      });
-      
-      // Add system message about language change
-      const langChangeMessage: LiveMessage = {
-        id: `lang-change-${Date.now()}`,
-        sender: {
-          id: 'system',
-          name: 'System',
-          isStaff: true,
-        },
-        content: `Stream language changed to ${lang.toUpperCase()}`,
-        timestamp: new Date(),
-      };
-      
-      setMessages(prev => [...prev, langChangeMessage]);
-    }, 1500);
+  // Clean up when closing
+  useEffect(() => {
+    if (!isOpen) {
+      setCurrentMessage('');
+      setViewerCount(session.viewerCount);
+    }
+  }, [isOpen, session.viewerCount]);
+  
+  // Start recording on connect for hosts
+  useEffect(() => {
+    if (isConnected && isHost && !isRecording) {
+      startRecording();
+    }
+  }, [isConnected, isHost, isRecording, startRecording]);
+  
+  // Simulate viewer count updates
+  useEffect(() => {
+    if (isConnected) {
+      const timer = setInterval(() => {
+        setViewerCount(prev => prev + Math.floor(Math.random() * 2));
+      }, 10000);
+      return () => clearInterval(timer);
+    }
+  }, [isConnected]);
+  
+  const handleLanguageChange = (language: string) => {
+    setCurrentLanguage(language);
+    toast({
+      title: "Language Changed",
+      description: `Stream language changed to ${language.toUpperCase()}`,
+    });
   };
   
-  // Handle retry connection
   const handleRetryConnection = () => {
-    setIsLoading(true);
-    setHasError(false);
-    
-    // Simulate connection retry
+    disconnect();
     setTimeout(() => {
-      setIsLoading(false);
-      
-      // 70% chance of successful reconnect for demo purposes
-      if (Math.random() < 0.7) {
-        toast({
-          title: "Connection restored",
-          description: "Successfully reconnected to the live stream.",
-        });
-        
-        // Welcome message after reconnect
-        const reconnectMessage: LiveMessage = {
-          id: `reconnect-${Date.now()}`,
-          sender: {
-            id: 'system',
-            name: 'System',
-            isStaff: true,
-          },
-          content: `Connection restored. Welcome back to "${session.title}"!`,
-          timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, reconnectMessage]);
-      } else {
-        setHasError(true);
-        setErrorMessage('Still unable to connect. The stream may be unavailable.');
-        
-        toast({
-          title: "Reconnection failed",
-          description: "Still unable to connect to the stream. Please try again later.",
-          variant: "destructive",
-        });
-      }
-    }, 2000);
+      connect();
+    }, 1000);
   };
   
   const sendMessage = () => {
-    if (!message.trim() || !user) return;
+    if (!currentMessage.trim()) return;
     
-    // Add the user's message
-    const userMessage: LiveMessage = {
-      id: `user-${Date.now()}`,
-      sender: {
-        id: user.id,
-        name: user?.user_metadata?.full_name || 'Anonymous',
-        avatar: user?.user_metadata?.avatar_url,
-      },
-      content: message.trim(),
-      timestamp: new Date(),
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setMessage('');
-    
-    // Simulate staff replying to questions sometimes
-    if (Math.random() > 0.6) {
-      setTimeout(() => {
-        const staffMessage: LiveMessage = {
-          id: `staff-${Date.now()}`,
-          sender: {
-            id: 'staff-1',
-            name: session.hostName,
-            isStaff: true,
-          },
-          content: `Thanks for your question! ${message.includes('?') ? 'That\'s a great point. Let me address that in the live stream.' : 'I\'ll cover that in a moment.'}`,
-          timestamp: new Date(),
-        };
-        
-        setMessages(prev => [...prev, staffMessage]);
-      }, 3000 + Math.random() * 5000);
-    }
+    sendTextMessage(currentMessage.trim());
+    setCurrentMessage('');
   };
   
-  // Handle showing toast notification when user submits a question
   const handleQuestionSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage();
     
-    if (message.trim().includes('?')) {
-      toast({
-        title: "Question submitted",
-        description: "The staff will try to answer your question during the live session.",
-      });
-    }
+    toast({
+      title: "Message Sent",
+      description: "Your message has been sent.",
+    });
   };
   
   if (!isOpen) return null;
@@ -232,26 +132,28 @@ const LiveSessionViewer = ({ session, isOpen, onClose, onBack }: LiveSessionView
             {/* Video area */}
             <div className={`${showChat ? 'w-2/3' : 'w-full'}`}>
               <LiveVideoArea 
-                isHost={true} 
+                isHost={isHost} 
                 onEndStream={onClose}
-                isLoading={isLoading}
-                hasError={hasError}
-                errorMessage={errorMessage}
+                isLoading={!isConnected}
+                hasError={!!error}
+                errorMessage={error || ''}
                 onRetryConnection={handleRetryConnection}
                 availableLanguages={availableLanguages}
                 onLanguageChange={handleLanguageChange}
                 currentLanguage={currentLanguage}
+                isRecording={isRecording}
+                isSpeaking={isSpeaking}
               />
             </div>
             
             {/* Chat area - only show if not in error state or if explicitly toggled */}
-            {showChat && !isLoading && (
+            {showChat && (
               <LiveChatArea 
                 messages={messages}
-                message={message}
-                setMessage={setMessage}
-                handleQuestionSubmit={handleQuestionSubmit}
-                disabled={hasError}
+                currentMessage={currentMessage}
+                onMessageChange={setCurrentMessage}
+                onSubmitMessage={handleQuestionSubmit}
+                disabled={!isConnected}
               />
             )}
           </div>

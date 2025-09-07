@@ -16,6 +16,8 @@ interface LiveVideoAreaProps {
   availableLanguages?: string[];
   onLanguageChange?: (language: string) => void;
   currentLanguage?: string;
+  isRecording?: boolean;
+  isSpeaking?: boolean;
 }
 
 const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({ 
@@ -27,7 +29,9 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
   onRetryConnection,
   availableLanguages = [],
   onLanguageChange,
-  currentLanguage = 'en'
+  currentLanguage = 'en',
+  isRecording = false,
+  isSpeaking = false
 }) => {
   const { calmMode } = useCalmMode();
   const { t } = useLanguage();
@@ -113,12 +117,18 @@ const LiveVideoArea: React.FC<LiveVideoAreaProps> = ({
       
       {/* Placeholder for video */}
       <div className="text-center text-white">
-        <Video className="h-16 w-16 mx-auto mb-4 opacity-50" />
-        <h3 className="text-xl font-medium">Live Session Demo</h3>
+        <Video className={`h-16 w-16 mx-auto mb-4 opacity-50 ${isSpeaking ? 'text-green-500 animate-pulse' : ''}`} />
+        <h3 className="text-xl font-medium">
+          {isRecording ? "🎙️ Recording..." : "Live Session Active"}
+        </h3>
         <p className={`mt-2 ${calmMode ? 'text-calm-textSecondary' : 'text-gray-400'}`}>
-          This is a placeholder for a real video stream.<br />
-          In a real app, this would be connected to a live streaming service.
+          {isSpeaking ? "AI is speaking..." : isRecording ? "Listening for audio..." : "Audio streaming active"}
         </p>
+        {isRecording && (
+          <div className="mt-2">
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mx-auto"></div>
+          </div>
+        )}
       </div>
       
       {/* Host controls overlay - in a real app, these would only be visible to the host */}

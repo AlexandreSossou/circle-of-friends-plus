@@ -9,17 +9,17 @@ import { AlertCircle } from 'lucide-react';
 
 interface LiveChatAreaProps {
   messages: LiveMessage[];
-  message: string;
-  setMessage: (message: string) => void;
-  handleQuestionSubmit: (e: FormEvent) => void;
+  currentMessage: string;
+  onMessageChange: (message: string) => void;
+  onSubmitMessage: (e: FormEvent) => void;
   disabled?: boolean;
 }
 
 const LiveChatArea: React.FC<LiveChatAreaProps> = ({ 
   messages, 
-  message, 
-  setMessage, 
-  handleQuestionSubmit,
+  currentMessage, 
+  onMessageChange, 
+  onSubmitMessage,
   disabled = false
 }) => {
   const { calmMode } = useCalmMode();
@@ -54,20 +54,20 @@ const LiveChatArea: React.FC<LiveChatAreaProps> = ({
         )}
       </ScrollArea>
       
-      <form onSubmit={handleQuestionSubmit} className={`p-3 border-t ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
+      <form onSubmit={onSubmitMessage} className={`p-3 border-t ${calmMode ? 'border-calm-border' : 'border-gray-200'}`}>
         <div className="flex gap-2">
           <Input
             type="text"
             placeholder={disabled ? "Chat currently unavailable" : "Ask a question..."}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={currentMessage}
+            onChange={(e) => onMessageChange(e.target.value)}
             className={`flex-1 ${calmMode ? 'bg-calm-muted border-calm-border' : ''}`}
             disabled={disabled}
           />
           <Button 
             type="submit" 
             className={calmMode ? 'bg-calm-primary hover:bg-calm-primary/90 text-calm-text' : ''}
-            disabled={disabled}
+            disabled={disabled || !currentMessage.trim()}
           >
             Send
           </Button>
