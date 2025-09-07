@@ -37,8 +37,23 @@ const ProfileActions = ({
   // Check if user has partners to show "Message Couple" button
   const hasPartners = profileData && (
     (profileData.partners && profileData.partners.length > 0) ||
-    (profileData.private_partners && profileData.private_partners.length > 0)
+    (profileData.private_partners && profileData.private_partners.length > 0) ||
+    profileData.marital_status === "Couple / Married" ||
+    profileData.marital_status === "Open Relationship" ||
+    profileData.marital_status === "Polyamorous" ||
+    profileData.private_marital_status === "Couple / Married" ||
+    profileData.private_marital_status === "Open Relationship" ||
+    profileData.private_marital_status === "Polyamorous"
   );
+
+  console.log("ProfileActions Debug:", {
+    profileData,
+    hasPartners,
+    partners: profileData?.partners,
+    privatePartners: profileData?.private_partners,
+    maritalStatus: profileData?.marital_status,
+    privateMaritalStatus: profileData?.private_marital_status
+  });
 
   const handleSendFriendRequest = () => {
     sendRequest(profileId);
