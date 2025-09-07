@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send } from "lucide-react";
+import { Send, Users } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/context/AuthContext";
 
@@ -11,6 +11,14 @@ type Contact = {
   id: string;
   full_name: string;
   avatar_url: string | null;
+};
+
+type PartnerGroup = {
+  id: string;
+  full_name: string;
+  avatar_url: string | null;
+  isPartnerGroup: true;
+  partners: Contact[];
 };
 
 type Message = {
@@ -23,7 +31,7 @@ type Message = {
 };
 
 interface ChatInterfaceProps {
-  selectedContact: Contact | null;
+  selectedContact: Contact | PartnerGroup | null;
   messages: Message[] | undefined;
   onSendMessage: (content: string) => void;
 }
@@ -57,15 +65,31 @@ const ChatInterface = ({
     <>
       {/* Contact header */}
       <div className="p-4 border-b border-gray-200 flex items-center gap-3">
-        <Avatar>
-          <AvatarImage src={selectedContact.avatar_url || "/placeholder.svg"} />
-          <AvatarFallback>
-            {selectedContact.full_name.split(" ").map(n => n[0]).join("")}
-          </AvatarFallback>
-        </Avatar>
-        <div>
-          <h2 className="font-medium">{selectedContact.full_name}</h2>
-        </div>
+        {'isPartnerGroup' in selectedContact && selectedContact.isPartnerGroup ? (
+          <>
+            <div className="relative">
+              <Users className="h-8 w-8 p-1 bg-primary text-primary-foreground rounded-full" />
+            </div>
+            <div>
+              <h2 className="font-medium">{selectedContact.full_name}</h2>
+              <p className="text-sm text-social-textSecondary">
+                {selectedContact.partners.map(p => p.full_name).join(", ")}
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <Avatar>
+              <AvatarImage src={selectedContact.avatar_url || "/placeholder.svg"} />
+              <AvatarFallback>
+                {selectedContact.full_name.split(" ").map(n => n[0]).join("")}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="font-medium">{selectedContact.full_name}</h2>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Messages */}

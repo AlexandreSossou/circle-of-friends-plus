@@ -15,6 +15,7 @@ const Messages = () => {
     searchTerm,
     setSearchTerm,
     sendMessage,
+    partnerGroup,
   } = useMessages();
 
   return (
@@ -30,6 +31,7 @@ const Messages = () => {
             searchResults={searchResults}
             selectedContact={selectedContact}
             onSelectContact={setSelectedContact}
+            partnerGroup={partnerGroup}
           />
 
           {/* Messages area */}

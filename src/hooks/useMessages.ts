@@ -4,11 +4,20 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { useRelationshipStatus } from "@/hooks/useRelationshipStatus";
 
 type Contact = {
   id: string;
   full_name: string;
   avatar_url: string | null;
+};
+
+type PartnerGroup = {
+  id: string;
+  full_name: string;
+  avatar_url: string | null;
+  isPartnerGroup: true;
+  partners: Contact[];
 };
 
 type Message = {
@@ -24,8 +33,9 @@ export const useMessages = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [selectedContact, setSelectedContact] = useState<Contact | PartnerGroup | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const { partners, potentialPartners } = useRelationshipStatus();
 
   // Fetch contacts (people who have messaged with the current user)
   const { 
@@ -140,9 +150,108 @@ export const useMessages = () => {
     enabled: !!searchTerm && searchTerm.length >= 2 && !!user,
   });
 
+  // Create partner group if user has partners
+  const partnerGroup: PartnerGroup | undefined = (() => {
+    if (!partners || partners.length === 0) return undefined;
+    
+    const partnerContacts = partners
+      .map(partnerId => potentialPartners.find(p => p.id === partnerId))
+      .filter((partner): partner is Contact => !!partner)
+      .map(partner => ({
+        id: partner.id,
+        full_name: partner.full_name,
+        avatar_url: null
+      }));
+    
+    if (partnerContacts.length === 0) return undefined;
+    
+    return {
+      id: 'partners-group',
+      full_name: 'Message Both Partners',
+      avatar_url: null,
+      isPartnerGroup: true as const,
+      partners: partnerContacts
+    };
+  })();
+
   // Send a message with enhanced security validation
   const sendMessage = async (content: string) => {
     if (!user || !selectedContact) return;
+
+    try {
+      // Validate content before sending using secure validation
+      const { data: validationResult, error: validationError } = await supabase.functions.invoke('secure-content-validation', {
+        body: {
+          content: content.trim(),
+          userId: user.id,
+          contentType: 'message'
+        }
+      });
+
+      if (validationError) {
+        console.error('Content validation failed:', validationError);
+        toast({
+          title: "Validation Error",
+          description: "Unable to validate message content. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Block message if flagged with high severity
+      if (validationResult?.flagged && validationResult.severityLevel === 'high') {
+        toast({
+          title: "Message Blocked",
+          description: "Your message violates our community guidelines and cannot be sent.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Show warning for medium severity but allow sending
+      if (validationResult?.flagged && validationResult.severityLevel === 'medium') {
+        toast({
+          title: "Content Warning",
+          description: "Your message has been flagged for review but will be sent.",
+          variant: "default"
+        });
+      }
+
+      // Handle partner group messaging
+      if ('isPartnerGroup' in selectedContact && selectedContact.isPartnerGroup) {
+        const recipients = selectedContact.partners;
+        
+        for (const recipient of recipients) {
+          await sendSingleMessage(content, recipient.id);
+        }
+        
+        toast({
+          title: "Messages sent",
+          description: `Your message has been sent to ${recipients.length} partners.`
+        });
+        return;
+      }
+
+      // Handle single contact messaging
+      await sendSingleMessage(content, selectedContact.id);
+      
+      toast({
+        title: "Message sent",
+        description: "Your message has been delivered."
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Helper function to send message to a single recipient
+  const sendSingleMessage = async (content: string, recipientId: string) => {
+    if (!user) return;
 
     try {
       // Validate content before sending using secure validation
@@ -188,7 +297,7 @@ export const useMessages = () => {
         .from("messages")
         .insert({
           sender_id: user.id,
-          recipient_id: selectedContact.id,
+          recipient_id: recipientId,
           content: content.trim(),
         })
         .select()
@@ -198,18 +307,9 @@ export const useMessages = () => {
 
       refetchMessages();
       refetchContacts();
-      
-      toast({
-        title: "Message sent",
-        description: "Your message has been delivered."
-      });
     } catch (error) {
       console.error("Error sending message:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
+      throw error;
     }
   };
 
@@ -244,5 +344,6 @@ export const useMessages = () => {
     searchTerm,
     setSearchTerm,
     sendMessage,
+    partnerGroup,
   };
 };

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Users } from "lucide-react";
 
 type Contact = {
   id: string;
@@ -10,13 +10,22 @@ type Contact = {
   avatar_url: string | null;
 };
 
+type PartnerGroup = {
+  id: string;
+  full_name: string;
+  avatar_url: string | null;
+  isPartnerGroup: true;
+  partners: Contact[];
+};
+
 interface ContactListProps {
   contacts: Contact[] | undefined;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
   searchResults: Contact[] | undefined;
-  selectedContact: Contact | null;
-  onSelectContact: (contact: Contact) => void;
+  selectedContact: Contact | PartnerGroup | null;
+  onSelectContact: (contact: Contact | PartnerGroup) => void;
+  partnerGroup?: PartnerGroup;
 }
 
 const ContactList = ({
@@ -26,6 +35,7 @@ const ContactList = ({
   searchResults,
   selectedContact,
   onSelectContact,
+  partnerGroup,
 }: ContactListProps) => {
   // We'll display either search results when searching or contacts when not searching
   const displayContacts = searchTerm && searchResults ? searchResults : contacts;
@@ -71,6 +81,38 @@ const ContactList = ({
           </div>
         ) : (
           <>
+            {/* Partner Group Option */}
+            {partnerGroup && (
+              <>
+                <div className="px-4 py-2 bg-gray-50">
+                  <h3 className="text-xs font-medium text-social-textSecondary">PARTNERS</h3>
+                </div>
+                <div
+                  className={`flex items-center gap-3 p-3 cursor-pointer ${
+                    selectedContact?.id === partnerGroup.id ? "bg-social-lightblue" : "hover:bg-social-gray"
+                  }`}
+                  onClick={() => onSelectContact(partnerGroup)}
+                >
+                  <div className="relative">
+                    <Users className="h-8 w-8 p-1 bg-primary text-primary-foreground rounded-full" />
+                  </div>
+                  <div>
+                    <p className="font-medium">{partnerGroup.full_name}</p>
+                    <p className="text-sm text-social-textSecondary">
+                      {partnerGroup.partners.length} partners
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
+            
+            {/* Contacts Section */}
+            {displayContacts && displayContacts.length > 0 && (
+              <div className="px-4 py-2 bg-gray-50">
+                <h3 className="text-xs font-medium text-social-textSecondary">CONTACTS</h3>
+              </div>
+            )}
+            
             {displayContacts && displayContacts.length > 0 ? (
               displayContacts.map((contact) => (
                 <div
@@ -91,12 +133,12 @@ const ContactList = ({
                   </div>
                 </div>
               ))
-            ) : (
+            ) : !partnerGroup ? (
               <div className="p-6 text-center text-social-textSecondary">
                 <p>No conversations yet</p>
                 <p className="text-sm mt-1">Search for friends to start messaging</p>
               </div>
-            )}
+            ) : null}
           </>
         )}
 
