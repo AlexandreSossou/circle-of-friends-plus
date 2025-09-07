@@ -58,7 +58,7 @@ const mockSessions: LiveSession[] = [
 ];
 
 export const useLiveSessions = () => {
-  const [sessions, setSessions] = useState<LiveSession[]>(mockSessions);
+  const [sessions, setSessions] = useState<LiveSession[]>([]);
   const [activeSession, setActiveSession] = useState<LiveSession | null>(null);
   const [isViewingLive, setIsViewingLive] = useState(false);
   const joiningRef = useRef(false);
