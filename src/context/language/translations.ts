@@ -5,7 +5,7 @@ import { Language, TranslationRecord } from './types';
 const translations: TranslationRecord = {
   en: {
     // General
-    "app.name": "CircleHub",
+    "app.name": "Lovaville",
     "app.tagline": "Connect with friends and the world around you",
     
     // Auth
@@ -41,7 +41,7 @@ const translations: TranslationRecord = {
   },
   es: {
     // General
-    "app.name": "CircleHub",
+    "app.name": "Lovaville",
     "app.tagline": "Conéctate con amigos y el mundo que te rodea",
     
     // Auth
@@ -77,7 +77,7 @@ const translations: TranslationRecord = {
   },
   fr: {
     // General
-    "app.name": "CircleHub",
+    "app.name": "Lovaville",
     "app.tagline": "Connectez-vous avec vos amis et le monde qui vous entoure",
     
     // Auth
@@ -113,7 +113,7 @@ const translations: TranslationRecord = {
   },
   de: {
     // General
-    "app.name": "CircleHub",
+    "app.name": "Lovaville",
     "app.tagline": "Verbinde dich mit Freunden und der Welt um dich herum",
     
     // Auth

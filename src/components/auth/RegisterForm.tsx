@@ -71,7 +71,7 @@ const RegisterForm = () => {
           <div className="text-center">
             <h1 className="text-2xl font-bold text-social-blue">Create an Account</h1>
             <p className="text-social-textSecondary mt-2">
-              Join CircleHub to connect with friends and share moments
+              Join Lovaville to connect with friends and share moments
             </p>
           </div>
 

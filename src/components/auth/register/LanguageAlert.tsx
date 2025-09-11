@@ -12,7 +12,7 @@ const LanguageAlert = () => {
     <Alert className="bg-blue-50 border-blue-200">
       <Info className="h-4 w-4 text-blue-500" />
       <AlertDescription className="text-sm text-blue-700">
-        For the best experience connecting with our global community, consider using CircleHub in English. You can change your language preference anytime in settings.
+        For the best experience connecting with our global community, consider using Lovaville in English. You can change your language preference anytime in settings.
       </AlertDescription>
     </Alert>
   );

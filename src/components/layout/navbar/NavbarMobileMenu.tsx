@@ -38,7 +38,7 @@ const NavbarMobileMenu = ({ user, unreadMessages }: NavbarMobileMenuProps) => {
             </div>
             <Input
               type="search"
-              placeholder="Search CircleHub..."
+              placeholder="Search Lovaville..."
               className="pl-10 bg-social-gray rounded-full border-none"
             />
           </div>

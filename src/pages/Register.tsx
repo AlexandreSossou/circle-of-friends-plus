@@ -38,7 +38,7 @@ const Register = () => {
             <Link to="/terms" className="hover:underline">Terms</Link>
             <Link to="/help" className="hover:underline">Help</Link>
           </div>
-          <p className="mt-4">© 2025 CircleHub. All rights reserved.</p>
+          <p className="mt-4">© 2025 Lovaville. All rights reserved.</p>
         </div>
       </footer>
     </div>
