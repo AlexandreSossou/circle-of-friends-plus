@@ -39,6 +39,14 @@ const Register = () => {
             <Link to="/help" className="hover:underline">Help</Link>
           </div>
           <p className="mt-4">© 2025 Lovaville. All rights reserved.</p>
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <img 
+              src="/src/assets/moderering-logo.png" 
+              alt="Moderering" 
+              className="h-8 w-auto"
+            />
+            <p className="text-xs">Created and moderated by moderering.com</p>
+          </div>
         </div>
       </footer>
     </div>
