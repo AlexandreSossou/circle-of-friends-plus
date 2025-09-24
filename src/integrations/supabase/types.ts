@@ -1202,6 +1202,12 @@ export type Database = {
           username: string
         }[]
       }
+      get_user_group_memberships: {
+        Args: { user_uuid: string }
+        Returns: {
+          group_id: string
+        }[]
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1217,7 +1223,15 @@ export type Database = {
         Args: { group_uuid: string }
         Returns: boolean
       }
+      is_group_public: {
+        Args: { group_uuid: string }
+        Returns: boolean
+      }
       is_user_group_member: {
+        Args: { group_uuid: string; user_uuid: string }
+        Returns: boolean
+      }
+      is_user_group_member_safe: {
         Args: { group_uuid: string; user_uuid: string }
         Returns: boolean
       }
