@@ -104,11 +104,12 @@ const ProfileHeader = ({
         isOwnProfile={isOwnProfile} 
         coverPhotoUrl={profileData?.cover_photo_url}
         onCoverUpdate={handleCoverUpdate}
+        onAvatarUpdate={handleAvatarUpdate}
       />
       <ProfileAvatar 
         avatarUrl={currentAvatar} 
         isOwnProfile={isOwnProfile} 
-        onAvatarUpdate={handleAvatarUpdate}
+        libido={profileData?.libido}
       />
 
       <div className="p-4 md:p-6 pt-16 md:pt-20">

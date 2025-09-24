@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { CameraIcon } from "lucide-react";
 import { useRef, useState } from "react";
@@ -10,13 +9,15 @@ interface ProfileCoverProps {
   isOwnProfile: boolean;
   coverPhotoUrl?: string;
   onCoverUpdate: (url: string) => void;
+  onAvatarUpdate: (url: string) => void;
 }
 
-const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate }: ProfileCoverProps) => {
+const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpdate }: ProfileCoverProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadType, setUploadType] = useState<'cover' | 'avatar'>('cover');
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -45,25 +46,35 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate }: ProfileCov
     setIsUploading(true);
 
     try {
-      console.log('Starting cover photo upload for user:', user.id);
-      const result = await uploadPhoto(file, 'covers', user.id);
+      const bucket = uploadType === 'cover' ? 'covers' : 'avatars';
+      console.log(`Starting ${uploadType} photo upload for user:`, user.id);
+      const result = await uploadPhoto(file, bucket, user.id);
       console.log('Upload result:', result);
       
       if (result.success && result.url) {
-        console.log('Calling onCoverUpdate with URL:', result.url);
-        onCoverUpdate(result.url);
-        toast({
-          title: "Cover photo updated",
-          description: "Your cover photo has been updated successfully."
-        });
+        if (uploadType === 'cover') {
+          console.log('Calling onCoverUpdate with URL:', result.url);
+          onCoverUpdate(result.url);
+          toast({
+            title: "Cover photo updated",
+            description: "Your cover photo has been updated successfully."
+          });
+        } else {
+          console.log('Calling onAvatarUpdate with URL:', result.url);
+          onAvatarUpdate(result.url);
+          toast({
+            title: "Profile picture updated",
+            description: "Your profile picture has been updated successfully."
+          });
+        }
       } else {
         throw new Error(result.error || 'Upload failed');
       }
     } catch (error) {
-      console.error('Error uploading cover photo:', error);
+      console.error(`Error uploading ${uploadType} photo:`, error);
       toast({
         title: "Upload failed",
-        description: "Failed to update cover photo. Please try again.",
+        description: `Failed to update ${uploadType === 'cover' ? 'cover photo' : 'profile picture'}. Please try again.`,
         variant: "destructive"
       });
     } finally {
@@ -72,6 +83,12 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate }: ProfileCov
   };
 
   const handleEditCover = () => {
+    setUploadType('cover');
+    fileInputRef.current?.click();
+  };
+
+  const handleEditAvatar = () => {
+    setUploadType('avatar');
     fileInputRef.current?.click();
   };
 
@@ -84,7 +101,17 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate }: ProfileCov
       />
       {isOwnProfile && (
         <>
-          <div className="absolute bottom-4 right-4">
+          <div className="absolute bottom-4 right-4 flex gap-2">
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="flex items-center gap-1"
+              onClick={handleEditAvatar}
+              disabled={isUploading}
+            >
+              <CameraIcon className="w-4 h-4" />
+              <span>{isUploading && uploadType === 'avatar' ? 'Uploading...' : 'Edit Profile'}</span>
+            </Button>
             <Button 
               variant="secondary" 
               size="sm" 
@@ -93,7 +120,7 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate }: ProfileCov
               disabled={isUploading}
             >
               <CameraIcon className="w-4 h-4" />
-              <span>{isUploading ? 'Uploading...' : 'Edit Cover'}</span>
+              <span>{isUploading && uploadType === 'cover' ? 'Uploading...' : 'Edit Cover'}</span>
             </Button>
           </div>
           <input
