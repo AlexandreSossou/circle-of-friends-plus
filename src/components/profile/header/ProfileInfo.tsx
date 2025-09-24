@@ -160,11 +160,6 @@ const ProfileInfo = ({
             )}
           </div>
         )}
-        
-        
-        <p className="text-social-textSecondary">
-          {profileType === "private" ? "Private connections" : "568 friends"}
-        </p>
       </div>
     </div>
   );
