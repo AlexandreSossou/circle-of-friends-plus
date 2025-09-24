@@ -8,6 +8,7 @@ import { LocalAlertList } from "@/components/announcements/LocalAlertList";
 import { EmptyLocalAlertState } from "@/components/announcements/EmptyLocalAlertState";
 import { Megaphone, Info } from "lucide-react";
 import { useLocalAlerts } from "@/hooks/useLocalAlerts";
+import { Link } from "react-router-dom";
 
 const LocalAlerts = () => {
   const {
@@ -71,7 +72,15 @@ const LocalAlerts = () => {
           <Info className="h-4 w-4" />
           <AlertDescription>
             Local alerts are for immediate desires or events happening now or within the next 12 hours max. 
-            For organizing activities in the coming days or months, use the Travels or Events features instead.
+            For organizing activities in the coming days or months, use the{" "}
+            <Link to="/travels" className="text-primary underline hover:no-underline">
+              Travels
+            </Link>{" "}
+            or{" "}
+            <Link to="/events" className="text-primary underline hover:no-underline">
+              Events
+            </Link>{" "}
+            features instead.
           </AlertDescription>
         </Alert>
 
