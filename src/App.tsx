@@ -18,6 +18,7 @@ import FriendSearch from "./pages/FriendSearch";
 import Groups from "./pages/Groups";
 import Travels from "./pages/Travels";
 import Events from "./pages/Events";
+import EventDetail from "./pages/EventDetail";
 import LocalAlerts from "./pages/LocalAlerts";
 import News from "./pages/News";
 import Messages from "./pages/Messages";
@@ -54,6 +55,7 @@ const App = () => (
                   <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
                   <Route path="/travels" element={<ProtectedRoute><Travels /></ProtectedRoute>} />
                   <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
+                  <Route path="/events/:id" element={<ProtectedRoute><EventDetail /></ProtectedRoute>} />
                   <Route path="/announcements" element={<ProtectedRoute><LocalAlerts /></ProtectedRoute>} />
                   <Route path="/news" element={<ProtectedRoute><News /></ProtectedRoute>} />
                   <Route path="/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
