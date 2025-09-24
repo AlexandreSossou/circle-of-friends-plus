@@ -52,10 +52,11 @@ export const useLocalAlerts = () => {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      // First, fetch announcements
+      // First, fetch announcements that haven't expired
       const { data: announcements, error: announcementsError } = await supabase
         .from("announcements")
         .select("*")
+        .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: false });
 
       if (announcementsError) {

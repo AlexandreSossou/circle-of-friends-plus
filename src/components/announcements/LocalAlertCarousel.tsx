@@ -23,16 +23,10 @@ export const LocalAlertCarousel = ({ userLocation }: LocalAlertCarouselProps) =>
     queryFn: async () => {
       if (!user?.id || !userLocation) return [];
 
-      let query = supabase
+      // First get announcements
+      const { data: announcements, error } = await supabase
         .from("announcements")
-        .select(`
-          *,
-          profiles:user_id(
-            id,
-            full_name,
-            avatar_url
-          )
-        `)
+        .select("*")
         .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: false })
         .limit(10);
@@ -45,30 +39,44 @@ export const LocalAlertCarousel = ({ userLocation }: LocalAlertCarouselProps) =>
         userLocation.split(',')[0]?.trim().toLowerCase()
       ].filter(Boolean);
 
-      // Use OR condition to match any of the location variations
-      const { data, error } = await query
-        .or(locationVariations.map(loc => `location.ilike.%${loc}%`).join(','));
-
       if (error) {
         console.error("Error fetching regional local alerts:", error);
         return [];
       }
 
-      // Get profiles for each local alert
-      const localAlertsWithProfiles = await Promise.all(
-        (data || []).map(async (localAlert) => {
-          const { data: profileData } = await supabase
-            .from("profiles")
-            .select("id, full_name, avatar_url")
-            .eq("id", localAlert.user_id)
-            .single();
+      if (!announcements || announcements.length === 0) {
+        return [];
+      }
 
-          return {
-            ...localAlert,
-            profiles: profileData || { id: localAlert.user_id, full_name: null, avatar_url: null }
-          };
-        })
+      // Filter by location
+      const filteredAnnouncements = announcements.filter(announcement => 
+        locationVariations.some(loc => 
+          announcement.location.toLowerCase().includes(loc.toLowerCase())
+        )
       );
+
+      // Get unique user IDs
+      const userIds = [...new Set(filteredAnnouncements.map(a => a.user_id))];
+      
+      if (userIds.length === 0) {
+        return [];
+      }
+
+      // Fetch profiles for these users
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", userIds);
+
+      // Combine announcements with profile data
+      const localAlertsWithProfiles = filteredAnnouncements.map(announcement => ({
+        ...announcement,
+        profiles: profiles?.find(p => p.id === announcement.user_id) || {
+          id: announcement.user_id,
+          full_name: null,
+          avatar_url: null
+        }
+      }));
 
       return localAlertsWithProfiles as LocalAlert[];
     },
