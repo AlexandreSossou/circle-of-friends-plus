@@ -141,7 +141,7 @@ const ProfileContent = ({
 
         <TabsContent value="safety">
           <Vouch 
-            profileId={isOwnProfile && currentUserId ? currentUserId : ""}
+            profileId={profileData.id}
             isOwnProfile={isOwnProfile}
             currentUserId={currentUserId}
             friends={friendsList}
