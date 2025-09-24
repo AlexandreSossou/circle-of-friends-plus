@@ -51,8 +51,8 @@ const Index = () => {
 
   return (
     <MainLayout>
-      <FeedFilter activeFeed={activeFeed} onFeedChange={handleFeedChange} />
       <LiveSessionsCarousel sessions={liveSessions} />
+      <FeedFilter activeFeed={activeFeed} onFeedChange={handleFeedChange} />
       <CreatePostCard />
       <PostsList posts={posts} isLoading={isLoading} feedType={activeFeed} onPostDeleted={handlePostDeleted} />
     </MainLayout>
