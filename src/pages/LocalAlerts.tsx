@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LocalAlertForm } from "@/components/announcements/LocalAlertForm";
-import { LocalAlertCarousel } from "@/components/announcements/LocalAlertCarousel";
+import { LocalAlertList } from "@/components/announcements/LocalAlertList";
 import { EmptyLocalAlertState } from "@/components/announcements/EmptyLocalAlertState";
 import { Megaphone, Info } from "lucide-react";
 import { useLocalAlerts } from "@/hooks/useLocalAlerts";
@@ -91,7 +91,7 @@ const LocalAlerts = () => {
         )}
 
         {localAlerts.length > 0 ? (
-          <LocalAlertCarousel 
+          <LocalAlertList 
             localAlerts={localAlerts} 
             onDelete={(id) => deleteLocalAlertMutation.mutate(id)} 
           />
