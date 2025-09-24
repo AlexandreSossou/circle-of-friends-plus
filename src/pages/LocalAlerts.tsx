@@ -70,8 +70,8 @@ const LocalAlerts = () => {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            Local alerts help you connect with people in your area. Use them to organize meetups, 
-            find activity partners, or share local information with your community.
+            Local alerts are for immediate desires or events happening now or within the next 12 hours max. 
+            For organizing activities in the coming days or months, use the Travels or Events features instead.
           </AlertDescription>
         </Alert>
 
