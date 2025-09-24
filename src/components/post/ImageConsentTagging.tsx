@@ -22,10 +22,12 @@ const ImageConsentTagging: React.FC<ImageConsentTaggingProps> = ({
   onTaggedUsersChange
 }) => {
   const [showTagging, setShowTagging] = useState(false);
+  const [inputValue, setInputValue] = useState("");
 
   if (!imagePreview) return null;
 
   const handleUserSelect = (text: string, users: TaggedUser[]) => {
+    setInputValue(text);
     onTaggedUsersChange(users);
   };
 
@@ -52,7 +54,7 @@ const ImageConsentTagging: React.FC<ImageConsentTaggingProps> = ({
             Tag people who need to consent to this image:
           </div>
           <UserMentionInput
-            value=""
+            value={inputValue}
             onChange={handleUserSelect}
             placeholder="Type @ to tag someone..."
             className="text-sm"
@@ -60,7 +62,10 @@ const ImageConsentTagging: React.FC<ImageConsentTaggingProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowTagging(false)}
+            onClick={() => {
+              setShowTagging(false);
+              setInputValue("");
+            }}
           >
             Done tagging
           </Button>
