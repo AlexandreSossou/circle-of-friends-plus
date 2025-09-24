@@ -3,93 +3,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LocalAlert } from "@/types/localAlert";
-import { useAuth } from "@/context/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, MapPin } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Trash2 } from "lucide-react";
+import { formatDistance } from "date-fns";
 
 interface LocalAlertCarouselProps {
-  userLocation?: string;
+  localAlerts: LocalAlert[];
+  onDelete: (id: string) => void;
 }
 
-export const LocalAlertCarousel = ({ userLocation }: LocalAlertCarouselProps) => {
-  const { user } = useAuth();
+export const LocalAlertCarousel = ({ localAlerts, onDelete }: LocalAlertCarouselProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isCollapsed, setIsCollapsed] = useState(false);
-
-  // Fetch regional local alerts
-  const { data: localAlerts = [] } = useQuery({
-    queryKey: ["regionalLocalAlerts", userLocation],
-    queryFn: async () => {
-      if (!user?.id || !userLocation) return [];
-
-      // First get announcements
-      const { data: announcements, error } = await supabase
-        .from("announcements")
-        .select("*")
-        .gt("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      // Try different location matching strategies
-      const locationVariations = [
-        userLocation,
-        userLocation.toLowerCase(),
-        userLocation.split(',')[0], // First part of location
-        userLocation.split(',')[0]?.trim().toLowerCase()
-      ].filter(Boolean);
-
-      if (error) {
-        console.error("Error fetching regional local alerts:", error);
-        return [];
-      }
-
-      if (!announcements || announcements.length === 0) {
-        return [];
-      }
-
-      // Filter by location
-      const filteredAnnouncements = announcements.filter(announcement => 
-        locationVariations.some(loc => 
-          announcement.location.toLowerCase().includes(loc.toLowerCase())
-        )
-      );
-
-      // Get unique user IDs
-      const userIds = [...new Set(filteredAnnouncements.map(a => a.user_id))];
-      
-      if (userIds.length === 0) {
-        return [];
-      }
-
-      // Fetch profiles for these users
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", userIds);
-
-      // Combine announcements with profile data
-      const localAlertsWithProfiles = filteredAnnouncements.map(announcement => ({
-        ...announcement,
-        profiles: profiles?.find(p => p.id === announcement.user_id) || {
-          id: announcement.user_id,
-          full_name: null,
-          avatar_url: null
-        }
-      }));
-
-      return localAlertsWithProfiles as LocalAlert[];
-    },
-    enabled: !!user && !!userLocation,
-    refetchInterval: 30000, // Refresh every 30 seconds
-  });
 
   // Auto-rotate carousel
   useEffect(() => {
     if (localAlerts.length > 1) {
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % localAlerts.length);
-      }, 2500); // Change every 2.5 seconds
+      }, 4000); // Change every 4 seconds
 
       return () => clearInterval(interval);
     }
@@ -113,65 +43,58 @@ export const LocalAlertCarousel = ({ userLocation }: LocalAlertCarouselProps) =>
   };
 
   if (localAlerts.length === 0) {
-    return (
-      <Card className="mb-6">
-        <CardContent className="p-4 text-center">
-          <p className="text-sm text-social-textSecondary">
-            No local alerts in your area right now
-          </p>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   const currentLocalAlert = localAlerts[currentIndex];
 
   return (
-    <Card className="mb-6 overflow-hidden">
-      <div className="flex items-center justify-between p-2 bg-social-lightblue border-b">
-        <span className="text-xs font-medium text-social-blue">Local Alerts in Your Area</span>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-6 w-6 p-0"
-        >
-          {isCollapsed ? <ChevronDown className="h-3 w-3" /> : <ChevronUp className="h-3 w-3" />}
-        </Button>
-      </div>
-      
-      {!isCollapsed && (
-        <CardContent className="p-4">
+    <div className="space-y-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-6">
           <div className="relative">
-            <div className="flex items-start gap-3">
-              <Avatar className="w-10 h-10">
+            <div className="flex items-start gap-4">
+              <Avatar className="w-12 h-12">
                 <AvatarImage 
-                  src={currentLocalAlert.profiles.avatar_url || "/placeholder.svg"} 
-                  alt={currentLocalAlert.profiles.full_name || "User"} 
+                  src={currentLocalAlert.profiles?.avatar_url || "/placeholder.svg"} 
+                  alt={currentLocalAlert.profiles?.full_name || "User"} 
                 />
-                <AvatarFallback className="text-xs">
-                  {getUserInitials(currentLocalAlert.profiles.full_name)}
+                <AvatarFallback>
+                  {getUserInitials(currentLocalAlert.profiles?.full_name)}
                 </AvatarFallback>
               </Avatar>
               
               <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-sm leading-tight mb-1">
-                  {currentLocalAlert.title}
-                </h4>
+                <div className="flex items-start justify-between">
+                  <h3 className="font-semibold text-lg leading-tight mb-2">
+                    {currentLocalAlert.title}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDelete(currentLocalAlert.id)}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
                 
                 {currentLocalAlert.description && (
-                  <p className="text-xs text-social-textSecondary mb-2 line-clamp-2">
+                  <p className="text-social-textSecondary mb-3 leading-relaxed">
                     {currentLocalAlert.description}
                   </p>
                 )}
                 
-                <div className="flex items-center gap-3 text-xs text-social-textSecondary">
+                <div className="flex items-center gap-4 text-sm text-social-textSecondary">
                   <div className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    <span className="truncate">{currentLocalAlert.location}</span>
+                    <MapPin className="w-4 h-4" />
+                    <span>{currentLocalAlert.location}</span>
                   </div>
-                  <span className="px-2 py-0.5 bg-social-lightblue text-social-blue rounded text-xs">
+                  <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
                     {currentLocalAlert.category}
+                  </span>
+                  <span>
+                    {formatDistance(new Date(currentLocalAlert.created_at), new Date(), { addSuffix: true })}
                   </span>
                 </div>
               </div>
@@ -180,40 +103,47 @@ export const LocalAlertCarousel = ({ userLocation }: LocalAlertCarouselProps) =>
             {localAlerts.length > 1 && (
               <>
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  variant="outline"
+                  size="icon"
                   onClick={prevSlide}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 h-8 w-8 rounded-full bg-background shadow-md"
                 >
-                  <ChevronLeft className="h-3 w-3" />
+                  <ChevronLeft className="h-4 w-4" />
                 </Button>
                 
                 <Button
-                  variant="ghost"
-                  size="sm"
+                  variant="outline"
+                  size="icon"
                   onClick={nextSlide}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 p-0 bg-white/80 hover:bg-white"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 h-8 w-8 rounded-full bg-background shadow-md"
                 >
-                  <ChevronRight className="h-3 w-3" />
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               </>
             )}
           </div>
 
           {localAlerts.length > 1 && (
-            <div className="flex justify-center gap-1 mt-3">
+            <div className="flex justify-center gap-2 mt-6">
               {localAlerts.map((_, index) => (
-                <div
+                <button
                   key={index}
-                  className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                    index === currentIndex ? "bg-social-blue" : "bg-gray-300"
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentIndex ? "bg-primary" : "bg-muted hover:bg-muted-foreground/50"
                   }`}
                 />
               ))}
             </div>
           )}
         </CardContent>
+      </Card>
+
+      {localAlerts.length > 1 && (
+        <div className="text-center text-sm text-social-textSecondary">
+          Showing {currentIndex + 1} of {localAlerts.length} local alerts
+        </div>
       )}
-    </Card>
+    </div>
   );
 };
