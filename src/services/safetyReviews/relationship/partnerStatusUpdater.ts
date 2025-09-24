@@ -11,14 +11,14 @@ export const updateRemovedPartners = async (
   for (const partnerIdToUpdate of removedPartners) {
     console.log(`Updating removed partner status for: ${partnerIdToUpdate}`);
     
-    const partnerUpdateData: PartnerUpdateData = profileType === "private" ? {
+    // Update BOTH public and private profile types to ensure consistency
+    const partnerUpdateData: PartnerUpdateData = {
+      marital_status: "Single",
+      partner_id: null,
+      partners: [],
       private_marital_status: "Single",
       private_partner_id: null,
       private_partners: []
-    } : {
-      marital_status: "Single",
-      partner_id: null,
-      partners: []
     };
     
     const { error: partnerUpdateError } = await supabase
@@ -51,68 +51,55 @@ export const updateNewPartners = async (
   for (const partnerToUpdate of currentPartners) {
     console.log(`Updating new partner status for: ${partnerToUpdate}`);
     
+    // Update BOTH public and private profile types to ensure consistency
     let partnerUpdateData: PartnerUpdateData = {};
     
-    if (profileType === "private") {
-      partnerUpdateData.private_marital_status = maritalStatus;
+    // Always update both public and private relationship status
+    partnerUpdateData.marital_status = maritalStatus;
+    partnerUpdateData.private_marital_status = maritalStatus;
+    
+    if (isPolyamorous) {
+      // Fetch existing partner data for both public and private
+      const { data: existingPartnerData, error: partnerDataError } = await supabase
+        .from('profiles')
+        .select('partners, partner_id, private_partners, private_partner_id')
+        .eq('id', partnerToUpdate)
+        .single();
+        
+      if (partnerDataError) {
+        console.error(`Error fetching partner data for ${partnerToUpdate}:`, partnerDataError);
+        continue;
+      }
       
-      if (isPolyamorous) {
-        const { data: existingPartnerData, error: partnerDataError } = await supabase
-          .from('profiles')
-          .select('private_partners, private_partner_id')
-          .eq('id', partnerToUpdate)
-          .single();
-          
-        if (partnerDataError) {
-          console.error(`Error fetching partner data for ${partnerToUpdate}:`, partnerDataError);
-          continue;
-        }
-        
-        const existingPartners = existingPartnerData?.private_partners || [];
-        
-        if (!existingPartners.includes(userId)) {
-          partnerUpdateData.private_partners = [...existingPartners, userId];
-        } else {
-          partnerUpdateData.private_partners = existingPartners;
-        }
-        
-        if (!existingPartnerData?.private_partner_id) {
-          partnerUpdateData.private_partner_id = userId;
-        }
+      // Update public partners
+      const existingPartners = existingPartnerData?.partners || [];
+      if (!existingPartners.includes(userId)) {
+        partnerUpdateData.partners = [...existingPartners, userId];
       } else {
+        partnerUpdateData.partners = existingPartners;
+      }
+      
+      if (!existingPartnerData?.partner_id) {
+        partnerUpdateData.partner_id = userId;
+      }
+      
+      // Update private partners
+      const existingPrivatePartners = existingPartnerData?.private_partners || [];
+      if (!existingPrivatePartners.includes(userId)) {
+        partnerUpdateData.private_partners = [...existingPrivatePartners, userId];
+      } else {
+        partnerUpdateData.private_partners = existingPrivatePartners;
+      }
+      
+      if (!existingPartnerData?.private_partner_id) {
         partnerUpdateData.private_partner_id = userId;
-        partnerUpdateData.private_partners = [];
       }
     } else {
-      partnerUpdateData.marital_status = maritalStatus;
-      
-      if (isPolyamorous) {
-        const { data: existingPartnerData, error: partnerDataError } = await supabase
-          .from('profiles')
-          .select('partners, partner_id')
-          .eq('id', partnerToUpdate)
-          .single();
-          
-        if (partnerDataError) {
-          console.error(`Error fetching partner data for ${partnerToUpdate}:`, partnerDataError);
-          continue;
-        }
-        
-        const existingPartners = existingPartnerData?.partners || [];
-        
-        if (!existingPartners.includes(userId)) {
-          partnerUpdateData.partners = [...existingPartners, userId];
-        } else {
-          partnerUpdateData.partners = existingPartners;
-        }
-        
-        if (!existingPartnerData?.partner_id) {
-          partnerUpdateData.partner_id = userId;
-        }
-      } else {
-        partnerUpdateData.partner_id = userId;
-        partnerUpdateData.partners = [];
-      }
+      // For non-polyamorous relationships, set single partner for both public and private
+      partnerUpdateData.partner_id = userId;
+      partnerUpdateData.partners = [];
+      partnerUpdateData.private_partner_id = userId;
+      partnerUpdateData.private_partners = [];
     }
     
     const { error: newPartnerUpdateError } = await supabase
