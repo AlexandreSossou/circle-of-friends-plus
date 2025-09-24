@@ -48,7 +48,11 @@ export const updateRelationshipStatus = async ({
         return { success: true, data: null };
       }
       
+      // Wait for the database transaction to complete before updating partners
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Handle partner status updates
+      console.log(`Updating partner statuses for user ${userId}. MaritalStatus: ${maritalStatus}, PartnerId: ${partnerId}, PartnerIds: ${partnerIds}, ProfileType: ${profileType}`);
       await handlePartnerUpdates(userId, maritalStatus, partnerId, partnerIds, profileType);
       
       return { success: true, data };

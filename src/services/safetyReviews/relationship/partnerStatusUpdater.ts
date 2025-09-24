@@ -110,7 +110,7 @@ export const updateNewPartners = async (
     if (newPartnerUpdateError) {
       console.error(`Error updating new partner status for ${partnerToUpdate}:`, newPartnerUpdateError);
     } else {
-      console.log(`Successfully updated new partner status to ${maritalStatus} for ${partnerToUpdate}`);
+      console.log(`Successfully updated new partner status to ${maritalStatus} for ${partnerToUpdate}. Update data:`, partnerUpdateData);
       
       let notificationMessage = isPolyamorous
         ? `Your ${profileType} relationship status has been updated to "${maritalStatus}" with a partner.`
