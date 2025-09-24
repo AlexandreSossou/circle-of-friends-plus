@@ -41,6 +41,7 @@ const PostCard = ({ post, onPostDeleted }: PostCardProps) => {
         <PostContent 
           content={post.content}
           image={post.image}
+          postId={post.id}
         />
       </div>
       

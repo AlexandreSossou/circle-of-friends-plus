@@ -17,6 +17,7 @@ export const useCreatePost = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGlobal, setIsGlobal] = useState(false);
   const [taggedUsers, setTaggedUsers] = useState<TaggedUser[]>([]);
+  const [imageTaggedUsers, setImageTaggedUsers] = useState<TaggedUser[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -38,6 +39,11 @@ export const useCreatePost = () => {
   
   const removeImage = () => {
     setImagePreview(null);
+    setImageTaggedUsers([]);
+  };
+
+  const handleTaggedUsersChange = (users: TaggedUser[]) => {
+    setImageTaggedUsers(users);
   };
   
   const handleSubmit = async () => {
@@ -83,12 +89,46 @@ export const useCreatePost = () => {
       
       if (error) throw error;
 
+      // Create image consent requests for tagged users in images
+      if (imageTaggedUsers.length > 0 && data && data[0] && imagePreview) {
+        const postId = data[0].id;
+        const consentInserts = imageTaggedUsers.map(taggedUser => ({
+          post_id: postId,
+          tagged_user_id: taggedUser.id,
+          tagged_by_user_id: user.id
+        }));
+
+        const { error: consentError } = await supabase
+          .from('image_consent')
+          .insert(consentInserts);
+
+        if (consentError) {
+          console.error("Error creating image consent requests:", consentError);
+        } else {
+          // Create notifications
+          const notificationInserts = imageTaggedUsers.map(taggedUser => ({
+            consent_id: '', // Will be filled by trigger or separate query
+            recipient_id: taggedUser.id,
+            sender_id: user.id,
+            message: `You have been tagged in an image that requires your consent.`
+          }));
+
+          const { error: notificationError } = await supabase
+            .from('image_consent_notifications')
+            .insert(notificationInserts);
+
+          if (notificationError) {
+            console.error("Error creating consent notifications:", notificationError);
+          }
+        }
+      }
+
       // Create post tags for mentioned users
       if (taggedUsers.length > 0 && data && data[0]) {
         const postId = data[0].id;
-        const tagInserts = taggedUsers.map(user => ({
+        const tagInserts = taggedUsers.map(taggedUser => ({
           post_id: postId,
-          tagged_user_id: user.id,
+          tagged_user_id: taggedUser.id,
           tagged_by_user_id: user.id
         }));
 
@@ -105,6 +145,7 @@ export const useCreatePost = () => {
       setImagePreview(null);
       setIsGlobal(false);
       setTaggedUsers([]);
+      setImageTaggedUsers([]);
       
       toast({
         title: "Post created",
@@ -128,11 +169,13 @@ export const useCreatePost = () => {
     isSubmitting,
     isGlobal,
     taggedUsers,
+    imageTaggedUsers,
     handleTextChange,
     handleImageChange,
     removeImage,
     setIsGlobal,
     handleSubmit,
+    handleTaggedUsersChange,
     isValid: !(!postText.trim() && !imagePreview)
   };
 };

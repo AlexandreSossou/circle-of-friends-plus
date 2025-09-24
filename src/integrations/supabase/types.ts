@@ -394,6 +394,74 @@ export type Database = {
           },
         ]
       }
+      image_consent: {
+        Row: {
+          consent_status: string
+          created_at: string
+          id: string
+          post_id: string
+          tagged_by_user_id: string
+          tagged_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          consent_status?: string
+          created_at?: string
+          id?: string
+          post_id: string
+          tagged_by_user_id: string
+          tagged_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          consent_status?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          tagged_by_user_id?: string
+          tagged_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      image_consent_notifications: {
+        Row: {
+          consent_id: string
+          created_at: string
+          id: string
+          message: string
+          read: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          consent_id: string
+          created_at?: string
+          id?: string
+          message: string
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          consent_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_consent_notifications_consent_id_fkey"
+            columns: ["consent_id"]
+            isOneToOne: false
+            referencedRelation: "image_consent"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       likes: {
         Row: {
           created_at: string

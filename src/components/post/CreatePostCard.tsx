@@ -5,6 +5,7 @@ import { useCreatePost } from "@/hooks/useCreatePost";
 import { usePostLimit } from "@/hooks/usePostLimit";
 import { UserMentionInput } from "./UserMentionInput";
 import ImagePreview from "./ImagePreview";
+import ImageConsentTagging from "./ImageConsentTagging";
 import PostActions from "./PostActions";
 import VisibilityToggle from "./VisibilityToggle";
 import SubmitPostButton from "./SubmitPostButton";
@@ -16,11 +17,13 @@ const CreatePostCard = () => {
     imagePreview,
     isSubmitting,
     isGlobal,
+    taggedUsers,
     handleTextChange,
     handleImageChange,
     removeImage,
     setIsGlobal,
     handleSubmit,
+    handleTaggedUsersChange,
     isValid
   } = useCreatePost();
 
@@ -46,6 +49,12 @@ const CreatePostCard = () => {
           <ImagePreview 
             imagePreview={imagePreview} 
             onRemoveImage={removeImage} 
+          />
+          
+          <ImageConsentTagging
+            imagePreview={imagePreview}
+            taggedUsers={taggedUsers}
+            onTaggedUsersChange={handleTaggedUsersChange}
           />
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 space-y-3 sm:space-y-0">

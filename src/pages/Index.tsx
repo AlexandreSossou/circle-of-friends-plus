@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 
 import MainLayout from "@/components/layout/MainLayout";
 import CreatePostCard from "@/components/post/CreatePostCard";
+import ImageConsentNotification from "@/components/post/ImageConsentNotification";
 import FeedFilter, { FeedType } from "@/components/post/FeedFilter";
 import PostsList from "@/components/post/PostsList";
 import LiveSessionsCarousel from "@/components/live/LiveSessionsCarousel";
@@ -52,6 +53,7 @@ const Index = () => {
   return (
     <MainLayout>
       <LiveSessionsCarousel sessions={liveSessions} />
+      <ImageConsentNotification />
       <FeedFilter activeFeed={activeFeed} onFeedChange={handleFeedChange} />
       <CreatePostCard />
       <PostsList posts={posts} isLoading={isLoading} feedType={activeFeed} onPostDeleted={handlePostDeleted} />
