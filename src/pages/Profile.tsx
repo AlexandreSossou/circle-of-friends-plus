@@ -136,6 +136,7 @@ const Profile = () => {
                 lastConnection={verificationInfo?.lastConnection}
                 photoVerificationDate={verificationInfo?.photoVerification}
                 moderatorVerificationDate={verificationInfo?.moderatorVerification}
+                consentVerificationDate={verificationInfo?.consentVerification}
               />
               
               <ProfileContent

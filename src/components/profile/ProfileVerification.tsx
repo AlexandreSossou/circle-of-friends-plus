@@ -9,6 +9,7 @@ type ProfileVerificationProps = {
   lastConnection?: string;
   photoVerificationDate?: string;
   moderatorVerificationDate?: string;
+  consentVerificationDate?: string;
 }
 
 const ProfileVerification = ({
@@ -16,7 +17,8 @@ const ProfileVerification = ({
   isOwnProfile,
   lastConnection,
   photoVerificationDate,
-  moderatorVerificationDate
+  moderatorVerificationDate,
+  consentVerificationDate
 }: ProfileVerificationProps) => {
   // Format dates if they exist
   const formatDate = (dateString?: string) => {
@@ -58,6 +60,14 @@ const ProfileVerification = ({
           <div>
             <p className="font-medium">Profile Moderation</p>
             <p className="text-gray-600">{formatDate(moderatorVerificationDate)}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-start">
+          <Shield className="h-4 w-4 mr-2 mt-0.5 text-green-500" />
+          <div>
+            <p className="font-medium">Consent Verified</p>
+            <p className="text-gray-600">{formatDate(consentVerificationDate)}</p>
           </div>
         </div>
       </CardContent>

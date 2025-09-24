@@ -8,6 +8,7 @@ export interface VerificationInfo {
   lastConnection?: string;
   photoVerification?: string;
   moderatorVerification?: string;
+  consentVerification?: string;
 }
 
 export const useProfileData = (profileId: string | undefined, isOwnProfile: boolean) => {
@@ -88,6 +89,7 @@ export const useProfileData = (profileId: string | undefined, isOwnProfile: bool
     lastConnection: profileId ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 3 days ago
     photoVerification: profileId ? new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 30 days ago
     moderatorVerification: profileId ? new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 15 days ago
+    consentVerification: profileId ? new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 7 days ago
   };
 
   // Format posts for display
