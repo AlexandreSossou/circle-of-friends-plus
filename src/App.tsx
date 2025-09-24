@@ -16,6 +16,7 @@ import Profile from "./pages/Profile";
 import Friends from "./pages/Friends";
 import FriendSearch from "./pages/FriendSearch";
 import Groups from "./pages/Groups";
+import GroupDetail from "./pages/GroupDetail";
 import Travels from "./pages/Travels";
 import Events from "./pages/Events";
 import EventDetail from "./pages/EventDetail";
@@ -53,6 +54,7 @@ const App = () => (
                   <Route path="/friends" element={<ProtectedRoute><Friends /></ProtectedRoute>} />
                   <Route path="/friend-search" element={<ProtectedRoute><FriendSearch /></ProtectedRoute>} />
                   <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+                  <Route path="/groups/:id" element={<ProtectedRoute><GroupDetail /></ProtectedRoute>} />
                   <Route path="/travels" element={<ProtectedRoute><Travels /></ProtectedRoute>} />
                   <Route path="/events" element={<ProtectedRoute><Events /></ProtectedRoute>} />
                   <Route path="/events/:id" element={<ProtectedRoute><EventDetail /></ProtectedRoute>} />
