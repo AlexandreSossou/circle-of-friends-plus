@@ -30,6 +30,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import ChatBubble from "./components/chat/ChatBubble";
 import LiveSessions from "./pages/LiveSessions";
+import Notifications from "./pages/Notifications";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,7 @@ const App = () => (
                   <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
                   <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
                   <Route path="/live-sessions" element={<ProtectedRoute><LiveSessions /></ProtectedRoute>} />
+                  <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
                 <ProtectedRoute>
