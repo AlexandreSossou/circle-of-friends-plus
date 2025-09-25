@@ -112,9 +112,9 @@ const ProfileHeader = ({
         libido={profileData?.libido}
       />
 
-      <div className="p-4 md:p-6 pt-16 md:pt-20">
+      <div className="p-4 md:p-6 pt-20 md:pt-24">
         <div className="flex flex-col md:flex-row md:items-end mb-4 md:mb-6 gap-4 md:gap-6">
-          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-20 md:ml-24 mr-4">
+          <div className="flex-1 flex flex-col md:flex-row md:items-center justify-between gap-4 ml-24 md:ml-28 mr-4">
             <div className="flex-1 min-w-0">
               <ProfileInfo 
                 fullName={profileData?.full_name}
