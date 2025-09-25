@@ -22,11 +22,21 @@ const ProfileAvatar = ({ avatarUrl, isOwnProfile, libido }: ProfileAvatarProps) 
         {isVideoFile(avatarUrl) ? (
           <video
             src={avatarUrl}
-            autoPlay
             loop
             muted
             playsInline
             className="w-full h-full object-cover"
+            onLoadedData={(e) => {
+              // Play video on user interaction to avoid browser darkening
+              const video = e.target as HTMLVideoElement;
+              const playVideo = () => {
+                video.play().catch(console.warn);
+                document.removeEventListener('click', playVideo);
+                document.removeEventListener('scroll', playVideo);
+              };
+              document.addEventListener('click', playVideo, { once: true });
+              document.addEventListener('scroll', playVideo, { once: true });
+            }}
           >
             Your browser does not support the video tag.
           </video>
