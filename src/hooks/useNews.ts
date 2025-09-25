@@ -7,6 +7,9 @@ export interface Article {
   content: string;
   summary?: string;
   imageUrl?: string;
+  videoUrl?: string;
+  contentType?: 'article' | 'video';
+  duration?: number;
   publishedAt: string;
   source: string;
   sourceUrl?: string;
@@ -52,6 +55,9 @@ export const useNews = () => {
         content: article.content,
         summary: article.summary || undefined,
         imageUrl: article.image_url || undefined,
+        videoUrl: article.video_url || undefined,
+        contentType: (article.content_type as 'article' | 'video') || 'article',
+        duration: article.duration || undefined,
         publishedAt: article.published_at,
         source: article.source,
         sourceUrl: article.source_url || undefined,

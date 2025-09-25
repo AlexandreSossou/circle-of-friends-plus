@@ -5,6 +5,9 @@ export interface Article {
   content: string;
   summary?: string;
   imageUrl?: string;
+  videoUrl?: string;
+  contentType?: 'article' | 'video';
+  duration?: number;
   publishedAt: string;
   source: string;
   sourceUrl?: string;

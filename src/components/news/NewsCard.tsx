@@ -3,9 +3,9 @@ import { useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Share, ThumbsUp, MessageSquare } from "lucide-react";
+import { Bookmark, Share, ThumbsUp, MessageSquare, Video, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Article } from "@/types/news";
+import { Article } from "@/hooks/useNews";
 
 interface NewsCardProps {
   article: Article;
@@ -17,9 +17,30 @@ export default function NewsCard({ article }: NewsCardProps) {
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
-        <div className="flex flex-col md:flex-row gap-4">
-          {article.imageUrl && (
-            <div className="md:w-1/4 h-48 md:h-auto overflow-hidden">
+        <div className="flex flex-col gap-4">
+          {/* Video Content */}
+          {article.contentType === 'video' && article.videoUrl && (
+            <div className="relative">
+              <video 
+                controls
+                className="w-full max-h-96 object-contain bg-black"
+                poster={article.imageUrl}
+              >
+                <source src={article.videoUrl} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              {article.duration && (
+                <div className="absolute bottom-2 right-2 bg-black/75 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+                  <Video className="h-3 w-3" />
+                  {Math.floor(article.duration / 60)}:{(article.duration % 60).toString().padStart(2, '0')}
+                </div>
+              )}
+            </div>
+          )}
+          
+          {/* Image Content for Articles */}
+          {article.contentType === 'article' && article.imageUrl && (
+            <div className="h-48 overflow-hidden">
               <img 
                 src={article.imageUrl} 
                 alt={article.title}
@@ -27,10 +48,19 @@ export default function NewsCard({ article }: NewsCardProps) {
               />
             </div>
           )}
-          <div className={`flex-1 p-4 ${!article.imageUrl ? 'md:w-full' : ''}`}>
+          
+          <div className="p-4">
             <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-bold text-lg mb-1">{article.title}</h3>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-bold text-lg">{article.title}</h3>
+                  {article.contentType === 'video' && (
+                    <div className="flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
+                      <Play className="h-3 w-3" />
+                      Video Short
+                    </div>
+                  )}
+                </div>
                 <p className="text-sm text-social-textSecondary mb-2">
                   {formatDistanceToNow(new Date(article.publishedAt), { addSuffix: true })} • 
                   {article.source}
@@ -43,18 +73,29 @@ export default function NewsCard({ article }: NewsCardProps) {
               )}
             </div>
             
-            <div className={`mt-2 ${isExpanded ? '' : 'line-clamp-3'}`}>
-              <p>{article.content}</p>
-            </div>
-            
-            {article.content.length > 150 && (
-              <Button 
-                variant="link" 
-                className="mt-1 p-0 h-auto text-social-blue"
-                onClick={() => setIsExpanded(!isExpanded)}
-              >
-                {isExpanded ? 'Read less' : 'Read more'}
-              </Button>
+            {/* Show summary for videos, full content for articles */}
+            {article.contentType === 'video' ? (
+              article.summary && (
+                <div className="mt-2">
+                  <p className="text-sm text-muted-foreground">{article.summary}</p>
+                </div>
+              )
+            ) : (
+              <>
+                <div className={`mt-2 ${isExpanded ? '' : 'line-clamp-3'}`}>
+                  <p>{article.content}</p>
+                </div>
+                
+                {article.content.length > 150 && (
+                  <Button 
+                    variant="link" 
+                    className="mt-1 p-0 h-auto text-social-blue"
+                    onClick={() => setIsExpanded(!isExpanded)}
+                  >
+                    {isExpanded ? 'Read less' : 'Read more'}
+                  </Button>
+                )}
+              </>
             )}
             
             <div className="flex mt-4 pt-3 border-t border-gray-100 justify-between">
