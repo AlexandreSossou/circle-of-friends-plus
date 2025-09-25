@@ -28,18 +28,18 @@ export const fetchPosts = async (
     // Filter by connections if "connections" feed is active and user is logged in
     if (feedType === "connections" && userId && connections) {
       if (connections.length > 0) {
-        // Include user's own posts and posts from connections that are not global
-        query = query.or(`user_id.eq.${userId},user_id.in.(${connections.join(',')})`);
+        // Include user's own posts, posts from connections, and posts where user is tagged
+        query = query.or(`user_id.eq.${userId},user_id.in.(${connections.join(',')}),id.in.(select post_id from post_tags where tagged_user_id = ${userId})`);
       } else {
-        // If no connections, only show user's own posts
-        query = query.eq('user_id', userId);
+        // If no connections, show user's own posts and posts where user is tagged
+        query = query.or(`user_id.eq.${userId},id.in.(select post_id from post_tags where tagged_user_id = ${userId})`);
       }
     } else if (feedType === "global") {
-      // For global feed, include posts marked as global or from connections
+      // For global feed, include posts marked as global, from connections, or where user is tagged
       if (userId && connections && connections.length > 0) {
-        query = query.or(`is_global.eq.true,user_id.eq.${userId},user_id.in.(${connections.join(',')})`);
+        query = query.or(`is_global.eq.true,user_id.eq.${userId},user_id.in.(${connections.join(',')}),id.in.(select post_id from post_tags where tagged_user_id = ${userId})`);
       } else if (userId) {
-        query = query.or(`is_global.eq.true,user_id.eq.${userId}`);
+        query = query.or(`is_global.eq.true,user_id.eq.${userId},id.in.(select post_id from post_tags where tagged_user_id = ${userId})`);
       } else {
         query = query.eq('is_global', true);
       }
