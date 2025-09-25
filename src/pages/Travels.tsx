@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { TravelCard } from "@/components/travel/TravelCard";
 import { TravelForm } from "@/components/travel/TravelForm";
 import { TravelList } from "@/components/travel/TravelList";
+import { TravelFilters } from "@/components/travel/TravelFilters";
 import { EmptyTravelState } from "@/components/travel/EmptyTravelState";
 import { useTravels } from "@/hooks/useTravels";
 
@@ -20,6 +21,7 @@ const Travels = () => {
     shareAsPost,
     travelingWithPartner,
     isAddDialogOpen,
+    isFiltering,
     addTravelMutation,
     deleteTravelMutation,
     setTravelData,
@@ -28,6 +30,8 @@ const Travels = () => {
     setIsAddDialogOpen,
     handleInputChange,
     handleSubmit,
+    handleFilter,
+    handleClearFilters,
   } = useTravels(user);
 
   return (
@@ -59,6 +63,12 @@ const Travels = () => {
             </DialogContent>
           </Dialog>
         </div>
+
+        <TravelFilters 
+          onFilter={handleFilter}
+          onClearFilters={handleClearFilters}
+          isFiltering={isFiltering}
+        />
 
         {isLoading ? (
           <div className="flex justify-center p-8">

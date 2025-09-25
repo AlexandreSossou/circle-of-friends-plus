@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,9 @@ export const useTravels = (user: any) => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [shareAsPost, setShareAsPost] = useState(true);
   const [travelingWithPartner, setTravelingWithPartner] = useState(false);
+  const [filterCity, setFilterCity] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [isFiltering, setIsFiltering] = useState(false);
   const [travelData, setTravelData] = useState({
     city: "",
     country: "",
@@ -22,7 +25,7 @@ export const useTravels = (user: any) => {
   });
 
   // Fetch travels
-  const { data: travels, isLoading } = useQuery({
+  const { data: allTravels, isLoading } = useQuery({
     queryKey: ["travels"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -44,6 +47,29 @@ export const useTravels = (user: any) => {
       return data as Travel[];
     },
   });
+
+  // Filter travels based on city and date
+  const travels = useMemo(() => {
+    if (!allTravels) return [];
+    
+    if (!isFiltering || !filterCity || !filterDate) {
+      return allTravels;
+    }
+
+    return allTravels.filter((travel) => {
+      // Check if city matches (case-insensitive)
+      const cityMatches = travel.city.toLowerCase().includes(filterCity.toLowerCase());
+      
+      // Check if the filter date falls between arrival and departure
+      const filterDateObj = new Date(filterDate);
+      const arrivalDate = new Date(travel.arrival_date);
+      const departureDate = new Date(travel.departure_date);
+      
+      const dateMatches = filterDateObj >= arrivalDate && filterDateObj <= departureDate;
+      
+      return cityMatches && dateMatches;
+    });
+  }, [allTravels, isFiltering, filterCity, filterDate]);
 
   // Add travel mutation
   const addTravelMutation = useMutation({
@@ -158,6 +184,18 @@ export const useTravels = (user: any) => {
     addTravelMutation.mutate({...travelData, shareAsPost, travelingWithPartner});
   };
 
+  const handleFilter = (city: string, date: string) => {
+    setFilterCity(city);
+    setFilterDate(date);
+    setIsFiltering(true);
+  };
+
+  const handleClearFilters = () => {
+    setFilterCity("");
+    setFilterDate("");
+    setIsFiltering(false);
+  };
+
   return {
     travels,
     isLoading,
@@ -165,6 +203,7 @@ export const useTravels = (user: any) => {
     shareAsPost,
     travelingWithPartner,
     isAddDialogOpen,
+    isFiltering,
     addTravelMutation,
     deleteTravelMutation,
     setTravelData,
@@ -173,5 +212,7 @@ export const useTravels = (user: any) => {
     setIsAddDialogOpen,
     handleInputChange,
     handleSubmit,
+    handleFilter,
+    handleClearFilters,
   };
 };
