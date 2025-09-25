@@ -117,7 +117,7 @@ const Profile = () => {
 
   return (
     <MainLayout>
-      <div className="social-card relative mb-6">
+      <div className="social-card relative mb-6 no-external-dim main-content">
         {localProfileData && (
           <>
             <ProfileHeader 
