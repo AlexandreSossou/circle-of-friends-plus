@@ -649,7 +649,9 @@ export type Database = {
           author_name: string | null
           category: string | null
           content: string
+          content_type: string | null
           created_at: string
+          duration: number | null
           id: string
           image_url: string | null
           is_published: boolean
@@ -659,13 +661,16 @@ export type Database = {
           summary: string | null
           title: string
           updated_at: string
+          video_url: string | null
         }
         Insert: {
           author_id: string
           author_name?: string | null
           category?: string | null
           content: string
+          content_type?: string | null
           created_at?: string
+          duration?: number | null
           id?: string
           image_url?: string | null
           is_published?: boolean
@@ -675,13 +680,16 @@ export type Database = {
           summary?: string | null
           title: string
           updated_at?: string
+          video_url?: string | null
         }
         Update: {
           author_id?: string
           author_name?: string | null
           category?: string | null
           content?: string
+          content_type?: string | null
           created_at?: string
+          duration?: number | null
           id?: string
           image_url?: string | null
           is_published?: boolean
@@ -691,6 +699,7 @@ export type Database = {
           summary?: string | null
           title?: string
           updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
