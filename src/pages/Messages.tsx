@@ -5,6 +5,7 @@ import ChatInterface from "@/components/messages/ChatInterface";
 import UserWarningDialog from "@/components/messages/UserWarningDialog";
 import GenderBlockingControls from "@/components/messages/GenderBlockingControls";
 import { useMessages } from "@/hooks/useMessages";
+import { useEffect } from "react";
 
 const Messages = () => {
   const {
@@ -18,6 +19,15 @@ const Messages = () => {
     sendMessage,
     partnerGroup,
   } = useMessages();
+  
+  // Clear URL parameters after initial load to prevent conflicts
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('couple') || urlParams.has('recipient')) {
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, [selectedContact]);
 
   return (
     <MainLayout>

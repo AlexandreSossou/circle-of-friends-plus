@@ -118,7 +118,7 @@ const ProfileActions = ({
             </Button>
           </Link>
           {hasPartners && (
-            <Link to="/messages" className="flex-1">
+            <Link to={`/messages?couple=${profileId}`} className="flex-1">
               <Button variant="outline" className="w-full text-sm px-2 bg-blue-50 border-blue-300 hover:bg-blue-100">
                 <Users className="w-4 h-4 mr-1" />
                 Couple

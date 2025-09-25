@@ -35,6 +35,91 @@ export const useMessages = () => {
   const queryClient = useQueryClient();
   const [selectedContact, setSelectedContact] = useState<Contact | PartnerGroup | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Handle URL parameters for couple messaging
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const coupleId = urlParams.get('couple');
+    const recipientId = urlParams.get('recipient');
+    
+    if (coupleId && user) {
+      // Fetch couple profile and partners for group messaging
+      const fetchCoupleInfo = async () => {
+        const { data: coupleProfile, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url, partners, private_partners, partner_id, private_partner_id')
+          .eq('id', coupleId)
+          .single();
+          
+        if (error || !coupleProfile) return;
+        
+        // Get all partner IDs
+        let partnerIds: string[] = [];
+        if (coupleProfile.partners?.length) {
+          partnerIds.push(...coupleProfile.partners);
+        }
+        if (coupleProfile.private_partners?.length) {
+          partnerIds.push(...coupleProfile.private_partners);
+        }
+        if (coupleProfile.partner_id) {
+          partnerIds.push(coupleProfile.partner_id);
+        }
+        if (coupleProfile.private_partner_id) {
+          partnerIds.push(coupleProfile.private_partner_id);
+        }
+        
+        // Add the couple's own ID to the list
+        partnerIds.push(coupleId);
+        
+        // Remove duplicates and current user
+        partnerIds = [...new Set(partnerIds)].filter(id => id !== user.id);
+        
+        if (partnerIds.length > 0) {
+          // Fetch partner details
+          const { data: partners, error: partnersError } = await supabase
+            .from('profiles')
+            .select('id, full_name, avatar_url')
+            .in('id', partnerIds);
+            
+          if (!partnersError && partners) {
+            const coupleGroup: PartnerGroup = {
+              id: `couple-${coupleId}`,
+              full_name: `Message Couple`,
+              avatar_url: null,
+              isPartnerGroup: true,
+              partners: partners.map(p => ({
+                id: p.id,
+                full_name: p.full_name,
+                avatar_url: p.avatar_url
+              }))
+            };
+            setSelectedContact(coupleGroup);
+          }
+        }
+      };
+      
+      fetchCoupleInfo();
+    } else if (recipientId) {
+      // Handle single recipient messaging
+      const fetchRecipient = async () => {
+        const { data: recipient, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .eq('id', recipientId)
+          .single();
+          
+        if (!error && recipient) {
+          setSelectedContact({
+            id: recipient.id,
+            full_name: recipient.full_name,
+            avatar_url: recipient.avatar_url
+          });
+        }
+      };
+      
+      fetchRecipient();
+    }
+  }, [user]);
   const { partners, potentialPartners } = useRelationshipStatus();
 
   // Fetch contacts (people who have messaged with the current user)
