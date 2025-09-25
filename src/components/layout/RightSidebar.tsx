@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { useOnlineUsers } from "@/hooks/useOnlineUsers";
+import NewsPreview from "@/components/news/NewsPreview";
 
 const RightSidebar = () => {
   const { user } = useAuth();
@@ -63,6 +64,7 @@ const RightSidebar = () => {
   return (
     <div className="space-y-6">
       <RegionalAlertCarousel userLocation={userLocation} />
+      <NewsPreview />
       <div className="social-card p-4">
         <h3 className="font-semibold mb-3">Upcoming Events</h3>
         <div className="space-y-3">
