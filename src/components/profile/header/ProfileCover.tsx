@@ -23,21 +23,37 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
     const file = event.target.files?.[0];
     if (!file || !user) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
+    // Validate file type (images and videos for avatars, only images for covers)
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    
+    if (uploadType === 'cover' && !isImage) {
       toast({
         title: "Invalid file type",
-        description: "Please select an image file.",
+        description: "Please select an image file for cover photo.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (uploadType === 'avatar' && !isImage && !isVideo) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image or video file for profile picture.",
         variant: "destructive"
       });
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (max 5MB for images, max 10MB for videos)
+    const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+    const fileTypeText = isVideo ? "video" : "image";
+    const sizeText = isVideo ? "10MB" : "5MB";
+    
+    if (file.size > maxSize) {
       toast({
         title: "File too large",
-        description: "Please select an image smaller than 5MB.",
+        description: `Please select a ${fileTypeText} smaller than ${sizeText}.`,
         variant: "destructive"
       });
       return;
@@ -126,7 +142,7 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={uploadType === 'avatar' ? "image/*,video/*" : "image/*"}
             onChange={handleFileChange}
             className="hidden"
           />
