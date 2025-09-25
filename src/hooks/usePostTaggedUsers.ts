@@ -14,6 +14,8 @@ export const usePostTaggedUsers = (postId: string) => {
     queryFn: async () => {
       if (!postId) return [];
 
+      console.log('Fetching tagged users for post:', postId);
+
       // First get tagged user IDs
       const { data: tagData, error: tagError } = await supabase
         .from('post_tags')
@@ -24,6 +26,8 @@ export const usePostTaggedUsers = (postId: string) => {
         console.error('Error fetching tagged users:', tagError);
         return [];
       }
+
+      console.log('Tagged user data:', tagData);
 
       if (!tagData || tagData.length === 0) return [];
 
@@ -39,6 +43,8 @@ export const usePostTaggedUsers = (postId: string) => {
         return [];
       }
 
+      console.log('Profile data:', profileData);
+
       // Get consent status for each tagged user
       const taggedUsersWithConsent = await Promise.all(
         (profileData || []).map(async (profile) => {
@@ -49,6 +55,8 @@ export const usePostTaggedUsers = (postId: string) => {
             .eq('tagged_user_id', profile.id)
             .single();
 
+          console.log(`Consent data for user ${profile.full_name}:`, consentData);
+
           return {
             id: profile.id,
             full_name: profile.full_name || 'Unknown User',
@@ -58,6 +66,7 @@ export const usePostTaggedUsers = (postId: string) => {
         })
       );
 
+      console.log('Final tagged users with consent:', taggedUsersWithConsent);
       return taggedUsersWithConsent;
     },
     enabled: !!postId

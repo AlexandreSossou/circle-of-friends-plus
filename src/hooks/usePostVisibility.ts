@@ -9,12 +9,20 @@ export const usePostVisibility = (postId: string, hasImage: boolean) => {
   const { data: isVisible = true } = useQuery({
     queryKey: ['post-visibility', postId, user?.id, hasImage],
     queryFn: async () => {
-      if (!user || !postId || !hasImage) return true;
+      if (!user || !postId) return true;
+      
+      console.log('Checking post visibility for:', postId, 'hasImage:', hasImage, 'user:', user.id);
+      
+      // If no image, post is always visible
+      if (!hasImage) {
+        console.log('No image, post is visible');
+        return true;
+      }
       
       // Check if there are any pending consent requests for this post
       const { data: consentRequests, error } = await supabase
         .from('image_consent')
-        .select('consent_status, tagged_user_id')
+        .select('consent_status, tagged_user_id, tagged_by_user_id')
         .eq('post_id', postId);
 
       if (error) {
@@ -22,15 +30,32 @@ export const usePostVisibility = (postId: string, hasImage: boolean) => {
         return true; // Default to visible on error
       }
 
+      console.log('Consent requests:', consentRequests);
+
       // If no consent requests exist, post is visible
-      if (!consentRequests || consentRequests.length === 0) return true;
+      if (!consentRequests || consentRequests.length === 0) {
+        console.log('No consent requests found, post is visible');
+        return true;
+      }
 
-      // If current user is tagged, they can see the post regardless of consent status
-      const isUserTagged = consentRequests.some(request => request.tagged_user_id === user.id);
-      if (isUserTagged) return true;
+      // If current user is the author (tagged by user), they can always see their own post
+      const isAuthor = consentRequests.some(request => request.tagged_by_user_id === user.id);
+      if (isAuthor) {
+        console.log('User is the author, post is visible');
+        return true;
+      }
 
-      // For other users, all consent requests must be approved
-      return consentRequests.every(request => request.consent_status === 'approved');
+      // If current user is tagged and has approved consent, they can see the post
+      const userConsentRequest = consentRequests.find(request => request.tagged_user_id === user.id);
+      if (userConsentRequest) {
+        console.log('User is tagged, consent status:', userConsentRequest.consent_status);
+        return userConsentRequest.consent_status === 'approved';
+      }
+
+      // For other users (not tagged), all consent requests must be approved
+      const allApproved = consentRequests.every(request => request.consent_status === 'approved');
+      console.log('User not tagged, all approved:', allApproved);
+      return allApproved;
     },
     enabled: !!user && !!postId
   });

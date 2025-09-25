@@ -104,22 +104,6 @@ export const useCreatePost = () => {
 
         if (consentError) {
           console.error("Error creating image consent requests:", consentError);
-        } else {
-          // Create notifications
-          const notificationInserts = imageTaggedUsers.map(taggedUser => ({
-            consent_id: '', // Will be filled by trigger or separate query
-            recipient_id: taggedUser.id,
-            sender_id: user.id,
-            message: `You have been tagged in an image that requires your consent.`
-          }));
-
-          const { error: notificationError } = await supabase
-            .from('image_consent_notifications')
-            .insert(notificationInserts);
-
-          if (notificationError) {
-            console.error("Error creating consent notifications:", notificationError);
-          }
         }
       }
 
