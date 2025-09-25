@@ -22,6 +22,7 @@ const ProfileAvatar = ({ avatarUrl, isOwnProfile, libido }: ProfileAvatarProps) 
         {isVideoFile(avatarUrl) ? (
           <video
             src={avatarUrl}
+            autoPlay
             loop
             muted
             playsInline
