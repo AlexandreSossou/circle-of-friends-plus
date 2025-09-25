@@ -10,6 +10,9 @@ export interface SupabasePost {
   updated_at: string;
   user_id: string;
   is_global: boolean;
+  moderation_status: 'pending' | 'approved' | 'rejected';
+  moderated_by: string | null;
+  moderated_at: string | null;
   profiles?: {
     id: string;
     full_name: string | null;
@@ -41,6 +44,9 @@ export const transformPostData = (post: SupabasePost, currentUserId?: string): P
     likes: likesCount,
     comments: [],
     liked: isLikedByUser,
-    isGlobal: post.is_global || false
+    isGlobal: post.is_global || false,
+    moderationStatus: post.moderation_status,
+    moderatedBy: post.moderated_by,
+    moderatedAt: post.moderated_at
   };
 };

@@ -12,6 +12,7 @@ import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import RoleManagement from '@/components/admin/RoleManagement';
 import NewsManagement from '@/components/admin/NewsManagement';
 import LocalAlertManagement from '@/components/admin/LocalAlertManagement';
+import PostModeration from '@/components/admin/PostModeration';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -48,10 +49,14 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="posts" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Posts
             </TabsTrigger>
             <TabsTrigger value="content" className="flex items-center gap-2">
               <MessageSquare className="w-4 h-4" />
@@ -86,6 +91,17 @@ const Admin = () => {
               </CardHeader>
               <CardContent>
                 <UserManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="posts">
+            <Card>
+              <CardHeader>
+                <CardTitle>Post Moderation</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PostModeration />
               </CardContent>
             </Card>
           </TabsContent>

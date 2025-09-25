@@ -3,7 +3,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Globe, Users, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";  
+import { MoreHorizontal, Globe, Users, Trash2, Clock, CheckCircle, XCircle } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +36,7 @@ interface PostHeaderProps {
   };
   timestamp: string;
   isGlobal?: boolean;
+  moderationStatus?: 'pending' | 'approved' | 'rejected';
   postId?: string;
   postAuthorId?: string;
   onPostDeleted?: () => void;
@@ -44,6 +46,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({
   author, 
   timestamp, 
   isGlobal, 
+  moderationStatus,
   postId, 
   postAuthorId, 
   onPostDeleted 
@@ -127,6 +130,28 @@ const PostHeader: React.FC<PostHeaderProps> = ({
                     <Users className="w-3 h-3 mr-1" />
                     <span>Connections</span>
                   </>
+                )}
+              </span>
+            )}
+            {moderationStatus && user?.id === postAuthorId && (
+              <span className="ml-2 flex items-center text-xs">
+                {moderationStatus === 'pending' && (
+                  <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-200">
+                    <Clock className="w-3 h-3 mr-1" />
+                    Pending Review
+                  </Badge>
+                )}
+                {moderationStatus === 'approved' && (
+                  <Badge variant="outline" className="bg-green-50 text-green-800 border-green-200">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Approved
+                  </Badge>
+                )}
+                {moderationStatus === 'rejected' && (
+                  <Badge variant="outline" className="bg-red-50 text-red-800 border-red-200">
+                    <XCircle className="w-3 h-3 mr-1" />
+                    Rejected
+                  </Badge>
                 )}
               </span>
             )}

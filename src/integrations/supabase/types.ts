@@ -752,6 +752,9 @@ export type Database = {
           id: string
           image_url: string | null
           is_global: boolean
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_status: string
           updated_at: string
           user_id: string
         }
@@ -761,6 +764,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_global?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_status?: string
           updated_at?: string
           user_id: string
         }
@@ -770,6 +776,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_global?: boolean
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_status?: string
           updated_at?: string
           user_id?: string
         }

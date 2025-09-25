@@ -74,7 +74,7 @@ export const useCreatePost = () => {
         return;
       }
 
-      // Create the post with visibility field
+      // Create the post with moderation status pending
       const { data, error } = await supabase
         .from('posts')
         .insert([
@@ -82,7 +82,8 @@ export const useCreatePost = () => {
             content: postText,
             image_url: imagePreview,
             user_id: user.id,
-            is_global: isGlobal
+            is_global: isGlobal,
+            moderation_status: 'pending'
           }
         ])
         .select();
@@ -142,8 +143,8 @@ export const useCreatePost = () => {
       setImageTaggedUsers([]);
       
       toast({
-        title: "Post created",
-        description: `Your post has been published successfully. ${limitCheck.remainingPosts - 1} posts remaining today.`,
+        title: "Post submitted",
+        description: "Your post has been submitted for moderation and will be published once approved.",
       });
     } catch (error) {
       console.error("Error creating post:", error);

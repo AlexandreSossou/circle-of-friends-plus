@@ -33,6 +33,7 @@ const PostCard = ({ post, onPostDeleted }: PostCardProps) => {
           author={post.author}
           timestamp={post.timestamp}
           isGlobal={post.isGlobal}
+          moderationStatus={post.moderationStatus}
           postId={post.id}
           postAuthorId={post.author.id}
           onPostDeleted={onPostDeleted}

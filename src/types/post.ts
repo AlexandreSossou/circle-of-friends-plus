@@ -14,6 +14,9 @@ export interface PostData {
   comments: Comment[];
   liked: boolean;
   isGlobal?: boolean;
+  moderationStatus?: 'pending' | 'approved' | 'rejected';
+  moderatedBy?: string;
+  moderatedAt?: string;
 }
 
 export interface Comment {
