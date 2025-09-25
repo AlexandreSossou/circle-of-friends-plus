@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Check, X, Eye } from "lucide-react";
+import { Check, X, Eye, Pin, PinOff } from "lucide-react";
 
 interface PendingPost {
   id: string;
   content: string;
   image_url: string | null;
   is_global: boolean;
+  is_pinned: boolean;
   created_at: string;
   moderation_status: string;
   user_id: string;
@@ -65,6 +66,7 @@ const PostModeration: React.FC = () => {
           )
         `)
         .eq('moderation_status', selectedTab)
+        .order('is_pinned', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -130,6 +132,34 @@ const PostModeration: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePinToggle = async (postId: string, currentPinStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .update({
+          is_pinned: !currentPinStatus
+        })
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Post ${!currentPinStatus ? 'pinned' : 'unpinned'} successfully`,
+      });
+
+      // Refresh the list
+      fetchPosts();
+    } catch (error) {
+      console.error('Error updating pin status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update pin status",
+        variant: "destructive"
+      });
     }
   };
 
@@ -227,6 +257,12 @@ const PostModeration: React.FC = () => {
                       {post.is_global && (
                         <Badge variant="outline">Global</Badge>
                       )}
+                      {post.is_pinned && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200">
+                          <Pin className="h-3 w-3 mr-1" />
+                          Pinned
+                        </Badge>
+                      )}
                       <Badge className={`${post.moderation_status === 'pending' ? 'bg-yellow-100 text-yellow-800' : post.moderation_status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {post.moderation_status}
                       </Badge>
@@ -266,27 +302,48 @@ const PostModeration: React.FC = () => {
                     </div>
                   )}
 
-                  {selectedTab === 'pending' && (
-                    <div className="flex space-x-2">
-                      <Button
-                        onClick={() => handleModerationAction(post.id, 'approved')}
-                        className="flex items-center space-x-1"
-                        size="sm"
-                      >
-                        <Check className="h-4 w-4" />
-                        <span>Approve</span>
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleModerationAction(post.id, 'rejected')}
-                        className="flex items-center space-x-1"
-                        size="sm"
-                      >
-                        <X className="h-4 w-4" />
-                        <span>Reject</span>
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={() => handlePinToggle(post.id, post.is_pinned)}
+                      variant={post.is_pinned ? "outline" : "secondary"}
+                      className="flex items-center space-x-1"
+                      size="sm"
+                    >
+                      {post.is_pinned ? (
+                        <>
+                          <PinOff className="h-4 w-4" />
+                          <span>Unpin</span>
+                        </>
+                      ) : (
+                        <>
+                          <Pin className="h-4 w-4" />
+                          <span>Pin</span>
+                        </>
+                      )}
+                    </Button>
+                    
+                    {selectedTab === 'pending' && (
+                      <>
+                        <Button
+                          onClick={() => handleModerationAction(post.id, 'approved')}
+                          className="flex items-center space-x-1"
+                          size="sm"
+                        >
+                          <Check className="h-4 w-4" />
+                          <span>Approve</span>
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => handleModerationAction(post.id, 'rejected')}
+                          className="flex items-center space-x-1"
+                          size="sm"
+                        >
+                          <X className="h-4 w-4" />
+                          <span>Reject</span>
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))

@@ -10,6 +10,7 @@ export interface SupabasePost {
   updated_at: string;
   user_id: string;
   is_global: boolean;
+  is_pinned: boolean;
   moderation_status: 'pending' | 'approved' | 'rejected';
   moderated_by: string | null;
   moderated_at: string | null;
@@ -69,6 +70,7 @@ export const transformPostData = (post: SupabasePost, currentUserId?: string): P
     comments: transformedComments,
     liked: isLikedByUser,
     isGlobal: post.is_global || false,
+    isPinned: post.is_pinned || false,
     moderationStatus: post.moderation_status,
     moderatedBy: post.moderated_by,
     moderatedAt: post.moderated_at

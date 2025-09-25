@@ -116,8 +116,15 @@ export const fetchPosts = async (
       index === self.findIndex(p => p.id === post.id)
     );
 
-    // Sort by created_at
-    uniquePosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    // Sort pinned posts first, then by created_at
+    uniquePosts.sort((a, b) => {
+      // First sort by pinned status (pinned posts first)
+      if (a.is_pinned && !b.is_pinned) return -1;
+      if (!a.is_pinned && b.is_pinned) return 1;
+      
+      // Then sort by created_at (newest first)
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
     
     // Transform the data to match the PostData type
     return (uniquePosts as SupabasePost[]).map(post => transformPostData(post, userId));

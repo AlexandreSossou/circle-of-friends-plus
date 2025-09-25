@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";  
-import { MoreHorizontal, Globe, Users, Trash2, Clock, CheckCircle, XCircle } from "lucide-react";
+import { MoreHorizontal, Globe, Users, Trash2, Clock, CheckCircle, XCircle, Pin } from "lucide-react";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -36,20 +36,22 @@ interface PostHeaderProps {
   };
   timestamp: string;
   isGlobal?: boolean;
+  isPinned?: boolean;
   moderationStatus?: 'pending' | 'approved' | 'rejected';
   postId?: string;
   postAuthorId?: string;
   onPostDeleted?: () => void;
 }
 
-const PostHeader: React.FC<PostHeaderProps> = ({ 
-  author, 
-  timestamp, 
-  isGlobal, 
+const PostHeader: React.FC<PostHeaderProps> = ({
+  author,
+  timestamp,
+  isGlobal,
+  isPinned,
   moderationStatus,
-  postId, 
-  postAuthorId, 
-  onPostDeleted 
+  postId,
+  postAuthorId,
+  onPostDeleted
 }) => {
   const { user } = useAuth();
   const { hasAdminAccess, hasModeratorAccess } = useUserRole();
@@ -132,6 +134,12 @@ const PostHeader: React.FC<PostHeaderProps> = ({
                   </>
                 )}
               </span>
+            )}
+            {isPinned && (
+              <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-800 border-blue-200">
+                <Pin className="w-3 h-3 mr-1" />
+                Pinned
+              </Badge>
             )}
             {moderationStatus && user?.id === postAuthorId && (
               <span className="ml-2 flex items-center text-xs">
