@@ -147,29 +147,55 @@
   }
 }
 
-@layer utilities {
-  /* Anti-dimming protection */
-  .no-external-dim {
-    filter: none !important;
-    opacity: 1 !important;
-    background: inherit !important;
+@layer components {
+  /* Typography Classes */
+  .text-heading {
+    @apply font-heading font-semibold;
   }
   
-  .no-external-dim * {
-    filter: none !important;
-    opacity: 1 !important;
+  .text-heading-lg {
+    @apply font-heading font-bold text-2xl md:text-3xl;
   }
   
-  /* Prevent video dimming extensions from affecting the page */
-  body:not(.user-requested-dim) {
-    filter: none !important;
-    opacity: 1 !important;
+  .text-heading-md {
+    @apply font-heading font-semibold text-xl md:text-2xl;
   }
   
-  /* Force normal display for main content */
-  .main-content {
-    filter: none !important;
-    opacity: 1 !important;
-    background: var(--background) !important;
+  .text-heading-sm {
+    @apply font-heading font-medium text-lg;
+  }
+
+  /* Modern Card Styles */
+  .modern-card {
+    @apply bg-card border border-border rounded-xl shadow-sm transition-all duration-200 hover:shadow-md;
+  }
+  
+  .modern-button {
+    @apply rounded-xl px-6 py-3 font-medium transition-all duration-200 hover:scale-105;
+  }
+  
+  .modern-input {
+    @apply w-full p-4 rounded-xl border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-200;
+  }
+
+  /* Legacy compatibility */
+  .social-card {
+    @apply modern-card;
+  }
+  
+  .calm .social-card {
+    @apply bg-calm-card border-calm-border shadow-sm;
+  }
+  
+  .social-button {
+    @apply modern-button;
+  }
+  
+  .social-input {
+    @apply modern-input;
+  }
+  
+  .calm .social-input {
+    @apply border-calm-border focus:ring-calm-accent;
   }
 }
