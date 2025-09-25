@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Eye, EyeOff } from "lucide-react";
 import { usePostVisibility } from "@/hooks/usePostVisibility";
+import TaggedUsers from "./TaggedUsers";
 
 interface PostContentProps {
   content: string;
@@ -42,6 +43,8 @@ const PostContent: React.FC<PostContentProps> = ({ content, image, postId }) => 
           {parseContentWithMentions(content)}
         </p>
       </div>
+      
+      <TaggedUsers postId={postId} />
       
       {image && (
         <div className="max-h-[500px] overflow-hidden">
