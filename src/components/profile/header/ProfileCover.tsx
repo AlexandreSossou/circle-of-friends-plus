@@ -45,10 +45,10 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
       return;
     }
 
-    // Validate file size (max 5MB for images, max 10MB for videos)
-    const maxSize = isVideo ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+    // Validate file size (max 5MB for images, max 20MB for videos)
+    const maxSize = isVideo ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
     const fileTypeText = isVideo ? "video" : "image";
-    const sizeText = isVideo ? "10MB" : "5MB";
+    const sizeText = isVideo ? "20MB" : "5MB";
     
     if (file.size > maxSize) {
       toast({
