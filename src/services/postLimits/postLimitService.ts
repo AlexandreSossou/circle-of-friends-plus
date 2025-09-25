@@ -15,17 +15,23 @@ export const fetchPostLimit = async (): Promise<number> => {
       .from('post_limits')
       .select('daily_limit')
       .eq('is_active', true)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error('Error fetching post limit:', error);
-      return 1; // Default fallback
+      return 5; // Default fallback
     }
 
-    return data?.daily_limit || 1;
+    // If no data found, return default limit
+    if (!data) {
+      console.log('No post limit found, using default of 5');
+      return 5;
+    }
+
+    return data.daily_limit || 5;
   } catch (error) {
     console.error('Error fetching post limit:', error);
-    return 1; // Default fallback
+    return 5; // Default fallback
   }
 };
 
