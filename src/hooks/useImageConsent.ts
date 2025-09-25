@@ -69,6 +69,7 @@ export const useImageConsent = () => {
     },
     onSuccess: (_, { status }) => {
       queryClient.invalidateQueries({ queryKey: ['image-consent-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['post-visibility'] });
       toast({
         title: status === 'approved' ? "Image approved" : "Image denied",
         description: `You have ${status} the image consent request.`

@@ -73,8 +73,8 @@ serve(async (req) => {
     // If violations found, log them and notify
     if (violations.length > 0) {
       const mostSevereViolation = violations.reduce((prev, current) => {
-        const severityOrder = { low: 1, medium: 2, high: 3, critical: 4 };
-        return severityOrder[current.severity] > severityOrder[prev.severity] ? current : prev;
+        const severityOrder: Record<string, number> = { low: 1, medium: 2, high: 3, critical: 4 };
+        return (severityOrder[current.severity] || 0) > (severityOrder[prev.severity] || 0) ? current : prev;
       });
 
       // Insert moderation record
@@ -122,9 +122,9 @@ serve(async (req) => {
       }
 
       // Send warning to user
-      const warningMessages = {
-        abusive_language: "Your message contains inappropriate language. Please keep conversations respectful and civil.",
-        dangerous_content: "Your message contains content that may be harmful or dangerous. This type of content is not allowed on our platform."
+      const warningMessages: Record<string, string> = {
+        abusive_language: "Your message contained inappropriate language and has been flagged.",
+        dangerous_content: "Your message contained potentially dangerous content and has been flagged."
       };
 
       const { error: warningError } = await supabase
@@ -156,7 +156,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in moderate-message function:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error occurred' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

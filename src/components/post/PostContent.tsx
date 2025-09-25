@@ -3,7 +3,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Eye, EyeOff } from "lucide-react";
-import { usePostImageConsent } from "@/hooks/usePostImageConsent";
+import { usePostVisibility } from "@/hooks/usePostVisibility";
 
 interface PostContentProps {
   content: string;
@@ -12,7 +12,7 @@ interface PostContentProps {
 }
 
 const PostContent: React.FC<PostContentProps> = ({ content, image, postId }) => {
-  const { hasConsent } = usePostImageConsent(postId);
+  const { isVisible } = usePostVisibility(postId, !!image);
   // Parse mentions in content and make them clickable
   const parseContentWithMentions = (text: string) => {
     const mentionRegex = /@([^@\s]+)/g;
@@ -45,7 +45,7 @@ const PostContent: React.FC<PostContentProps> = ({ content, image, postId }) => 
       
       {image && (
         <div className="max-h-[500px] overflow-hidden">
-          {hasConsent ? (
+          {isVisible ? (
             <img src={image} alt="Post" className="w-full object-cover" />
           ) : (
             <div className="bg-muted p-8 rounded-lg text-center">
