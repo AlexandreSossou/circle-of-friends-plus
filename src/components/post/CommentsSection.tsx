@@ -9,13 +9,15 @@ interface CommentsSectionProps {
   commentText: string;
   onCommentChange: (text: string) => void;
   onCommentSubmit: () => void;
+  isSubmitting?: boolean;
 }
 
 const CommentsSection: React.FC<CommentsSectionProps> = ({
   comments,
   commentText,
   onCommentChange,
-  onCommentSubmit
+  onCommentSubmit,
+  isSubmitting
 }) => {
   return (
     <div className="p-4 border-t border-gray-200">
@@ -24,6 +26,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({
         commentText={commentText}
         onCommentChange={onCommentChange}
         onCommentSubmit={onCommentSubmit}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

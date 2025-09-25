@@ -23,7 +23,8 @@ const PostCard = ({ post, onPostDeleted }: PostCardProps) => {
     toggleComments,
     handleCommentSubmit,
     setCommentText,
-    handleShare
+    handleShare,
+    isSubmittingComment
   } = usePostActions(post.id, post.liked, post.likes, post.comments);
   
   return (
@@ -61,6 +62,7 @@ const PostCard = ({ post, onPostDeleted }: PostCardProps) => {
           commentText={commentText}
           onCommentChange={setCommentText}
           onCommentSubmit={handleCommentSubmit}
+          isSubmitting={isSubmittingComment}
         />
       )}
     </div>

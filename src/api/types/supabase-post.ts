@@ -22,6 +22,17 @@ export interface SupabasePost {
     id: string;
     user_id: string;
   }>;
+  comments?: Array<{
+    id: string;
+    content: string;
+    created_at: string;
+    user_id: string;
+    profiles?: {
+      id: string;
+      full_name: string | null;
+      avatar_url: string | null;
+    };
+  }>;
 }
 
 // Transform Supabase post to PostData format
@@ -29,6 +40,19 @@ export const transformPostData = (post: SupabasePost, currentUserId?: string): P
   const likesCount = post.likes?.length || 0;
   const isLikedByUser = currentUserId ? 
     post.likes?.some(like => like.user_id === currentUserId) || false : false;
+
+  // Transform comments
+  const transformedComments = post.comments?.map(comment => ({
+    id: comment.id,
+    author: {
+      id: comment.user_id,
+      name: comment.profiles?.full_name || 'Unknown User',
+      avatar: comment.profiles?.avatar_url || '/placeholder.svg',
+      initials: comment.profiles?.full_name?.split(' ').map((n: string) => n[0]).join('') || 'U'
+    },
+    content: comment.content,
+    timestamp: new Date(comment.created_at).toLocaleString()
+  })) || [];
 
   return {
     id: post.id,
@@ -42,7 +66,7 @@ export const transformPostData = (post: SupabasePost, currentUserId?: string): P
     image: post.image_url || undefined,
     timestamp: new Date(post.created_at).toLocaleDateString(),
     likes: likesCount,
-    comments: [],
+    comments: transformedComments,
     liked: isLikedByUser,
     isGlobal: post.is_global || false,
     moderationStatus: post.moderation_status,

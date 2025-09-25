@@ -25,6 +25,16 @@ export const fetchPosts = async (
         likes (
           id,
           user_id
+        ),
+        comments (
+          id,
+          content,
+          created_at,
+          profiles:user_id (
+            id,
+            full_name,
+            avatar_url
+          )
         )
       `)
       .order("created_at", { ascending: false });
@@ -80,6 +90,16 @@ export const fetchPosts = async (
             likes (
               id,
               user_id
+            ),
+            comments (
+              id,
+              content,
+              created_at,
+              profiles:user_id (
+                id,
+                full_name,
+                avatar_url
+              )
             )
           `)
           .in('id', taggedPostIds);
