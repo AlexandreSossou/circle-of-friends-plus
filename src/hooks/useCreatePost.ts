@@ -107,14 +107,22 @@ export const useCreatePost = () => {
         }
       }
 
-      // Create post tags for mentioned users
-      if (taggedUsers.length > 0 && data && data[0]) {
+      // Create post tags for ALL tagged users (from text mentions AND image tags)
+      const allTaggedUserIds = [...new Set([...taggedUsers.map(u => u.id), ...imageTaggedUsers.map(u => u.id)])];
+      const allTaggedUsers = [...taggedUsers, ...imageTaggedUsers].filter((user, index, arr) => 
+        arr.findIndex(u => u.id === user.id) === index
+      );
+      
+      if (allTaggedUsers.length > 0 && data && data[0]) {
         const postId = data[0].id;
-        const tagInserts = taggedUsers.map(taggedUser => ({
+        const tagInserts = allTaggedUsers.map(taggedUser => ({
           post_id: postId,
           tagged_user_id: taggedUser.id,
           tagged_by_user_id: user.id
         }));
+
+        console.log('Creating post tags for users:', allTaggedUsers.map(u => u.full_name));
+        console.log('Tag inserts:', tagInserts);
 
         const { error: tagError } = await supabase
           .from('post_tags')
@@ -122,6 +130,8 @@ export const useCreatePost = () => {
 
         if (tagError) {
           console.error("Error creating post tags:", tagError);
+        } else {
+          console.log("Successfully created post tags");
         }
       }
       
