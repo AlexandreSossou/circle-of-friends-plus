@@ -15,10 +15,18 @@ export interface SupabasePost {
     full_name: string | null;
     avatar_url: string | null;
   };
+  likes?: Array<{
+    id: string;
+    user_id: string;
+  }>;
 }
 
 // Transform Supabase post to PostData format
-export const transformPostData = (post: SupabasePost): PostData => {
+export const transformPostData = (post: SupabasePost, currentUserId?: string): PostData => {
+  const likesCount = post.likes?.length || 0;
+  const isLikedByUser = currentUserId ? 
+    post.likes?.some(like => like.user_id === currentUserId) || false : false;
+
   return {
     id: post.id,
     author: {
@@ -30,9 +38,9 @@ export const transformPostData = (post: SupabasePost): PostData => {
     content: post.content,
     image: post.image_url || undefined,
     timestamp: new Date(post.created_at).toLocaleDateString(),
-    likes: 0,
+    likes: likesCount,
     comments: [],
-    liked: false,
+    liked: isLikedByUser,
     isGlobal: post.is_global || false
   };
 };

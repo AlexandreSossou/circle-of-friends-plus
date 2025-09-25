@@ -21,6 +21,10 @@ export const fetchPosts = async (
           id,
           full_name,
           avatar_url
+        ),
+        likes (
+          id,
+          user_id
         )
       `)
       .order("created_at", { ascending: false });
@@ -72,6 +76,10 @@ export const fetchPosts = async (
               id,
               full_name,
               avatar_url
+            ),
+            likes (
+              id,
+              user_id
             )
           `)
           .in('id', taggedPostIds);
@@ -92,7 +100,7 @@ export const fetchPosts = async (
     uniquePosts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     
     // Transform the data to match the PostData type
-    return (uniquePosts as SupabasePost[]).map(transformPostData);
+    return (uniquePosts as SupabasePost[]).map(post => transformPostData(post, userId));
   } catch (error) {
     console.error("Error fetching posts:", error);
     toast({

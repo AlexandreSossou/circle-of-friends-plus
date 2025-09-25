@@ -24,7 +24,7 @@ const PostCard = ({ post, onPostDeleted }: PostCardProps) => {
     handleCommentSubmit,
     setCommentText,
     handleShare
-  } = usePostActions(post.liked, post.likes, post.comments);
+  } = usePostActions(post.id, post.liked, post.likes, post.comments);
   
   return (
     <div className="social-card mb-4">
