@@ -104,7 +104,8 @@ export const useGroups = () => {
           description: data.description || null,
           category: data.category,
           created_by: user.id,
-          is_public: data.is_public
+          is_public: data.is_public,
+          allowed_genders: data.allowed_genders?.length ? data.allowed_genders : null
         })
         .select()
         .single();
@@ -145,6 +146,34 @@ export const useGroups = () => {
   const joinGroupMutation = useMutation({
     mutationFn: async (groupId: string) => {
       if (!user) throw new Error("You must be logged in to join groups");
+
+      // First check if the group has gender restrictions
+      const { data: groupData, error: groupError } = await supabase
+        .from("groups")
+        .select("allowed_genders")
+        .eq("id", groupId)
+        .single();
+
+      if (groupError) throw groupError;
+
+      // If there are gender restrictions, check user's gender
+      if (groupData.allowed_genders && groupData.allowed_genders.length > 0) {
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("gender")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError) throw new Error("Could not verify your gender for this group");
+
+        if (!profileData.gender) {
+          throw new Error("Please set your gender in your profile to join this group");
+        }
+
+        if (!groupData.allowed_genders.includes(profileData.gender)) {
+          throw new Error("This group has gender restrictions that don't match your profile");
+        }
+      }
 
       const { error } = await supabase
         .from("group_members")

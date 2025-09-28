@@ -352,6 +352,7 @@ export type Database = {
       }
       groups: {
         Row: {
+          allowed_genders: string[] | null
           avatar_url: string | null
           category: string
           created_at: string
@@ -363,6 +364,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allowed_genders?: string[] | null
           avatar_url?: string | null
           category?: string
           created_at?: string
@@ -374,6 +376,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allowed_genders?: string[] | null
           avatar_url?: string | null
           category?: string
           created_at?: string

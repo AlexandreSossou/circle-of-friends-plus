@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useGroups } from "@/hooks/useGroups";
 import { GroupFormData } from "@/types/group";
@@ -22,7 +23,8 @@ const Groups = () => {
     name: "",
     description: "",
     category: "general",
-    is_public: true
+    is_public: true,
+    allowed_genders: null
   });
   const { toast } = useToast();
   
@@ -38,6 +40,11 @@ const Groups = () => {
   const categories = [
     "General", "Technology", "Travel", "Books", "Photography", 
     "Fitness", "Gaming", "Food", "Music", "Art", "Sports"
+  ];
+
+  const genderOptions = [
+    "Man", "Woman", "Trans man", "Trans woman", "Non-binary", 
+    "Genderfluid", "Agender", "Genderqueer", "Trav (Male Cross-Dresser)"
   ];
   
   const handleCreateGroup = () => {
@@ -56,13 +63,25 @@ const Groups = () => {
           name: "",
           description: "",
           category: "general",
-          is_public: true
+          is_public: true,
+          allowed_genders: null
         });
         setDialogOpen(false);
       }
     });
   };
   
+  const handleGenderToggle = (gender: string, checked: boolean) => {
+    setFormData(prev => {
+      const currentGenders = prev.allowed_genders || [];
+      if (checked) {
+        return { ...prev, allowed_genders: [...currentGenders, gender] };
+      } else {
+        return { ...prev, allowed_genders: currentGenders.filter(g => g !== gender) };
+      }
+    });
+  };
+
   const handleJoinGroup = (groupId: string, groupName: string) => {
     joinGroupMutation.mutate(groupId);
   };
@@ -147,6 +166,33 @@ const Groups = () => {
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public: checked }))}
                   />
                 </div>
+                <div className="grid grid-cols-4 items-start gap-4">
+                  <Label className="text-right mt-2">
+                    Gender Restrictions
+                  </Label>
+                  <div className="col-span-3">
+                    <p className="text-sm text-gray-600 mb-3">
+                      Leave empty to allow all genders, or select specific genders to restrict membership.
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {genderOptions.map((gender) => (
+                        <div key={gender} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`gender-${gender}`}
+                            checked={formData.allowed_genders?.includes(gender) || false}
+                            onCheckedChange={(checked) => handleGenderToggle(gender, checked as boolean)}
+                          />
+                          <Label 
+                            htmlFor={`gender-${gender}`}
+                            className="text-sm font-normal cursor-pointer"
+                          >
+                            {gender}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
               <DialogFooter>
                 <Button 
@@ -207,6 +253,11 @@ const Groups = () => {
                         <div className="flex items-center mt-1 text-xs text-social-textSecondary">
                           <Users className="w-3 h-3 mr-1" />
                           <span>{group.member_count || 0} members</span>
+                          {group.allowed_genders && group.allowed_genders.length > 0 && (
+                            <span className="ml-3 px-2 py-0.5 bg-pink-100 text-pink-800 rounded-full text-xs">
+                              {group.allowed_genders.join(", ")}
+                            </span>
+                          )}
                           {group.user_role === 'admin' && (
                             <span className="ml-3 px-2 py-0.5 bg-social-blue text-white rounded-full text-xs">
                               Admin
@@ -247,6 +298,11 @@ const Groups = () => {
                           <div className="flex items-center mt-1 text-xs text-social-textSecondary">
                             <Users className="w-3 h-3 mr-1" />
                             <span>{group.member_count || 0} members</span>
+                            {group.allowed_genders && group.allowed_genders.length > 0 && (
+                              <span className="ml-3 px-2 py-0.5 bg-pink-100 text-pink-800 rounded-full text-xs">
+                                {group.allowed_genders.join(", ")}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </Link>

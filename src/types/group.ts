@@ -8,6 +8,7 @@ export interface Group {
   created_at: string;
   updated_at: string;
   is_public: boolean;
+  allowed_genders?: string[] | null;
   member_count?: number;
   user_role?: string | null;
 }
@@ -30,4 +31,5 @@ export interface GroupFormData {
   description: string;
   category: string;
   is_public: boolean;
+  allowed_genders?: string[] | null;
 }
