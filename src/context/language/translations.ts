@@ -32,6 +32,12 @@ const translations: TranslationRecord = {
     "settings.bio": "Bio",
     "settings.location": "Location",
     "settings.saveChanges": "Save Changes",
+    "settings.subscription.title": "Subscription",
+    "settings.subscription.currentPlan": "Current Plan",
+    "settings.subscription.planDescription": "Manage your subscription and billing",
+    "settings.subscription.upgradePlan": "Upgrade Your Plan",
+    "settings.subscription.upgradeDescription": "Choose a plan that fits your needs",
+    "settings.subscription.billingHistory": "Billing History",
 
     // Languages
     "language.en": "English",
@@ -68,6 +74,12 @@ const translations: TranslationRecord = {
     "settings.bio": "Biografía",
     "settings.location": "Ubicación",
     "settings.saveChanges": "Guardar cambios",
+    "settings.subscription.title": "Suscripción",
+    "settings.subscription.currentPlan": "Plan Actual",
+    "settings.subscription.planDescription": "Administra tu suscripción y facturación",
+    "settings.subscription.upgradePlan": "Mejora tu Plan",
+    "settings.subscription.upgradeDescription": "Elige un plan que se ajuste a tus necesidades",
+    "settings.subscription.billingHistory": "Historial de Facturación",
 
     // Languages
     "language.en": "Inglés",
@@ -104,6 +116,12 @@ const translations: TranslationRecord = {
     "settings.bio": "Biographie",
     "settings.location": "Localisation",
     "settings.saveChanges": "Enregistrer les modifications",
+    "settings.subscription.title": "Abonnement",
+    "settings.subscription.currentPlan": "Plan Actuel",
+    "settings.subscription.planDescription": "Gérez votre abonnement et votre facturation",
+    "settings.subscription.upgradePlan": "Améliorer votre Plan",
+    "settings.subscription.upgradeDescription": "Choisissez un plan qui correspond à vos besoins",
+    "settings.subscription.billingHistory": "Historique de Facturation",
 
     // Languages
     "language.en": "Anglais",
@@ -140,6 +158,12 @@ const translations: TranslationRecord = {
     "settings.bio": "Über mich",
     "settings.location": "Standort",
     "settings.saveChanges": "Änderungen speichern",
+    "settings.subscription.title": "Abonnement",
+    "settings.subscription.currentPlan": "Aktueller Plan",
+    "settings.subscription.planDescription": "Verwalten Sie Ihr Abonnement und Ihre Abrechnung",
+    "settings.subscription.upgradePlan": "Plan Upgraden",
+    "settings.subscription.upgradeDescription": "Wählen Sie einen Plan, der Ihren Anforderungen entspricht",
+    "settings.subscription.billingHistory": "Abrechnungsverlauf",
 
     // Languages
     "language.en": "Englisch",
