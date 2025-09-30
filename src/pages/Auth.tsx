@@ -47,8 +47,8 @@ const Auth = () => {
         {/* Left side - Branding and Features */}
         <div className="space-y-8 text-center lg:text-left">
           <div className="space-y-4">
-            <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-primary to-accent-yellow bg-clip-text text-transparent">
-              Connect
+            <h1 className="text-4xl lg:text-6xl font-bold bg-gradient-to-r from-primary via-accent-yellow to-accent bg-clip-text text-transparent">
+              Lovaville
             </h1>
             <p className="text-xl text-muted-foreground max-w-lg">
               Join our community and connect with amazing people around the world. Share your journey, discover new places, and build meaningful relationships.
