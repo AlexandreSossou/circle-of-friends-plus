@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Heart, Users, MapPin, Calendar } from "lucide-react";
 import LanguageSelector from "@/components/language/LanguageSelector";
 import { CalmModeToggle } from "@/components/ui/calm-mode-toggle";
+import { useLanguage } from "@/context/LanguageContext";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -19,6 +20,7 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (user) {
@@ -61,7 +63,7 @@ const Auth = () => {
               Lovaville
             </h1>
             <p className="text-xl text-muted-foreground max-w-lg">
-              Join our community and connect with amazing people around the world. Share your journey, discover new places, and build meaningful relationships.
+              {t("auth.tagline")}
             </p>
           </div>
 
@@ -70,29 +72,29 @@ const Auth = () => {
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto lg:mx-0">
                 <Users className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold">Meet People</h3>
-              <p className="text-sm text-muted-foreground">Connect with like-minded individuals</p>
+              <h3 className="font-semibold">{t("auth.meetPeople")}</h3>
+              <p className="text-sm text-muted-foreground">{t("auth.meetPeopleDesc")}</p>
             </div>
             <div className="space-y-2">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto lg:mx-0">
                 <MapPin className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold">Travel Together</h3>
-              <p className="text-sm text-muted-foreground">Share your travel plans and experiences</p>
+              <h3 className="font-semibold">{t("auth.travelTogether")}</h3>
+              <p className="text-sm text-muted-foreground">{t("auth.travelTogetherDesc")}</p>
             </div>
             <div className="space-y-2">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto lg:mx-0">
                 <Calendar className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold">Join Events</h3>
-              <p className="text-sm text-muted-foreground">Discover and create amazing events</p>
+              <h3 className="font-semibold">{t("auth.joinEvents")}</h3>
+              <p className="text-sm text-muted-foreground">{t("auth.joinEventsDesc")}</p>
             </div>
             <div className="space-y-2">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto lg:mx-0">
                 <Heart className="w-6 h-6 text-primary" />
               </div>
-              <h3 className="font-semibold">Build Relationships</h3>
-              <p className="text-sm text-muted-foreground">Find your perfect match</p>
+              <h3 className="font-semibold">{t("auth.buildRelationships")}</h3>
+              <p className="text-sm text-muted-foreground">{t("auth.buildRelationshipsDesc")}</p>
             </div>
           </div>
         </div>
@@ -101,12 +103,12 @@ const Auth = () => {
         <Card className="w-full max-w-md mx-auto shadow-2xl border-border/50">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
-              {isLogin ? "Welcome Back" : "Join Our Community"}
+              {isLogin ? t("auth.welcomeBack") : t("auth.joinCommunity")}
             </CardTitle>
             <CardDescription className="text-center">
               {isLogin 
-                ? "Sign in to your account to continue your journey" 
-                : "Create your account and start connecting today"
+                ? t("auth.signInSubtitle")
+                : t("auth.createAccountSubtitle")
               }
             </CardDescription>
           </CardHeader>
@@ -115,41 +117,41 @@ const Auth = () => {
               {!isLogin && (
                 <>
                   <div className="space-y-2">
-                    <Label htmlFor="username">Nickname</Label>
+                    <Label htmlFor="username">{t("auth.nickname")}</Label>
                     <Input
                       id="username"
                       type="text"
-                      placeholder="Your nickname (visible to everyone)"
+                      placeholder={t("auth.nicknamePlaceholder")}
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       required={!isLogin}
                       className="h-11"
                     />
-                    <p className="text-xs text-muted-foreground">This is the name that will be displayed on the app</p>
+                    <p className="text-xs text-muted-foreground">{t("auth.nicknameHint")}</p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+                    <Label htmlFor="fullName">{t("auth.fullName")}</Label>
                     <Input
                       id="fullName"
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder={t("auth.fullNamePlaceholder")}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required={!isLogin}
                       className="h-11"
                     />
-                    <p className="text-xs text-muted-foreground">Your full name will not be visible to other users but helps prevent identity theft</p>
+                    <p className="text-xs text-muted-foreground">{t("auth.fullNameHint")}</p>
                   </div>
                 </>
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder={t("auth.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -158,11 +160,11 @@ const Auth = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t("auth.password")}</Label>
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder={t("auth.passwordPlaceholder")}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -178,10 +180,10 @@ const Auth = () => {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                    <span>{isLogin ? "Signing In..." : "Creating Account..."}</span>
+                    <span>{isLogin ? t("auth.signingIn") : t("auth.creatingAccount")}</span>
                   </div>
                 ) : (
-                  isLogin ? "Sign In" : "Create Account"
+                  isLogin ? t("auth.signIn") : t("auth.createAccount")
                 )}
               </Button>
             </form>
@@ -195,8 +197,8 @@ const Auth = () => {
                 className="text-primary hover:text-primary/80"
               >
                 {isLogin 
-                  ? "Don't have an account? Sign up" 
-                  : "Already have an account? Sign in"
+                  ? t("auth.noAccountSignUp")
+                  : t("auth.hasAccountSignIn")
                 }
               </Button>
             </div>
