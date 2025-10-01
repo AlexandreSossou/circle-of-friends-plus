@@ -17,7 +17,7 @@ const SettingsTabs = () => {
 
   return (
     <Tabs defaultValue="profile" className="w-full">
-      <TabsList className="w-full flex flex-nowrap overflow-x-auto md:grid md:grid-cols-6 lg:gap-2">
+      <TabsList className="w-full flex flex-nowrap overflow-x-auto gap-1 md:grid md:grid-cols-6 md:gap-2">
         <TabsTrigger value="profile" className="flex items-center shrink-0">
           <User className="mr-2 h-4 w-4" />
           <span className="hidden md:inline">{t("settings.profile")}</span>
