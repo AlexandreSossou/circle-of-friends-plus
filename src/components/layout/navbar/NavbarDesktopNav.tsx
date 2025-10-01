@@ -61,6 +61,7 @@ const NavbarDesktopNav = () => {
       return data || [];
     },
     enabled: !!user,
+    staleTime: 0, // Always consider data stale for immediate updates
     refetchInterval: 10000, // Refetch every 10 seconds
   });
 
