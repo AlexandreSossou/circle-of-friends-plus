@@ -5,10 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGroups } from "@/hooks/useGroups";
+import { useGroupPosts } from "@/hooks/useGroupPosts";
+import { useGroupMembers } from "@/hooks/useGroupMembers";
+import CreateGroupPost from "@/components/groups/CreateGroupPost";
+import GroupPostCard from "@/components/groups/GroupPostCard";
+import GroupMembersList from "@/components/groups/GroupMembersList";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { userGroups, publicGroups, isLoadingUserGroups, isLoadingPublicGroups } = useGroups();
+  const { posts, isLoading: isLoadingPosts, createPost, deletePost, isCreatingPost } = useGroupPosts(id);
+  const { members, isLoading: isLoadingMembers } = useGroupMembers(id);
   
   // Find the group in user groups first, then public groups
   const group = userGroups.find(g => g.id === id) || publicGroups.find(g => g.id === id);
@@ -17,6 +24,14 @@ const GroupDetail = () => {
   
   const getGroupInitials = (name: string) => {
     return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const handleCreatePost = (content: string) => {
+    createPost({ content });
+  };
+
+  const handleReply = (parentPostId: string, content: string) => {
+    createPost({ content, parentPostId });
   };
 
   if (isLoading) {
@@ -116,17 +131,61 @@ const GroupDetail = () => {
           </TabsList>
           
           <TabsContent value="posts" className="mt-6">
-            <div className="text-center py-10 text-social-textSecondary">
-              <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No posts yet. Be the first to start a conversation!</p>
-            </div>
+            {isMember ? (
+              <div className="space-y-6">
+                <CreateGroupPost 
+                  onSubmit={handleCreatePost}
+                  isSubmitting={isCreatingPost}
+                />
+                
+                {isLoadingPosts ? (
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="border rounded-lg p-4 animate-pulse">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                          <div className="flex-1 space-y-2">
+                            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                            <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                            <div className="h-16 bg-gray-200 rounded mt-2"></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : posts.length > 0 ? (
+                  <div className="space-y-4">
+                    {posts.map((post) => (
+                      <GroupPostCard
+                        key={post.id}
+                        post={post}
+                        onReply={handleReply}
+                        onDelete={deletePost}
+                        isAdmin={group?.user_role === 'admin'}
+                        isCreatingReply={isCreatingPost}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 text-social-textSecondary">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No posts yet. Be the first to start a conversation!</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-10 text-social-textSecondary">
+                <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Join this group to view and create posts.</p>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="members" className="mt-6">
-            <div className="text-center py-10 text-social-textSecondary">
-              <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Group members will be displayed here.</p>
-            </div>
+            <GroupMembersList 
+              members={members}
+              isLoading={isLoadingMembers}
+            />
           </TabsContent>
           
           <TabsContent value="events" className="mt-6">
