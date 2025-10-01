@@ -94,7 +94,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
       toast({
         title: "Album created",
         description: "Your new album has been created successfully.",
-        duration: 3000,
+        duration: 2000,
       });
     },
     onError: (error) => {
@@ -103,7 +103,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
         title: "Error",
         description: "Failed to create album. Please try again.",
         variant: "destructive",
-        duration: 3000,
+        duration: 2000,
       });
     },
   });
@@ -136,7 +136,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
         title: "Error",
         description: "Failed to update album. Please try again.",
         variant: "destructive",
-        duration: 3000,
+        duration: 2000,
       });
     },
   });
@@ -156,7 +156,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
       toast({
         title: "Album deleted",
         description: "The album has been deleted successfully.",
-        duration: 3000,
+        duration: 2000,
       });
     },
     onError: (error) => {
@@ -165,7 +165,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
         title: "Error",
         description: "Failed to delete album. Please try again.",
         variant: "destructive",
-        duration: 3000,
+        duration: 2000,
       });
     },
   });
@@ -218,7 +218,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
       toast({
         title: "Photo uploaded",
         description: "Your photo has been uploaded successfully.",
-        duration: 3000,
+        duration: 2000,
       });
     },
     onError: (error) => {
@@ -227,7 +227,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
         title: "Error",
         description: "Failed to upload photo. Please try again.",
         variant: "destructive",
-        duration: 3000,
+        duration: 2000,
       });
     },
   });
@@ -244,7 +244,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
       toast({
         title: "Photo deleted",
         description: "The photo has been deleted successfully.",
-        duration: 3000,
+        duration: 2000,
       });
     },
     onError: (error) => {
@@ -253,7 +253,7 @@ export const usePhotoAlbums = (userId: string | undefined) => {
         title: "Error",
         description: "Failed to delete photo. Please try again.",
         variant: "destructive",
-        duration: 3000,
+        duration: 2000,
       });
     },
   });
