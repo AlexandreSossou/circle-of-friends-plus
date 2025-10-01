@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Calendar, Clock, MapPin, Users, MoreVertical, Trash, Edit, Share } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Event } from "@/types/event";
 import { format } from "date-fns";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface EventCardProps {
   event: Event;
@@ -21,6 +24,9 @@ interface EventCardProps {
 }
 
 export const EventCard = ({ event, onDelete, onAttend, onLeave }: EventCardProps) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const getVisibilityLabel = () => {
@@ -41,8 +47,30 @@ export const EventCard = ({ event, onDelete, onAttend, onLeave }: EventCardProps
     }
   };
 
+  const isCreator = user?.id === event.user_id;
+
+  const handleShare = () => {
+    const url = `${window.location.origin}/events/${event.id}`;
+    navigator.clipboard.writeText(url);
+    toast({
+      title: "Link copied!",
+      description: "Event link copied to clipboard",
+    });
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons or dropdown
+    if ((e.target as HTMLElement).closest('button, [role="menuitem"]')) {
+      return;
+    }
+    navigate(`/events/${event.id}`);
+  };
+
   return (
-    <div className="social-card p-4 overflow-hidden">
+    <div 
+      className="social-card p-4 overflow-hidden cursor-pointer hover:bg-social-gray/50 transition-colors"
+      onClick={handleCardClick}
+    >
       <div className="flex justify-between items-start">
         <div className="flex items-start gap-3">
           <Avatar className="w-10 h-10">
@@ -68,19 +96,34 @@ export const EventCard = ({ event, onDelete, onAttend, onLeave }: EventCardProps
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Edit className="w-4 h-4 mr-2" /> Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              {isCreator && (
+                <>
+                  <DropdownMenuItem onClick={() => navigate(`/events/${event.id}`)}>
+                    <Edit className="w-4 h-4 mr-2" /> Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(event.id);
+                    }} 
+                    className="text-red-500"
+                  >
+                    <Trash className="w-4 h-4 mr-2" /> Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+              <DropdownMenuItem onClick={handleShare}>
                 <Share className="w-4 h-4 mr-2" /> Share
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(event.id)} className="text-red-500">
-                <Trash className="w-4 h-4 mr-2" /> Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -131,7 +174,13 @@ export const EventCard = ({ event, onDelete, onAttend, onLeave }: EventCardProps
         </div>
         <div className="flex gap-2">
           {event.isAttending ? (
-            <Button variant="outline" onClick={() => onLeave(event.id)}>
+            <Button 
+              variant="outline" 
+              onClick={(e) => {
+                e.stopPropagation();
+                onLeave(event.id);
+              }}
+            >
               Leave Event
             </Button>
           ) : event.isPending ? (
@@ -139,7 +188,12 @@ export const EventCard = ({ event, onDelete, onAttend, onLeave }: EventCardProps
               Request Pending
             </Button>
           ) : (
-            <Button onClick={() => onAttend(event.id, event.access_type)}>
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                onAttend(event.id, event.access_type);
+              }}
+            >
               {event.access_type === "request" ? "Ask to Attend" : "Attend"}
             </Button>
           )}
