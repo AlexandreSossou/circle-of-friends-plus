@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface PersonalInfoFieldsProps {
+  username: string;
+  setUsername: (value: string) => void;
   firstName: string;
   setFirstName: (value: string) => void;
   lastName: string;
@@ -15,6 +17,7 @@ interface PersonalInfoFieldsProps {
   maritalStatus: string;
   setMaritalStatus: (value: string) => void;
   errors?: {
+    username?: string;
     firstName?: string;
     lastName?: string;
     gender?: string;
@@ -24,6 +27,8 @@ interface PersonalInfoFieldsProps {
 }
 
 const PersonalInfoFields = ({
+  username,
+  setUsername,
   firstName,
   setFirstName,
   lastName,
@@ -38,6 +43,23 @@ const PersonalInfoFields = ({
 }: PersonalInfoFieldsProps) => {
   return (
     <>
+      <div className="space-y-2">
+        <Label htmlFor="username">Nickname</Label>
+        <Input
+          id="username"
+          type="text"
+          placeholder="Your nickname (visible to everyone)"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          className={`social-input ${errors.username ? "border-red-500" : ""}`}
+        />
+        {errors.username && (
+          <p className="text-sm text-red-500 mt-1">{errors.username}</p>
+        )}
+        <p className="text-xs text-muted-foreground">This is the name that will be displayed on the app</p>
+      </div>
+
       <div className="flex gap-4">
         <div className="space-y-2 w-1/2">
           <Label htmlFor="firstName">First Name</Label>
@@ -70,6 +92,7 @@ const PersonalInfoFields = ({
           )}
         </div>
       </div>
+      <p className="text-xs text-muted-foreground -mt-2">Your full name will not be visible to other users but helps prevent identity theft</p>
 
       <div className="space-y-2">
         <Label htmlFor="gender">Gender</Label>

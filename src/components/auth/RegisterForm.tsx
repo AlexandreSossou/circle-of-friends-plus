@@ -11,6 +11,7 @@ import TermsAndPrivacyText from "./register/TermsAndPrivacyText";
 import { useRegisterFormValidation } from "@/hooks/useRegisterFormValidation";
 
 const RegisterForm = () => {
+  const [username, setUsername] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -29,6 +30,7 @@ const RegisterForm = () => {
     e.preventDefault();
     
     const formData = {
+      username,
       firstName,
       lastName,
       email,
@@ -48,6 +50,7 @@ const RegisterForm = () => {
         email, 
         password, 
         { 
+          username: username,
           full_name: `${firstName} ${lastName}`,
           gender: gender,
           age: parseInt(age),
@@ -79,6 +82,8 @@ const RegisterForm = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <PersonalInfoFields 
+              username={username}
+              setUsername={setUsername}
               firstName={firstName}
               setFirstName={setFirstName}
               lastName={lastName}

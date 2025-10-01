@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
+  username: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -14,6 +15,7 @@ interface FormData {
 }
 
 interface FormErrors {
+  username?: string;
   firstName?: string;
   lastName?: string;
   email?: string;
@@ -33,6 +35,17 @@ export const useRegisterFormValidation = () => {
     let isValid = true;
 
     // Check required fields
+    if (!data.username.trim()) {
+      newErrors.username = "Nickname is required";
+      isValid = false;
+    } else if (data.username.length < 3) {
+      newErrors.username = "Nickname must be at least 3 characters";
+      isValid = false;
+    } else if (data.username.length > 20) {
+      newErrors.username = "Nickname must be less than 20 characters";
+      isValid = false;
+    }
+
     if (!data.firstName.trim()) {
       newErrors.firstName = "First name is required";
       isValid = false;
