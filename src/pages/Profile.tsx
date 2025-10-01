@@ -27,8 +27,6 @@ const Profile = () => {
     profileLoading,
     formattedPosts,
     friendsList,
-    albums,
-    setAlbums,
     verificationInfo
   } = useProfileData(profileId, isOwnProfile);
 
@@ -142,11 +140,9 @@ const Profile = () => {
               <ProfileContent
                 posts={formattedPosts}
                 friendsList={friendsList}
-                albums={albums}
                 isOwnProfile={isOwnProfile}
                 currentUserId={user?.id}
                 profileData={localProfileData}
-                onAlbumChange={setAlbums}
                 onProfileVisibilityChange={handleProfileVisibilityChange}
                 onProfileUpdate={handleProfileUpdate}
               />

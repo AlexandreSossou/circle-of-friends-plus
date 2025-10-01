@@ -14,12 +14,12 @@ type Friend = {
 };
 
 type AlbumPrivacySettingsProps = {
-  albumId: number;
+  albumId: string;
   albumName: string;
   isPrivate: boolean;
   allowedUsers: string[];
   friends: Friend[];
-  onSave: (albumId: number, isPrivate: boolean, allowedUsers: string[]) => void;
+  onSave: (albumId: string, isPrivate: boolean, allowedUsers: string[]) => void;
 };
 
 const AlbumPrivacySettings = ({

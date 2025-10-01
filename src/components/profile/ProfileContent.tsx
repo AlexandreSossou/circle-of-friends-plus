@@ -13,11 +13,9 @@ import { Album, Friend, Post, ProfileData, ProfileType } from "@/types/profile";
 type ProfileContentProps = {
   posts: Post[];
   friendsList: Friend[];
-  albums: Album[];
   isOwnProfile: boolean;
   currentUserId?: string;
   profileData: ProfileData;
-  onAlbumChange: (albums: Album[]) => void;
   onProfileVisibilityChange: (settings: { publicEnabled: boolean; privateEnabled: boolean }) => void;
   onProfileUpdate?: (updates: Partial<ProfileData>) => void;
 };
@@ -25,11 +23,9 @@ type ProfileContentProps = {
 const ProfileContent = ({
   posts,
   friendsList,
-  albums,
   isOwnProfile,
   currentUserId,
   profileData,
-  onAlbumChange,
   onProfileVisibilityChange,
   onProfileUpdate
 }: ProfileContentProps) => {
@@ -126,12 +122,11 @@ const ProfileContent = ({
             </>
           )}
           <PhotoAlbum 
-            albums={albums}
+            userId={profileData.id}
             friends={friendsList}
             isOwnProfile={isOwnProfile}
             currentUserId={currentUserId}
             profileType={profileType}
-            onAlbumChange={onAlbumChange}
           />
         </TabsContent>
         

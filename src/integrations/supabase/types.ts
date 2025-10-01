@@ -706,6 +706,83 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_albums: {
+        Row: {
+          allowed_users: string[] | null
+          created_at: string
+          id: string
+          is_photo_safe: boolean
+          is_private: boolean
+          name: string
+          updated_at: string
+          user_id: string
+          visible_on_private_profile: boolean
+          visible_on_public_profile: boolean
+        }
+        Insert: {
+          allowed_users?: string[] | null
+          created_at?: string
+          id?: string
+          is_photo_safe?: boolean
+          is_private?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+          visible_on_private_profile?: boolean
+          visible_on_public_profile?: boolean
+        }
+        Update: {
+          allowed_users?: string[] | null
+          created_at?: string
+          id?: string
+          is_photo_safe?: boolean
+          is_private?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+          visible_on_private_profile?: boolean
+          visible_on_public_profile?: boolean
+        }
+        Relationships: []
+      }
+      photos: {
+        Row: {
+          album_id: string
+          caption: string | null
+          created_at: string
+          file_url: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          album_id: string
+          caption?: string | null
+          created_at?: string
+          file_url: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          album_id?: string
+          caption?: string | null
+          created_at?: string
+          file_url?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photos_album_id_fkey"
+            columns: ["album_id"]
+            isOneToOne: false
+            referencedRelation: "photo_albums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_limits: {
         Row: {
           created_at: string

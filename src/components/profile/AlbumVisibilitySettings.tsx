@@ -5,11 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Album } from "@/types/profile";
 
 type AlbumVisibilitySettingsProps = {
-  album: Album;
-  onSave: (albumId: number, visibleOnPublic: boolean, visibleOnPrivate: boolean) => void;
+  album: {
+    id: string;
+    name: string;
+    visibleOnPublicProfile?: boolean;
+    visibleOnPrivateProfile?: boolean;
+  };
+  onSave: (albumId: string, visibleOnPublic: boolean, visibleOnPrivate: boolean) => void;
 };
 
 const AlbumVisibilitySettings = ({ album, onSave }: AlbumVisibilitySettingsProps) => {
@@ -24,11 +28,6 @@ const AlbumVisibilitySettings = ({ album, onSave }: AlbumVisibilitySettingsProps
       description: `"${album.name}" visibility settings have been updated.`,
     });
   };
-
-  // Photo Safe album is always private and shouldn't have visibility controls
-  if (album.isPhotoSafe) {
-    return null;
-  }
 
   return (
     <Sheet>

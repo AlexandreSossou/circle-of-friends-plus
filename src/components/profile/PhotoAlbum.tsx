@@ -1,22 +1,22 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { CameraIcon, ShieldIcon } from "lucide-react";
+import { ShieldIcon, Trash2 } from "lucide-react";
 import AlbumPrivacySettings from "./AlbumPrivacySettings";
 import AlbumVisibilitySettings from "./AlbumVisibilitySettings";
+import CreateAlbumDialog from "./CreateAlbumDialog";
+import UploadPhotoDialog from "./UploadPhotoDialog";
 import { ProfileType } from "@/types/profile";
-
-type Photo = string;
-
-type Album = {
-  id: number;
-  name: string;
-  photos: Photo[];
-  isPrivate: boolean;
-  allowedUsers: string[];
-  isPhotoSafe?: boolean;
-  visibleOnPublicProfile?: boolean;
-  visibleOnPrivateProfile?: boolean;
-};
+import { usePhotoAlbums, PhotoAlbum as DBPhotoAlbum, Photo } from "@/hooks/usePhotoAlbums";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 type Friend = {
   id: string;
@@ -28,137 +28,85 @@ type Friend = {
 };
 
 type PhotoAlbumProps = {
-  albums: Album[];
+  userId: string;
   friends: Friend[];
   isOwnProfile: boolean;
   currentUserId?: string;
   profileType: ProfileType;
-  onAlbumChange?: (albums: Album[]) => void;
 };
 
 const PhotoAlbum = ({ 
-  albums: initialAlbums, 
+  userId,
   friends, 
   isOwnProfile, 
   currentUserId, 
-  profileType,
-  onAlbumChange 
+  profileType 
 }: PhotoAlbumProps) => {
-  const [albums, setAlbums] = useState<Album[]>(initialAlbums);
+  const {
+    albums,
+    isLoading,
+    createAlbum,
+    updateAlbum,
+    deleteAlbum,
+    uploadPhoto,
+    deletePhoto,
+    isCreatingAlbum,
+    isUploadingPhoto,
+  } = usePhotoAlbums(userId);
 
-  // Effect to automatically update album permissions when friends change their relationship type
-  useEffect(() => {
-    if (!isOwnProfile) return;
+  const [deletePhotoId, setDeletePhotoId] = useState<string | null>(null);
+  const [deleteAlbumId, setDeleteAlbumId] = useState<string | null>(null);
 
-    const closeFriendIds = friends
-      .filter(friend => friend.relationshipType === 'friend')
-      .map(friend => friend.id);
-
-    const updatedAlbums = albums.map(album => {
-      // Photo Safe album should never be accessible to anyone else
-      if (album.isPhotoSafe) {
-        return album;
-      }
-      
-      if (album.isPrivate) {
-        // For each private album, make sure all close friends have access
-        const newAllowedUsers = [...album.allowedUsers];
-        
-        for (const friendId of closeFriendIds) {
-          if (!newAllowedUsers.includes(friendId)) {
-            newAllowedUsers.push(friendId);
-          }
-        }
-        
-        return { ...album, allowedUsers: newAllowedUsers };
-      }
-      return album;
+  const handlePrivacyChange = (albumId: string, isPrivate: boolean, allowedUsers: string[]) => {
+    updateAlbum({
+      albumId,
+      updates: {
+        is_private: isPrivate,
+        allowed_users: allowedUsers,
+      },
     });
-    
-    setAlbums(updatedAlbums);
-    
-    if (onAlbumChange) {
-      onAlbumChange(updatedAlbums);
-    }
-  }, [friends, isOwnProfile]);
-
-  const handlePrivacyChange = (albumId: number, isPrivate: boolean, allowedUsers: string[]) => {
-    // When updating privacy settings, ensure all close friends are included
-    let updatedAllowedUsers = [...allowedUsers];
-    
-    if (isPrivate) {
-      const closeFriendIds = friends
-        .filter(friend => friend.relationshipType === 'friend')
-        .map(friend => friend.id);
-      
-      for (const friendId of closeFriendIds) {
-        if (!updatedAllowedUsers.includes(friendId)) {
-          updatedAllowedUsers.push(friendId);
-        }
-      }
-    }
-    
-    const updatedAlbums = albums.map(album => 
-      album.id === albumId 
-        ? { ...album, isPrivate, allowedUsers: updatedAllowedUsers } 
-        : album
-    );
-    
-    setAlbums(updatedAlbums);
-    
-    if (onAlbumChange) {
-      onAlbumChange(updatedAlbums);
-    }
   };
 
-  const handleVisibilityChange = (albumId: number, visibleOnPublic: boolean, visibleOnPrivate: boolean) => {
-    const updatedAlbums = albums.map(album => 
-      album.id === albumId 
-        ? { 
-            ...album, 
-            visibleOnPublicProfile: visibleOnPublic,
-            visibleOnPrivateProfile: visibleOnPrivate
-          } 
-        : album
-    );
-    
-    setAlbums(updatedAlbums);
-    
-    if (onAlbumChange) {
-      onAlbumChange(updatedAlbums);
-    }
+  const handleVisibilityChange = (albumId: string, visibleOnPublic: boolean, visibleOnPrivate: boolean) => {
+    updateAlbum({
+      albumId,
+      updates: {
+        visible_on_public_profile: visibleOnPublic,
+        visible_on_private_profile: visibleOnPrivate,
+      },
+    });
   };
 
-  const canViewAlbum = (album: Album) => {
-    // Photo Safe album is only visible to the profile owner
-    if (album.isPhotoSafe) {
+  const canViewAlbum = (album: DBPhotoAlbum) => {
+    if (album.is_photo_safe) {
       return isOwnProfile;
     }
     
     if (isOwnProfile) return true;
-    if (!album.isPrivate) return true;
-    if (currentUserId && album.allowedUsers.includes(currentUserId)) return true;
+    if (!album.is_private) return true;
+    if (currentUserId && album.allowed_users.includes(currentUserId)) return true;
     return false;
   };
 
-  const isAlbumVisibleOnProfileType = (album: Album) => {
-    // Photo Safe is only shown to the profile owner regardless of profile type
-    if (album.isPhotoSafe) {
+  const isAlbumVisibleOnProfileType = (album: DBPhotoAlbum) => {
+    if (album.is_photo_safe) {
       return isOwnProfile;
     }
     
-    // Check visibility based on profile type
     if (profileType === 'public') {
-      return album.visibleOnPublicProfile ?? true;
+      return album.visible_on_public_profile ?? true;
     } else {
-      return album.visibleOnPrivateProfile ?? true;
+      return album.visible_on_private_profile ?? true;
     }
   };
 
-  // Filter albums based on profile type visibility and viewing permissions
   const visibleAlbums = albums.filter(album => {
     return isAlbumVisibleOnProfileType(album) && canViewAlbum(album);
   });
+
+  if (isLoading) {
+    return <div className="text-center py-8">Loading albums...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -167,42 +115,90 @@ const PhotoAlbum = ({
           <div className="flex justify-between items-center mb-3">
             <div className="flex items-center gap-2">
               <h3 className="text-lg font-semibold">{album.name}</h3>
-              {album.isPhotoSafe && (
+              {album.is_photo_safe && (
                 <ShieldIcon className="w-5 h-5 text-orange-500" />
               )}
             </div>
-            {isOwnProfile && albumIndex > 0 && !album.isPhotoSafe && (
+            {isOwnProfile && (
               <div className="flex gap-2">
-                <AlbumPrivacySettings 
-                  albumId={album.id}
-                  albumName={album.name}
-                  isPrivate={album.isPrivate}
-                  allowedUsers={album.allowedUsers}
-                  friends={friends}
-                  onSave={handlePrivacyChange}
-                />
-                <AlbumVisibilitySettings
-                  album={album}
-                  onSave={handleVisibilityChange}
-                />
+                {!album.is_photo_safe && (
+                  <>
+                    <UploadPhotoDialog
+                      albumId={album.id}
+                      albumName={album.name}
+                      onUploadPhoto={(albumId, file, caption) => uploadPhoto({ albumId, file, caption })}
+                      isUploading={isUploadingPhoto}
+                    />
+                    <AlbumPrivacySettings 
+                      albumId={album.id}
+                      albumName={album.name}
+                      isPrivate={album.is_private}
+                      allowedUsers={album.allowed_users}
+                      friends={friends}
+                      onSave={handlePrivacyChange}
+                    />
+                    <AlbumVisibilitySettings
+                      album={{
+                        id: album.id,
+                        name: album.name,
+                        visibleOnPublicProfile: album.visible_on_public_profile,
+                        visibleOnPrivateProfile: album.visible_on_private_profile,
+                      }}
+                      onSave={handleVisibilityChange}
+                    />
+                    {albumIndex > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setDeleteAlbumId(album.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    )}
+                  </>
+                )}
+                {album.is_photo_safe && (
+                  <UploadPhotoDialog
+                    albumId={album.id}
+                    albumName={album.name}
+                    onUploadPhoto={(albumId, file, caption) => uploadPhoto({ albumId, file, caption })}
+                    isUploading={isUploadingPhoto}
+                  />
+                )}
               </div>
             )}
           </div>
           
-          {album.isPhotoSafe && isOwnProfile && (
+          {album.is_photo_safe && isOwnProfile && (
             <p className="text-sm text-social-textSecondary mb-4">
               Photos in this album are completely private and will never be displayed anywhere on the website.
             </p>
           )}
           
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {album.photos.map((photo, index) => (
-              <div key={index} className="aspect-square rounded-lg overflow-hidden">
+            {album.photos.map((photo) => (
+              <div key={photo.id} className="aspect-square rounded-lg overflow-hidden relative group">
                 <img 
-                  src={photo} 
-                  alt={`Photo ${index + 1}`} 
+                  src={photo.file_url} 
+                  alt={photo.caption || `Photo in ${album.name}`} 
                   className="w-full h-full object-cover"
                 />
+                {isOwnProfile && (
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setDeletePhotoId(photo.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+                {photo.caption && (
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-2 text-sm">
+                    {photo.caption}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -210,11 +206,61 @@ const PhotoAlbum = ({
       ))}
       
       {isOwnProfile && (
-        <Button className="mt-4">
-          <CameraIcon className="w-4 h-4 mr-2" />
-          Create New Album
-        </Button>
+        <CreateAlbumDialog
+          onCreateAlbum={(name, isPrivate) => createAlbum({ name, isPrivate })}
+          isCreating={isCreatingAlbum}
+        />
       )}
+
+      {/* Delete Photo Confirmation Dialog */}
+      <AlertDialog open={!!deletePhotoId} onOpenChange={() => setDeletePhotoId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Photo</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this photo? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deletePhotoId) {
+                  deletePhoto(deletePhotoId);
+                  setDeletePhotoId(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Album Confirmation Dialog */}
+      <AlertDialog open={!!deleteAlbumId} onOpenChange={() => setDeleteAlbumId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Album</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this album? All photos in this album will be permanently deleted. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteAlbumId) {
+                  deleteAlbum(deleteAlbumId);
+                  setDeleteAlbumId(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

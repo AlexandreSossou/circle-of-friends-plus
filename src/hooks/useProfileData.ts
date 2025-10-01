@@ -1,8 +1,7 @@
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchProfileData, fetchProfilePosts, mockProfiles } from "@/services/profile";
-import { Album, Friend, Post, ProfileData } from "@/types/profile";
+import { fetchProfileData, fetchProfilePosts } from "@/services/profile";
+import { Friend, Post } from "@/types/profile";
 
 export interface VerificationInfo {
   lastConnection?: string;
@@ -36,54 +35,6 @@ export const useProfileData = (profileId: string | undefined, isOwnProfile: bool
     { id: "e5e5e5e5-e5e5-e5e5-e5e5-e5e5e5e5e5e5", name: "David Lee", avatar: "/placeholder.svg", initials: "DL", mutualFriends: 4, relationshipType: "acquaintance" }
   ];
 
-  // Sample photos
-  const photos = [
-    "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=500",
-    "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?q=80&w=500",
-    "https://images.unsplash.com/photo-1675624452350-ac5db8edf97b?q=80&w=500",
-    "https://images.unsplash.com/photo-1584473457406-6240486418e9?q=80&w=500",
-    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=500",
-    "https://images.unsplash.com/photo-1573497620053-ea5300f94f21?q=80&w=500"
-  ];
-
-  // Sample photos for Photo Safe (only visible to the profile owner)
-  const safePhotos = [
-    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?q=80&w=500",
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=500"
-  ];
-
-  // Album state - Photo Safe is always first and has special properties
-  const [albums, setAlbums] = useState<Album[]>([
-    { 
-      id: 0, 
-      name: "Photo Safe", 
-      photos: safePhotos, 
-      isPrivate: true, 
-      allowedUsers: [], 
-      isPhotoSafe: true,
-      visibleOnPublicProfile: false,
-      visibleOnPrivateProfile: false
-    },
-    { 
-      id: 1, 
-      name: "Default Album", 
-      photos: photos.slice(0, 3), 
-      isPrivate: false, 
-      allowedUsers: [],
-      visibleOnPublicProfile: true,
-      visibleOnPrivateProfile: true
-    },
-    { 
-      id: 2, 
-      name: "Vacation", 
-      photos: photos.slice(3, 6), 
-      isPrivate: true, 
-      allowedUsers: ["friend-1", "friend-2"],
-      visibleOnPublicProfile: false,
-      visibleOnPrivateProfile: true
-    },
-  ]);
-
   // Mock verification info - in real app this would come from your database
   const verificationInfo: VerificationInfo = {
     lastConnection: profileId ? new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() : undefined, // 3 days ago
@@ -114,8 +65,6 @@ export const useProfileData = (profileId: string | undefined, isOwnProfile: bool
     profileLoading,
     formattedPosts,
     friendsList,
-    albums,
-    setAlbums,
     verificationInfo
   };
 };
