@@ -45,7 +45,7 @@ const ProfileBio = ({
         {bio && (
           <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
             <h2 className="text-lg font-semibold mb-2">About Me</h2>
-            <p className="text-gray-700 whitespace-pre-line">{bio}</p>
+            <p className="text-gray-700 whitespace-pre-line break-words">{bio}</p>
           </div>
         )}
         
