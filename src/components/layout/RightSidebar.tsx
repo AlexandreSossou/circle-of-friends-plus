@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RegionalAlertCarousel } from "@/components/announcements/RegionalAlertCarousel";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
@@ -11,6 +12,7 @@ import NewsPreview from "@/components/news/NewsPreview";
 
 const RightSidebar = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const { onlineUsers } = useOnlineUsers();
   
   // Fetch user profile to get location
@@ -66,7 +68,7 @@ const RightSidebar = () => {
       <RegionalAlertCarousel userLocation={userLocation} />
       <NewsPreview />
       <div className="social-card p-4">
-        <h3 className="font-semibold mb-3">Upcoming Events</h3>
+        <h3 className="font-semibold mb-3">{t("sidebar.upcomingEvents")}</h3>
         <div className="space-y-3">
           {upcomingEvents.length > 0 ? (
             upcomingEvents.map((event) => (
@@ -79,16 +81,16 @@ const RightSidebar = () => {
               </Link>
             ))
           ) : (
-            <p className="text-sm text-social-textSecondary">No upcoming events</p>
+            <p className="text-sm text-social-textSecondary">{t("sidebar.noUpcomingEvents")}</p>
           )}
         </div>
         <Link to="/events" className="block mt-3 text-social-blue text-sm font-medium">
-          See all events
+          {t("sidebar.seeAllEvents")}
         </Link>
       </div>
       
       <div className="social-card p-4">
-        <h3 className="font-semibold mb-3">Online ({onlineUsers.length})</h3>
+        <h3 className="font-semibold mb-3">{t("sidebar.online")} ({onlineUsers.length})</h3>
         <div className="space-y-2">
           {onlineUsers.length > 0 ? (
             onlineUsers.map((onlineUser) => (
@@ -108,7 +110,7 @@ const RightSidebar = () => {
               </div>
             ))
           ) : (
-            <p className="text-sm text-social-textSecondary">No users online</p>
+            <p className="text-sm text-social-textSecondary">{t("sidebar.noUsersOnline")}</p>
           )}
         </div>
       </div>
