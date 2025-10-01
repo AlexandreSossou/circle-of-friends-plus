@@ -12,20 +12,21 @@ const Login = () => {
 
   return (
     <div className={`min-h-screen bg-background ${calmMode ? 'calm' : ''} flex flex-col`}>
-      <div className="py-8">
-        <div className="text-center">
-          <Link to="/" className="inline-block">
+      <div className="py-8 px-4">
+        <div className="container mx-auto flex items-center justify-between">
+          <div className="flex-1" />
+          <Link to="/" className="flex-1 flex justify-center">
             <h1 className="text-heading-lg text-primary hover:text-primary/90 transition-colors">{t("app.name")}</h1>
           </Link>
+          <div className="flex-1 flex justify-end gap-2">
+            <CalmModeToggle />
+            <LanguageSelector variant="minimal" />
+          </div>
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-          <div className="flex justify-end mb-4 gap-2 items-center">
-            <CalmModeToggle />
-            <LanguageSelector variant="minimal" />
-          </div>
           <LoginForm />
         </div>
       </div>
