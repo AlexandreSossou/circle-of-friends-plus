@@ -1,0 +1,97 @@
+-- Drop and recreate get_safe_profile to include cover_photo_url
+DROP FUNCTION IF EXISTS public.get_safe_profile(uuid);
+
+CREATE OR REPLACE FUNCTION public.get_safe_profile(profile_id uuid)
+ RETURNS TABLE(
+   id uuid, 
+   created_at timestamp with time zone, 
+   updated_at timestamp with time zone, 
+   age integer, 
+   partner_id uuid, 
+   partners uuid[], 
+   private_partner_id uuid, 
+   private_partners uuid[], 
+   is_banned boolean, 
+   banned_until timestamp with time zone, 
+   banned_by uuid, 
+   username text, 
+   full_name text, 
+   avatar_url text, 
+   cover_photo_url text,
+   bio text, 
+   location text, 
+   gender text, 
+   sexual_orientation text, 
+   expression text, 
+   libido text, 
+   marital_status text, 
+   private_marital_status text, 
+   looking_for text[], 
+   banned_reason text, 
+   email text
+ )
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+  SELECT 
+    p.id,
+    p.created_at,
+    p.updated_at,
+    p.age,
+    p.partner_id,
+    p.partners,
+    p.private_partner_id,
+    p.private_partners,
+    CASE 
+      WHEN auth.uid() = p.id OR public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'moderator'::public.app_role) THEN p.is_banned
+      ELSE false
+    END as is_banned,
+    CASE 
+      WHEN auth.uid() = p.id OR public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'moderator'::public.app_role) THEN p.banned_until
+      ELSE NULL
+    END as banned_until,
+    CASE 
+      WHEN auth.uid() = p.id OR public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'moderator'::public.app_role) THEN p.banned_by
+      ELSE NULL
+    END as banned_by,
+    p.username,
+    p.full_name,
+    p.avatar_url,
+    p.cover_photo_url,
+    p.bio,
+    p.location,
+    p.gender,
+    p.sexual_orientation,
+    p.expression,
+    p.libido,
+    p.marital_status,
+    p.private_marital_status,
+    p.looking_for,
+    CASE 
+      WHEN auth.uid() = p.id OR public.has_role(auth.uid(), 'admin'::public.app_role) OR public.has_role(auth.uid(), 'moderator'::public.app_role) THEN p.banned_reason
+      ELSE NULL
+    END as banned_reason,
+    CASE 
+      WHEN auth.uid() = p.id OR public.has_role(auth.uid(), 'admin'::public.app_role) THEN p.email
+      ELSE NULL
+    END as email
+  FROM public.profiles p
+  WHERE p.id = profile_id
+    AND (
+      auth.uid() = p.id 
+      OR public.has_role(auth.uid(), 'admin'::public.app_role)
+      OR public.has_role(auth.uid(), 'moderator'::public.app_role)
+      OR p.id IN (
+        SELECT 
+          CASE
+            WHEN f.user_id = auth.uid() THEN f.friend_id
+            WHEN f.friend_id = auth.uid() THEN f.user_id
+            ELSE NULL::uuid
+          END AS friend_id
+        FROM public.friends f
+        WHERE f.status = 'accepted'
+          AND (f.user_id = auth.uid() OR f.friend_id = auth.uid())
+      )
+    );
+$function$;

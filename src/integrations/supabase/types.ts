@@ -1246,6 +1246,7 @@ export type Database = {
           banned_reason: string
           banned_until: string
           bio: string
+          cover_photo_url: string
           created_at: string
           email: string
           expression: string
