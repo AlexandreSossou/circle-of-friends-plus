@@ -4,6 +4,7 @@ import { MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   DropdownMenu,
@@ -31,6 +32,7 @@ interface NavbarMessagesDropdownProps {
 
 const NavbarMessagesDropdown = ({ unreadMessages }: NavbarMessagesDropdownProps) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
 
   const handleMessageClick = async (messageId: string) => {
     try {
@@ -45,12 +47,12 @@ const NavbarMessagesDropdown = ({ unreadMessages }: NavbarMessagesDropdownProps)
         return;
       }
       
-      // Force invalidate all unread message queries with exact keys
-      await queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
+      // Force invalidate all unread message queries with exact keys including user ID
+      await queryClient.invalidateQueries({ queryKey: ["unreadMessages", user?.id] });
       await queryClient.invalidateQueries({ queryKey: ["messages"] });
       
       // Force refetch to update counts immediately
-      queryClient.refetchQueries({ queryKey: ["unreadMessages"] });
+      queryClient.refetchQueries({ queryKey: ["unreadMessages", user?.id] });
     } catch (error) {
       console.error("Failed to mark message as read:", error);
     }

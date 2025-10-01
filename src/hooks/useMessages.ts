@@ -202,9 +202,9 @@ export const useMessages = () => {
           .update({ read: true })
           .in("id", messageIds);
         
-        // Force invalidate and refetch unread messages query to update navbar notifications
-        await queryClient.invalidateQueries({ queryKey: ["unreadMessages"] });
-        queryClient.refetchQueries({ queryKey: ["unreadMessages"] });
+        // Force invalidate and refetch unread messages query with user ID to update navbar notifications
+        await queryClient.invalidateQueries({ queryKey: ["unreadMessages", user.id] });
+        queryClient.refetchQueries({ queryKey: ["unreadMessages", user.id] });
       }
 
       return data || [];
