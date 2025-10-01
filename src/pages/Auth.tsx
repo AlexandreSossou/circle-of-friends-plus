@@ -12,6 +12,7 @@ const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
@@ -31,7 +32,7 @@ const Auth = () => {
       if (isLogin) {
         await signIn(email, password);
       } else {
-        await signUp(email, password, { full_name: fullName });
+        await signUp(email, password, { username: username, full_name: fullName });
       }
     } catch (error) {
       // Error handling is done in the auth context
@@ -103,18 +104,35 @@ const Auth = () => {
           <CardContent className="space-y-4">
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={!isLogin}
-                    className="h-11"
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Nickname</Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Your nickname (visible to everyone)"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      required={!isLogin}
+                      className="h-11"
+                    />
+                    <p className="text-xs text-muted-foreground">This is the name that will be displayed on the app</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="Enter your full name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={!isLogin}
+                      className="h-11"
+                    />
+                    <p className="text-xs text-muted-foreground">Your full name will not be visible to other users but helps prevent identity theft</p>
+                  </div>
+                </>
               )}
               
               <div className="space-y-2">
