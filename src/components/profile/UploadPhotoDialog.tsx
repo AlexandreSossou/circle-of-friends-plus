@@ -59,9 +59,9 @@ const UploadPhotoDialog = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
           <Upload className="w-4 h-4 mr-2" />
           Add Photos
         </Button>
