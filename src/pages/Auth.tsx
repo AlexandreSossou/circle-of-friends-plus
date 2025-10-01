@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Heart, Users, MapPin, Calendar } from "lucide-react";
+import LanguageSelector from "@/components/language/LanguageSelector";
+import { CalmModeToggle } from "@/components/ui/calm-mode-toggle";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,8 +44,15 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-secondary/10 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-secondary/10 flex flex-col">
+      <div className="py-4 px-4">
+        <div className="container mx-auto flex justify-end gap-2">
+          <CalmModeToggle />
+          <LanguageSelector variant="minimal" />
+        </div>
+      </div>
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
         
         {/* Left side - Branding and Features */}
         <div className="space-y-8 text-center lg:text-left">
@@ -193,6 +202,7 @@ const Auth = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
