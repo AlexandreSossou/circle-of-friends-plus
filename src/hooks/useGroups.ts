@@ -148,14 +148,19 @@ export const useGroups = () => {
     mutationFn: async (groupId: string) => {
       if (!user) throw new Error("You must be logged in to join groups");
 
-      // First check if the group has gender restrictions
+      // Check the group's join policy and restrictions
       const { data: groupData, error: groupError } = await supabase
         .from("groups")
-        .select("allowed_genders")
+        .select("allowed_genders, join_policy")
         .eq("id", groupId)
         .single();
 
       if (groupError) throw groupError;
+
+      // Validate join policy - only allow direct join for 'open' groups
+      if (groupData.join_policy === 'request') {
+        throw new Error("This group requires a join request. Please use the request to join option.");
+      }
 
       // If there are gender restrictions, check user's gender
       if (groupData.allowed_genders && groupData.allowed_genders.length > 0) {
