@@ -434,6 +434,13 @@ export type Database = {
             referencedRelation: "group_posts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "group_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       groups: {
