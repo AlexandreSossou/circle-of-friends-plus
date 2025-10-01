@@ -118,16 +118,8 @@ const GroupDetail = () => {
                   Join Group
                 </Button>
               )}
-              {isMember && (
-                <>
-                  <Button variant="outline">
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Chat
-                  </Button>
-                  {isAdmin && (
-                    <GroupSettingsDialog groupId={group.id} groupName={group.name} />
-                  )}
-                </>
+              {isMember && isAdmin && (
+                <GroupSettingsDialog groupId={group.id} groupName={group.name} />
               )}
             </div>
           </div>
