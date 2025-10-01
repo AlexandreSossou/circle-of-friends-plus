@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
 import { Save, AlertTriangle } from "lucide-react";
 
 interface LocalAlertLimit {
@@ -19,6 +20,7 @@ interface LocalAlertLimit {
 
 const LocalAlertTab = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [editedLimits, setEditedLimits] = useState<Record<string, { limit: number; active: boolean }>>({});
 
@@ -61,14 +63,14 @@ const LocalAlertTab = () => {
       queryClient.invalidateQueries({ queryKey: ["localAlertLimits"] });
       setEditedLimits({});
       toast({
-        title: "Success",
-        description: "Local alert limits updated successfully",
+        title: t("toast.localAlertsSaved"),
+        description: t("toast.localAlertsDesc"),
       });
     },
     onError: (error: Error) => {
       toast({
-        title: "Error",
-        description: error.message || "Failed to update limits",
+        title: t("toast.updateFailed"),
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -115,10 +117,10 @@ const LocalAlertTab = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5" />
-            Local Alert Limits by Gender
+            {t("settings.localAlerts.limitsTitle")}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Configure how many local alerts each gender can create per month. Set to 0 for unlimited.
+            {t("settings.localAlerts.limitsDesc")}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -165,13 +167,13 @@ const LocalAlertTab = () => {
 
           {hasChanges && (
             <div className="flex justify-end pt-4 border-t">
-              <Button 
+                <Button 
                 onClick={handleSave}
                 disabled={updateLimitsMutation.isPending}
                 className="flex items-center gap-2"
               >
                 <Save className="h-4 w-4" />
-                {updateLimitsMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateLimitsMutation.isPending ? t("settings.saving") : t("settings.saveChanges")}
               </Button>
             </div>
           )}

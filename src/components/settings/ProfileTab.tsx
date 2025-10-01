@@ -73,13 +73,13 @@ const ProfileTab = () => {
       if (profileError) throw profileError;
       
       toast({
-        title: "Profile updated!",
-        description: "Your profile information has been updated successfully.",
+        title: t("toast.profileUpdated"),
+        description: t("toast.profileUpdatedDesc"),
       });
     } catch (error: any) {
       console.error("Update error:", error);
       toast({
-        title: "Update failed",
+        title: t("toast.updateFailed"),
         description: error.message || "Failed to update profile",
         variant: "destructive",
       });

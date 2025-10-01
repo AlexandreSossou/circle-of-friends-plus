@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/context/LanguageContext";
 
 const NotificationsTab = () => {
   const { toast } = useToast();
+  const { t } = useLanguage();
   // Notifications state
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [friendRequestNotifications, setFriendRequestNotifications] = useState(true);
@@ -15,22 +17,22 @@ const NotificationsTab = () => {
   
   const handleNotificationsUpdate = () => {
     toast({
-      title: "Notification settings saved",
-      description: "Your notification preferences have been updated.",
+      title: t("toast.notificationsSaved"),
+      description: t("toast.notificationsDesc"),
     });
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Notification Preferences</CardTitle>
+        <CardTitle>{t("settings.notifications")}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <h4 className="font-medium">Email Notifications</h4>
+            <h4 className="font-medium">{t("settings.notifications.email")}</h4>
             <p className="text-sm text-social-textSecondary">
-              Receive email notifications about activity on your account
+              {t("settings.notifications.emailDesc")}
             </p>
           </div>
           <Switch 
@@ -41,9 +43,9 @@ const NotificationsTab = () => {
         
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <h4 className="font-medium">Friend Requests</h4>
+            <h4 className="font-medium">{t("settings.notifications.friendRequest")}</h4>
             <p className="text-sm text-social-textSecondary">
-              Get notified when someone sends you a friend request
+              {t("settings.notifications.friendRequestDesc")}
             </p>
           </div>
           <Switch 
@@ -54,9 +56,9 @@ const NotificationsTab = () => {
         
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <h4 className="font-medium">Messages</h4>
+            <h4 className="font-medium">{t("settings.notifications.messages")}</h4>
             <p className="text-sm text-social-textSecondary">
-              Get notified when you receive new messages
+              {t("settings.notifications.messagesDesc")}
             </p>
           </div>
           <Switch 
@@ -67,9 +69,9 @@ const NotificationsTab = () => {
         
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">
-            <h4 className="font-medium">Event Reminders</h4>
+            <h4 className="font-medium">{t("settings.notifications.events")}</h4>
             <p className="text-sm text-social-textSecondary">
-              Get reminders about upcoming events
+              {t("settings.notifications.eventsDesc")}
             </p>
           </div>
           <Switch 
@@ -79,7 +81,7 @@ const NotificationsTab = () => {
         </div>
         
         <Button onClick={handleNotificationsUpdate}>
-          Save Preferences
+          {t("settings.saveChanges")}
         </Button>
       </CardContent>
     </Card>
