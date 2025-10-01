@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Users, Settings, MessageCircle, UserPlus } from "lucide-react";
+import { ArrowLeft, Users, MessageCircle, UserPlus } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,6 +12,7 @@ import GroupMembersList from "@/components/groups/GroupMembersList";
 import { GroupAvatarUpload } from "@/components/groups/GroupAvatarUpload";
 import { GroupJoinRequestDialog } from "@/components/groups/GroupJoinRequestDialog";
 import { GroupJoinRequestsList } from "@/components/groups/GroupJoinRequestsList";
+import { GroupSettingsDialog } from "@/components/groups/GroupSettingsDialog";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -124,10 +125,7 @@ const GroupDetail = () => {
                     Chat
                   </Button>
                   {isAdmin && (
-                    <Button variant="outline">
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
-                    </Button>
+                    <GroupSettingsDialog groupId={group.id} groupName={group.name} />
                   )}
                 </>
               )}

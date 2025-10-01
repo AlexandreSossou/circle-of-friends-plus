@@ -202,6 +202,64 @@ export const useGroups = () => {
     },
   });
 
+  // Delete group mutation
+  const deleteGroupMutation = useMutation({
+    mutationFn: async (groupId: string) => {
+      if (!user) throw new Error("You must be logged in to delete groups");
+
+      const { error } = await supabase
+        .from("groups")
+        .delete()
+        .eq("id", groupId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["userGroups"] });
+      queryClient.invalidateQueries({ queryKey: ["publicGroups"] });
+      toast({
+        title: "Success!",
+        description: "Group deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete group",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Remove member mutation
+  const removeMemberMutation = useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
+      if (!user) throw new Error("You must be logged in to remove members");
+
+      const { error } = await supabase
+        .from("group_members")
+        .delete()
+        .eq("group_id", groupId)
+        .eq("user_id", userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["groupMembers"] });
+      toast({
+        title: "Success!",
+        description: "Member removed successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove member",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     userGroups,
     publicGroups,
@@ -209,5 +267,7 @@ export const useGroups = () => {
     isLoadingPublicGroups,
     createGroupMutation,
     joinGroupMutation,
+    deleteGroupMutation,
+    removeMemberMutation,
   };
 };
