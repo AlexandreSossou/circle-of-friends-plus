@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Trash2, Users, Settings } from "lucide-react";
+import { Trash2, Users, Settings, Shield } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -36,8 +36,9 @@ export const GroupSettingsDialog = ({ groupId, groupName }: GroupSettingsDialogP
   const [open, setOpen] = useState(false);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<string | null>(null);
+  const [memberToPromote, setMemberToPromote] = useState<string | null>(null);
   const navigate = useNavigate();
-  const { deleteGroupMutation, removeMemberMutation } = useGroups();
+  const { deleteGroupMutation, removeMemberMutation, promoteToAdminMutation } = useGroups();
   const { members, isLoading } = useGroupMembers(groupId);
 
   const handleDeleteGroup = async () => {
@@ -58,6 +59,16 @@ export const GroupSettingsDialog = ({ groupId, groupName }: GroupSettingsDialogP
       toast.success("Member removed successfully");
     } catch (error) {
       console.error("Error removing member:", error);
+    }
+  };
+
+  const handlePromoteToAdmin = async (memberId: string) => {
+    try {
+      await promoteToAdminMutation.mutateAsync({ groupId, userId: memberId });
+      setMemberToPromote(null);
+      toast.success("Member promoted to admin successfully");
+    } catch (error) {
+      console.error("Error promoting member:", error);
     }
   };
 
@@ -135,14 +146,25 @@ export const GroupSettingsDialog = ({ groupId, groupName }: GroupSettingsDialogP
                         </div>
                       </div>
                       {member.role !== "admin" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setMemberToRemove(member.user_id)}
-                          disabled={removeMemberMutation.isPending}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setMemberToPromote(member.user_id)}
+                            disabled={promoteToAdminMutation.isPending}
+                          >
+                            <Shield className="w-4 h-4 mr-1" />
+                            Make Admin
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setMemberToRemove(member.user_id)}
+                            disabled={removeMemberMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -208,6 +230,25 @@ export const GroupSettingsDialog = ({ groupId, groupName }: GroupSettingsDialogP
               onClick={() => memberToRemove && handleRemoveMember(memberToRemove)}
             >
               Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!memberToPromote} onOpenChange={() => setMemberToPromote(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Promote to Admin</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to make this member an admin? They will have full control over the group.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => memberToPromote && handlePromoteToAdmin(memberToPromote)}
+            >
+              Promote to Admin
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

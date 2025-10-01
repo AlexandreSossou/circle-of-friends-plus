@@ -265,6 +265,36 @@ export const useGroups = () => {
     },
   });
 
+  // Promote member to admin mutation
+  const promoteToAdminMutation = useMutation({
+    mutationFn: async ({ groupId, userId }: { groupId: string; userId: string }) => {
+      if (!user) throw new Error("You must be logged in to promote members");
+
+      const { error } = await supabase
+        .from("group_members")
+        .update({ role: "admin" })
+        .eq("group_id", groupId)
+        .eq("user_id", userId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["groupMembers"] });
+      queryClient.invalidateQueries({ queryKey: ["userGroups"] });
+      toast({
+        title: "Success!",
+        description: "Member promoted to admin successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to promote member",
+        variant: "destructive",
+      });
+    },
+  });
+
   return {
     userGroups,
     publicGroups,
@@ -274,5 +304,6 @@ export const useGroups = () => {
     joinGroupMutation,
     deleteGroupMutation,
     removeMemberMutation,
+    promoteToAdminMutation,
   };
 };
