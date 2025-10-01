@@ -1,14 +1,21 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Clock, MapPin, Users } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Edit } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/context/AuthContext";
+import { EventJoinRequests } from "@/components/events/EventJoinRequests";
+import { EditEventDialog } from "@/components/events/EditEventDialog";
+import { EventFormData } from "@/types/event";
 
 const EventDetail = () => {
   const { id } = useParams();
+  const { user } = useAuth();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -93,18 +100,41 @@ const EventDetail = () => {
   }
 
   const attendees = event.event_attendees?.filter(a => a.status === 'attending') || [];
+  const pendingRequests = event.event_attendees?.filter(a => a.status === 'pending') || [];
+  const isCreator = user?.id === event.user_id;
+
+  const eventFormData: EventFormData = {
+    title: event.title,
+    description: event.description || "",
+    start_date: event.start_date,
+    end_date: event.end_date || "",
+    time: event.time || "",
+    location: event.location || "",
+    visibility: event.visibility as "public" | "friends" | "private",
+    access_type: event.access_type as "open" | "request",
+  };
 
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between">
           <Link to="/events">
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Events
             </Button>
           </Link>
+          {isCreator && (
+            <Button onClick={() => setIsEditDialogOpen(true)}>
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Event
+            </Button>
+          )}
         </div>
+
+        {isCreator && pendingRequests.length > 0 && (
+          <EventJoinRequests eventId={id!} requests={pendingRequests} />
+        )}
 
         <div className="social-card p-6">
           <div className="flex items-start gap-4 mb-6">
@@ -190,6 +220,15 @@ const EventDetail = () => {
             </div>
           )}
         </div>
+
+        {isCreator && (
+          <EditEventDialog
+            eventId={id!}
+            initialData={eventFormData}
+            open={isEditDialogOpen}
+            onOpenChange={setIsEditDialogOpen}
+          />
+        )}
       </div>
     </MainLayout>
   );
