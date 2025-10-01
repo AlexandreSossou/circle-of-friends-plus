@@ -104,7 +104,6 @@ const ProfileHeader = ({
         isOwnProfile={isOwnProfile} 
         coverPhotoUrl={profileData?.cover_photo_url}
         onCoverUpdate={handleCoverUpdate}
-        onAvatarUpdate={handleAvatarUpdate}
       />
       <ProfileAvatar 
         avatarUrl={currentAvatar} 
