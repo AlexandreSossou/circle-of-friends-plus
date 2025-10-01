@@ -5,14 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { uploadPhoto } from "@/services/photoUpload";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import winterCover from "@/assets/covers/winter.png";
-import raveCover from "@/assets/covers/rave.png";
-import beachCover from "@/assets/covers/beach.png";
-import jungleCover from "@/assets/covers/jungle.png";
-import winterStickerCover from "@/assets/covers/winter-sticker.png";
-import raveStickerCover from "@/assets/covers/rave-sticker.png";
-import beachAltCover from "@/assets/covers/beach-alt.png";
-import jungleAltCover from "@/assets/covers/jungle-alt.png";
+import { COVER_OPTIONS, getCoverPhoto } from "@/utils/coverPhotos";
 
 interface ProfileCoverProps {
   isOwnProfile: boolean;
@@ -21,17 +14,6 @@ interface ProfileCoverProps {
   onAvatarUpdate: (url: string) => void;
 }
 
-const COVER_OPTIONS = [
-  { id: 'winter', name: 'Winter', url: winterCover },
-  { id: 'winter-sticker', name: 'Winter Pineapple', url: winterStickerCover },
-  { id: 'rave', name: 'Rave', url: raveCover },
-  { id: 'rave-sticker', name: 'Rave Pineapple', url: raveStickerCover },
-  { id: 'beach', name: 'Beach', url: beachCover },
-  { id: 'beach-alt', name: 'Beach Pineapple', url: beachAltCover },
-  { id: 'jungle', name: 'Jungle', url: jungleCover },
-  { id: 'jungle-alt', name: 'Jungle Hammock', url: jungleAltCover },
-];
-
 const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpdate }: ProfileCoverProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -39,8 +21,8 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
   const [isUploading, setIsUploading] = useState(false);
   const [showCoverSelector, setShowCoverSelector] = useState(false);
 
-  const handleCoverSelect = (coverUrl: string) => {
-    onCoverUpdate(coverUrl);
+  const handleCoverSelect = (coverId: string) => {
+    onCoverUpdate(coverId);
     setShowCoverSelector(false);
     toast({
       title: "Cover photo updated",
@@ -111,7 +93,7 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
     <>
       <div className="h-40 md:h-56 lg:h-64 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-t-lg overflow-hidden relative">
         <img
-          src={coverPhotoUrl || beachCover}
+          src={getCoverPhoto(coverPhotoUrl)}
           alt="Cover"
           className="w-full h-full object-cover"
         />
@@ -158,7 +140,7 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
             {COVER_OPTIONS.map((cover) => (
               <button
                 key={cover.id}
-                onClick={() => handleCoverSelect(cover.url)}
+                onClick={() => handleCoverSelect(cover.id)}
                 className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-all"
               >
                 <img
