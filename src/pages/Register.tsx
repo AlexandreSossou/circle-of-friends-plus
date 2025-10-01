@@ -45,7 +45,7 @@ const Register = () => {
               alt="Moderering" 
               className="h-8 w-auto"
             />
-            <p className="text-xs">Created and moderated by moderering.com</p>
+            <p className="text-xs">Created and moderated by moderering Cybersecurity</p>
           </div>
         </div>
       </footer>

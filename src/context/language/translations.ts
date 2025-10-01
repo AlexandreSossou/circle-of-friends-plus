@@ -236,7 +236,7 @@ const translations: TranslationRecord = {
     "footer.terms": "Terms",
     "footer.help": "Help",
     "footer.copyright": "© 2025 Lovaville. All rights reserved.",
-    "footer.moderatedBy": "Created and moderated by",
+    "footer.moderatedBy": "Created and moderated by moderering Cybersecurity",
   },
   es: {
     // General
@@ -471,7 +471,7 @@ const translations: TranslationRecord = {
     "footer.terms": "Términos",
     "footer.help": "Ayuda",
     "footer.copyright": "© 2025 Lovaville. Todos los derechos reservados.",
-    "footer.moderatedBy": "Creado y moderado por",
+    "footer.moderatedBy": "Creado y moderado por moderering Cybersecurity",
   },
   fr: {
     // General
@@ -706,7 +706,7 @@ const translations: TranslationRecord = {
     "footer.terms": "Conditions",
     "footer.help": "Aide",
     "footer.copyright": "© 2025 Lovaville. Tous droits réservés.",
-    "footer.moderatedBy": "Créé et modéré par",
+    "footer.moderatedBy": "Créé et modéré par moderering Cybersecurity",
   },
   de: {
     // General
@@ -941,7 +941,7 @@ const translations: TranslationRecord = {
     "footer.terms": "Bedingungen",
     "footer.help": "Hilfe",
     "footer.copyright": "© 2025 Lovaville. Alle Rechte vorbehalten.",
-    "footer.moderatedBy": "Erstellt und moderiert von",
+    "footer.moderatedBy": "Erstellt und moderiert von moderering Cybersecurity",
   }
 };
 
