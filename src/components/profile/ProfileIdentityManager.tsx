@@ -111,7 +111,7 @@ const ProfileIdentityManager = ({ profileData, profileType, onSave }: ProfileIde
         <div>
           <Label htmlFor="bio">Bio</Label>
           {!isEditing ? (
-            <p className="text-sm text-social-textSecondary mt-1">
+            <p className="text-sm text-social-textSecondary mt-1 break-words">
               {currentBio || `No ${profileType} bio set`}
             </p>
           ) : (
