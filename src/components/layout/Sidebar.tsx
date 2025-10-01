@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Calendar, Group, Home, Newspaper, Settings, Users, Plane, Search, MessageCircle, Video, Megaphone } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,9 @@ const Sidebar = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { userGroups = [], isLoadingUserGroups } = useGroups();
+  const location = useLocation();
+  
+  const isActive = (path: string) => location.pathname === path;
   
   // Get user initials for avatar fallback
   const getUserInitials = () => {
@@ -38,47 +41,124 @@ const Sidebar = () => {
           </Link>
           
           <nav className="mt-4 space-y-1">
-            <Link to="/" className="flex items-center p-2 text-social-blue rounded-lg bg-social-lightblue">
+            <Link 
+              to="/" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Home className="w-5 h-5 mr-3" />
               <span>{t("nav.home")}</span>
             </Link>
-            <Link to="/friends" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/friends" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/friends') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Users className="w-5 h-5 mr-3" />
               <span>{t("nav.lovarinos")}</span>
             </Link>
-            <Link to="/friend-search" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/friend-search" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/friend-search') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Search className="w-5 h-5 mr-3" />
               <span>{t("nav.findLovarinos")}</span>
             </Link>
-            <Link to="/messages" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/messages" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/messages') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <MessageCircle className="w-5 h-5 mr-3" />
               <span>{t("nav.messages")}</span>
             </Link>
-            <Link to="/groups" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/groups" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/groups') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Group className="w-5 h-5 mr-3" />
               <span>{t("nav.groups")}</span>
             </Link>
-            <Link to="/travels" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/travels" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/travels') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Plane className="w-5 h-5 mr-3" />
               <span>{t("nav.travels")}</span>
             </Link>
-            <Link to="/events" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/events" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/events') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Calendar className="w-5 h-5 mr-3" />
               <span>{t("nav.events")}</span>
             </Link>
-            <Link to="/announcements" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/announcements" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/announcements') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Megaphone className="w-5 h-5 mr-3" />
               <span>{t("nav.localAlerts")}</span>
             </Link>
-            <Link to="/news" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/news" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/news') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Newspaper className="w-5 h-5 mr-3" />
               <span>{t("nav.news")}</span>
             </Link>
-            <Link to="/live-sessions" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/live-sessions" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/live-sessions') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Video className="w-5 h-5 mr-3" />
               <span>{t("nav.liveSessions")}</span>
             </Link>
-            <Link to="/settings" className="flex items-center p-2 hover:bg-social-gray rounded-lg">
+            <Link 
+              to="/settings" 
+              className={`flex items-center p-2 rounded-lg ${
+                isActive('/settings') 
+                  ? 'text-social-blue bg-social-lightblue' 
+                  : 'hover:bg-social-gray'
+              }`}
+            >
               <Settings className="w-5 h-5 mr-3" />
               <span>{t("nav.settings")}</span>
             </Link>

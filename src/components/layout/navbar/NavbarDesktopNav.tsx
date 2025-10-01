@@ -1,5 +1,5 @@
 
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Bell, Home, MessageCircle, Plane, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +10,7 @@ import NavbarMessagesDropdown from "./NavbarMessagesDropdown";
 
 const NavbarDesktopNav = () => {
   const { user } = useAuth();
+  const location = useLocation();
 
   // Fetch current user travels
   const { data: isCurrentlyTraveling } = useQuery({
@@ -86,24 +87,51 @@ const NavbarDesktopNav = () => {
     };
   }, [user, refetchUnreadMessages]);
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
     <nav className="hidden md:flex items-center space-x-1">
-      <Link to="/" className="p-2 text-social-blue hover:bg-social-lightblue rounded-full">
+      <Link 
+        to="/" 
+        className={`p-2 rounded-full ${
+          isActive('/') 
+            ? 'text-social-blue hover:bg-social-lightblue' 
+            : 'text-social-textSecondary hover:bg-social-gray'
+        }`}
+      >
         <Home className="w-6 h-6" />
       </Link>
-      <Link to="/friends" className="p-2 text-social-textSecondary hover:bg-social-gray rounded-full">
+      <Link 
+        to="/friends" 
+        className={`p-2 rounded-full ${
+          isActive('/friends') 
+            ? 'text-social-blue hover:bg-social-lightblue' 
+            : 'text-social-textSecondary hover:bg-social-gray'
+        }`}
+      >
         <Users className="w-6 h-6" />
       </Link>
       
       <NavbarMessagesDropdown unreadMessages={unreadMessages || []} />
       
-      <Link to="/notifications" className="p-2 text-social-textSecondary hover:bg-social-gray rounded-full">
+      <Link 
+        to="/notifications" 
+        className={`p-2 rounded-full ${
+          isActive('/notifications') 
+            ? 'text-social-blue hover:bg-social-lightblue' 
+            : 'text-social-textSecondary hover:bg-social-gray'
+        }`}
+      >
         <Bell className="w-6 h-6" />
       </Link>
       {isCurrentlyTraveling && (
         <Link 
           to="/travels" 
-          className="p-2 text-green-500 hover:bg-social-gray rounded-full relative"
+          className={`p-2 rounded-full relative ${
+            isActive('/travels') 
+              ? 'text-green-500 hover:bg-green-50' 
+              : 'text-green-500 hover:bg-social-gray'
+          }`}
           title="You are currently traveling!"
         >
           <Plane className="w-6 h-6" />

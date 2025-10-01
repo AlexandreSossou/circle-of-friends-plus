@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Bell, Home, MessageCircle, Plane, Search, Users, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,9 @@ interface NavbarMobileMenuProps {
 
 const NavbarMobileMenu = ({ user, unreadMessages }: NavbarMobileMenuProps) => {
   const { signOut } = useAuth();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = async () => {
     await signOut();
@@ -44,19 +47,47 @@ const NavbarMobileMenu = ({ user, unreadMessages }: NavbarMobileMenuProps) => {
           </div>
         </div>
         <nav className="flex flex-col space-y-1">
-          <Link to="/" className="flex items-center p-3 text-social-blue rounded-md bg-social-lightblue">
+          <Link 
+            to="/" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/') 
+                ? 'text-social-blue bg-social-lightblue' 
+                : 'hover:bg-social-gray'
+            }`}
+          >
             <Home className="w-5 h-5 mr-3" />
             <span>Home</span>
           </Link>
-          <Link to="/friends" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+          <Link 
+            to="/friends" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/friends') 
+                ? 'text-social-blue bg-social-lightblue' 
+                : 'hover:bg-social-gray'
+            }`}
+          >
             <Users className="w-5 h-5 mr-3" />
             <span>Friends</span>
           </Link>
-          <Link to="/friend-search" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+          <Link 
+            to="/friend-search" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/friend-search') 
+                ? 'text-social-blue bg-social-lightblue' 
+                : 'hover:bg-social-gray'
+            }`}
+          >
             <Search className="w-5 h-5 mr-3" />
             <span>Find Friends</span>
           </Link>
-          <Link to="/messages" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+          <Link 
+            to="/messages" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/messages') 
+                ? 'text-social-blue bg-social-lightblue' 
+                : 'hover:bg-social-gray'
+            }`}
+          >
             <MessageCircle className="w-5 h-5 mr-3" />
             <span>Messages</span>
             {unreadMessages && unreadMessages.length > 0 && (
@@ -65,21 +96,49 @@ const NavbarMobileMenu = ({ user, unreadMessages }: NavbarMobileMenuProps) => {
               </span>
             )}
           </Link>
-          <Link to="/notifications" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+          <Link 
+            to="/notifications" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/notifications') 
+                ? 'text-social-blue bg-social-lightblue' 
+                : 'hover:bg-social-gray'
+            }`}
+          >
             <Bell className="w-5 h-5 mr-3" />
             <span>Notifications</span>
           </Link>
           
-          <Link to="/travels" className="flex items-center p-3 hover:bg-social-gray rounded-md text-green-500">
+          <Link 
+            to="/travels" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/travels') 
+                ? 'text-green-500 bg-green-50' 
+                : 'text-green-500 hover:bg-social-gray'
+            }`}
+          >
             <Plane className="w-5 h-5 mr-3" />
             <span>Travels</span>
           </Link>
           
-          <Link to="/news" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+          <Link 
+            to="/news" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/news') 
+                ? 'text-social-blue bg-social-lightblue' 
+                : 'hover:bg-social-gray'
+            }`}
+          >
             <span>News</span>
           </Link>
           
-          <Link to="/live-sessions" className="flex items-center p-3 hover:bg-social-gray rounded-md">
+          <Link 
+            to="/live-sessions" 
+            className={`flex items-center p-3 rounded-md ${
+              isActive('/live-sessions') 
+                ? 'text-social-blue bg-social-lightblue' 
+                : 'hover:bg-social-gray'
+            }`}
+          >
             <Video className="w-5 h-5 mr-3" />
             <span>Live Sessions</span>
           </Link>
