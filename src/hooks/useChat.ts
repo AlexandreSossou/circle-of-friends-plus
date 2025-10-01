@@ -4,12 +4,15 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Friend } from "@/types/friends";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 type Message = {
   id: string;
   sender: "user" | "friend" | "system" | "moderator";
   content: string;
   timestamp: Date;
+  sender_id?: string;
+  recipient_id?: string;
 };
 
 type GroupChat = {
@@ -32,15 +35,65 @@ export const useChat = () => {
   const [groupName, setGroupName] = useState("");
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
+  // Fetch real messages from database
+  const { data: dbMessages, refetch: refetchMessages } = useQuery({
+    queryKey: ["chatMessages", user?.id, selectedFriend?.id],
+    queryFn: async () => {
+      if (!user || !selectedFriend) return [];
+
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${selectedFriend.id}),and(sender_id.eq.${selectedFriend.id},recipient_id.eq.${user.id})`)
+        .order("created_at", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching messages:", error);
+        return [];
+      }
+
+      // Mark messages as read
+      const unreadMessages = data.filter(msg => 
+        msg.recipient_id === user.id && !msg.read
+      );
+      
+      if (unreadMessages.length > 0) {
+        const messageIds = unreadMessages.map(msg => msg.id);
+        await supabase
+          .from("messages")
+          .update({ read: true })
+          .in("id", messageIds);
+      }
+
+      return data || [];
+    },
+    enabled: !!user && !!selectedFriend,
+  });
+
+  // Load messages from database when friend is selected or when data changes
   useEffect(() => {
-    // Reset messages when a new friend is selected
-    if (selectedFriend) {
+    if (selectedFriend && dbMessages) {
+      const formattedMessages: Message[] = dbMessages.map(msg => ({
+        id: msg.id,
+        sender: msg.sender_id === user?.id ? "user" : "friend",
+        content: msg.content,
+        timestamp: new Date(msg.created_at),
+        sender_id: msg.sender_id,
+        recipient_id: msg.recipient_id,
+      }));
+      
+      setMessages(formattedMessages);
+      setShowFriendSelector(false);
+      setIsChatWithModerator(false);
+      setSelectedGroupChat(null);
+    } else if (selectedFriend && !dbMessages) {
       setMessages([
         {
           id: `welcome-${Date.now()}`,
           sender: "system",
-          content: `Chat with ${selectedFriend.name} started. Only close friends can chat!`,
+          content: `Chat with ${selectedFriend.name} started. Send a message to begin!`,
           timestamp: new Date(),
         },
       ]);
@@ -48,7 +101,7 @@ export const useChat = () => {
       setIsChatWithModerator(false);
       setSelectedGroupChat(null);
     }
-  }, [selectedFriend]);
+  }, [selectedFriend, dbMessages, user]);
 
   useEffect(() => {
     // Initialize group chat with a welcome message
@@ -203,10 +256,11 @@ export const useChat = () => {
     });
   };
 
-  const sendMessage = (content: string) => {
+  const sendMessage = async (content: string) => {
+    if (!user) return;
     if (!selectedFriend && !isChatWithModerator && !selectedGroupChat) return;
     
-    // Add user message
+    // Add user message optimistically
     const userMessage: Message = {
       id: `user-${Date.now()}`,
       sender: "user",
@@ -216,21 +270,41 @@ export const useChat = () => {
     
     setMessages((prev) => [...prev, userMessage]);
     
-    // Simulate response based on conversation type
-    setTimeout(() => {
-      let responseMessage: Message;
-      
-      if (isChatWithModerator) {
-        responseMessage = {
-          id: `moderator-${Date.now()}`,
-          sender: "moderator",
-          content: "Thank you for contacting our moderation team. How can we assist you today?",
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, responseMessage]);
+    try {
+      if (selectedFriend) {
+        // Send real message to database
+        const { error } = await supabase
+          .from("messages")
+          .insert({
+            sender_id: user.id,
+            recipient_id: selectedFriend.id,
+            content: content.trim(),
+          });
+
+        if (error) throw error;
+
+        // Refetch messages to get the actual saved message
+        await refetchMessages();
+        
+        toast({
+          title: "Message sent",
+          description: `Your message has been sent to ${selectedFriend.name}.`,
+          duration: 2000,
+        });
+      } else if (isChatWithModerator) {
+        // Simulate moderator response
+        setTimeout(() => {
+          const responseMessage: Message = {
+            id: `moderator-${Date.now()}`,
+            sender: "moderator",
+            content: "Thank you for contacting our moderation team. How can we assist you today?",
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, responseMessage]);
+        }, 1000);
       } else if (selectedGroupChat) {
-        // Simulate multiple responses in a group chat
-        const respondingMembers = selectedGroupChat.members.slice(0, 2); // Only a couple respond for simplicity
+        // Group chat functionality (still simulated for now)
+        const respondingMembers = selectedGroupChat.members.slice(0, 2);
         
         respondingMembers.forEach((member, index) => {
           setTimeout(() => {
@@ -241,19 +315,40 @@ export const useChat = () => {
               timestamp: new Date(),
             };
             setMessages((prev) => [...prev, groupResponse]);
-          }, 1000 * (index + 1)); // Stagger responses
+          }, 1000 * (index + 1));
         });
-      } else if (selectedFriend) {
-        responseMessage = {
-          id: `friend-${Date.now()}`,
-          sender: "friend",
-          content: `Hi from ${selectedFriend?.name}! This is a simulated response.`,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, responseMessage]);
       }
-    }, 1000);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
   };
+
+  // Subscribe to real-time messages
+  useEffect(() => {
+    if (!user || !selectedFriend) return;
+    
+    const channel = supabase
+      .channel('chat-messages')
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'messages',
+        filter: `recipient_id=eq.${user.id}` 
+      }, () => {
+        refetchMessages();
+      })
+      .subscribe();
+    
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, selectedFriend, refetchMessages]);
 
   const resetChat = () => {
     setSelectedFriend(null);
