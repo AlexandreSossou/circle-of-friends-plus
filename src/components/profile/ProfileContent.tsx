@@ -8,6 +8,7 @@ import Vouch from "./Vouch";
 import ProfileTypeSelector from "./ProfileTypeSelector";
 import ProfileVisibilitySettings from "./ProfileVisibilitySettings";
 import ProfileIdentityManager from "./ProfileIdentityManager";
+import { ProfileEvents } from "./ProfileEvents";
 import { Album, Friend, Post, ProfileData, ProfileType } from "@/types/profile";
 
 type ProfileContentProps = {
@@ -71,13 +72,14 @@ const ProfileContent = ({
       )}
 
       <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 mb-6">
+        <TabsList className="grid grid-cols-5 mb-6">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="photos">Photos</TabsTrigger>
           <TabsTrigger value="friends">
             Friends{isOwnProfile && ` (${friendsList.length})`}
           </TabsTrigger>
           <TabsTrigger value="safety">Safety</TabsTrigger>
+          <TabsTrigger value="events">Events</TabsTrigger>
         </TabsList>
         
         <TabsContent value="posts">
@@ -141,6 +143,10 @@ const ProfileContent = ({
             currentUserId={currentUserId}
             friends={friendsList}
           />
+        </TabsContent>
+
+        <TabsContent value="events">
+          <ProfileEvents userId={profileData.id} />
         </TabsContent>
       </Tabs>
     </div>
