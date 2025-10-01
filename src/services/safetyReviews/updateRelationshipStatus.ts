@@ -26,6 +26,23 @@ export const updateRelationshipStatus = async ({
       }
     }
     
+    // CRITICAL: Fetch previous partners BEFORE updating the profile
+    // Otherwise we lose the data we need to notify partners
+    const fieldPrefix = profileType === "private" ? "private_" : "";
+    const partnerIdField = profileType === "private" ? "private_partner_id" : "partner_id";
+    const partnersField = profileType === "private" ? "private_partners" : "partners";
+    
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select(`${partnerIdField}, ${partnersField}`)
+      .eq('id', userId)
+      .single();
+    
+    const previousPartnerId = currentProfile?.[partnerIdField] || null;
+    const previousPartnerIds = currentProfile?.[partnersField] || [];
+    
+    console.log(`Previous partners before update: partnerId=${previousPartnerId}, partners=${previousPartnerIds}`);
+    
     // Proceed with updating the relationship status
     try {
       const updateData = buildProfileUpdateData(maritalStatus, partnerId, partnerIds, profileType, lookingFor);
@@ -51,9 +68,35 @@ export const updateRelationshipStatus = async ({
       // Wait for the database transaction to complete before updating partners
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Handle partner status updates
+      // Handle partner status updates using the previous partners we fetched earlier
       console.log(`Updating partner statuses for user ${userId}. MaritalStatus: ${maritalStatus}, PartnerId: ${partnerId}, PartnerIds: ${partnerIds}, ProfileType: ${profileType}`);
-      await handlePartnerUpdates(userId, maritalStatus, partnerId, partnerIds, profileType);
+      
+      // Calculate removed partners based on the previous state we captured
+      const currentPartners = isPolyamorous ? 
+        (partnerIds || []) : 
+        (partnerId ? [partnerId] : []);
+      
+      const allPreviousPartners = [...new Set([
+        ...(previousPartnerId ? [previousPartnerId] : []),
+        ...previousPartnerIds
+      ])].filter(id => id);
+      
+      const removedPartners = allPreviousPartners.filter(id => !currentPartners.includes(id));
+      
+      // Import the functions we need
+      const { updateRemovedPartners, updateNewPartners } = await import("./relationship/partnerStatusUpdater");
+      
+      // Update removed partners to Single
+      if (removedPartners.length > 0) {
+        console.log(`Setting ${removedPartners.length} removed partner(s) to Single: ${removedPartners}`);
+        await updateRemovedPartners(userId, removedPartners, profileType);
+      }
+      
+      // Handle new partners - update their status to match
+      if (currentPartners.length > 0 && maritalStatus !== "Single") {
+        console.log(`Updating ${currentPartners.length} new partner(s) status: ${currentPartners}`);
+        await updateNewPartners(userId, currentPartners, maritalStatus, profileType);
+      }
       
       return { success: true, data };
     } catch (dbError) {
