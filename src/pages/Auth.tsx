@@ -206,6 +206,22 @@ const Auth = () => {
         </Card>
         </div>
       </div>
+
+      <footer className="py-6 text-center text-sm text-muted-foreground">
+        <div className="container mx-auto">
+          <p>
+            {t("footer.moderatedBy")}{" "}
+            <a 
+              href="https://moderering.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              moderering
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
