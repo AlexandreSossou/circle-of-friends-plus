@@ -4,18 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Clock, MapPin, Users, Edit } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, MapPin, Users, Edit, UserPlus, UserMinus, Clock3 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/AuthContext";
 import { EventJoinRequests } from "@/components/events/EventJoinRequests";
 import { EditEventDialog } from "@/components/events/EditEventDialog";
 import { EventFormData } from "@/types/event";
+import { useEvents } from "@/hooks/useEvents";
 
 const EventDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const { attendEventMutation, leaveEventMutation } = useEvents();
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", id],
@@ -102,6 +104,9 @@ const EventDetail = () => {
   const attendees = event.event_attendees?.filter(a => a.status === 'attending') || [];
   const pendingRequests = event.event_attendees?.filter(a => a.status === 'pending') || [];
   const isCreator = user?.id === event.user_id;
+  const userAttendance = event.event_attendees?.find(a => a.user_id === user?.id);
+  const isAttending = userAttendance?.status === 'attending';
+  const isPending = userAttendance?.status === 'pending';
 
   const eventFormData: EventFormData = {
     title: event.title,
@@ -186,6 +191,34 @@ const EventDetail = () => {
                 <Users className="w-5 h-5 text-social-blue" />
                 <p>{attendees.length} attending</p>
               </div>
+
+              {!isCreator && user && (
+                <div className="pt-2">
+                  {isAttending ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => leaveEventMutation.mutate(event.id)}
+                      className="w-full"
+                    >
+                      <UserMinus className="w-4 h-4 mr-2" />
+                      Leave Event
+                    </Button>
+                  ) : isPending ? (
+                    <Button variant="outline" disabled className="w-full">
+                      <Clock3 className="w-4 h-4 mr-2" />
+                      Request Pending
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => attendEventMutation.mutate({ eventId: event.id, accessType: event.access_type as "open" | "request" })}
+                      className="w-full"
+                    >
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      {event.access_type === 'request' ? 'Request to Join' : 'Join Event'}
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
 
             {event.description && (
