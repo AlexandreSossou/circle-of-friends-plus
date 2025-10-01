@@ -17,33 +17,33 @@ const SettingsTabs = () => {
 
   return (
     <Tabs defaultValue="profile" className="w-full">
-      <TabsList className={`grid gap-2 w-full ${isAdmin ? 'grid-cols-2 md:grid-cols-7' : 'grid-cols-2 md:grid-cols-6'}`}>
-        <TabsTrigger value="profile" className="flex items-center">
+      <TabsList className="w-full flex flex-nowrap overflow-x-auto md:grid md:grid-cols-6 lg:gap-2">
+        <TabsTrigger value="profile" className="flex items-center shrink-0">
           <User className="mr-2 h-4 w-4" />
           <span className="hidden md:inline">{t("settings.profile")}</span>
         </TabsTrigger>
-        <TabsTrigger value="notifications" className="flex items-center">
+        <TabsTrigger value="notifications" className="flex items-center shrink-0">
           <Bell className="mr-2 h-4 w-4" />
           <span className="hidden md:inline">{t("settings.notifications")}</span>
         </TabsTrigger>
-        <TabsTrigger value="privacy" className="flex items-center">
+        <TabsTrigger value="privacy" className="flex items-center shrink-0">
           <Eye className="mr-2 h-4 w-4" />
           <span className="hidden md:inline">{t("settings.privacy")}</span>
         </TabsTrigger>
-        <TabsTrigger value="security" className="flex items-center">
+        <TabsTrigger value="security" className="flex items-center shrink-0">
           <Shield className="mr-2 h-4 w-4" />
           <span className="hidden md:inline">{t("settings.security")}</span>
         </TabsTrigger>
-        <TabsTrigger value="subscription" className="flex items-center">
+        <TabsTrigger value="subscription" className="flex items-center shrink-0">
           <CreditCard className="mr-2 h-4 w-4" />
           <span className="hidden md:inline">{t("settings.subscription.title")}</span>
         </TabsTrigger>
-        <TabsTrigger value="language" className="flex items-center">
+        <TabsTrigger value="language" className="flex items-center shrink-0">
           <Globe className="mr-2 h-4 w-4" />
           <span className="hidden md:inline">{t("settings.language")}</span>
         </TabsTrigger>
         {isAdmin && (
-          <TabsTrigger value="local-alerts" className="flex items-center">
+          <TabsTrigger value="local-alerts" className="flex items-center shrink-0">
             <AlertTriangle className="mr-2 h-4 w-4" />
             <span className="hidden md:inline">{t("settings.localAlerts.title")}</span>
           </TabsTrigger>
