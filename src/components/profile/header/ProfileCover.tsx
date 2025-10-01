@@ -22,6 +22,7 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
   const [showCoverSelector, setShowCoverSelector] = useState(false);
 
   const handleCoverSelect = (coverId: string) => {
+    console.log('[ProfileCover] Selecting cover with ID:', coverId);
     onCoverUpdate(coverId);
     setShowCoverSelector(false);
     toast({
@@ -88,6 +89,9 @@ const ProfileCover = ({ isOwnProfile, coverPhotoUrl, onCoverUpdate, onAvatarUpda
   const handleEditAvatar = () => {
     fileInputRef.current?.click();
   };
+
+  console.log('[ProfileCover] Rendering with coverPhotoUrl:', coverPhotoUrl);
+  console.log('[ProfileCover] Resolved cover image:', getCoverPhoto(coverPhotoUrl));
 
   return (
     <>
