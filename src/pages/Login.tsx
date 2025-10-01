@@ -32,19 +32,19 @@ const Login = () => {
       <footer className="py-6 text-center text-sm text-social-textSecondary">
         <div className="container mx-auto">
           <div className="flex justify-center space-x-4">
-            <Link to="/about" className="hover:underline">About</Link>
-            <Link to="/privacy" className="hover:underline">Privacy</Link>
-            <Link to="/terms" className="hover:underline">Terms</Link>
-            <Link to="/help" className="hover:underline">Help</Link>
+            <Link to="/about" className="hover:underline">{t("footer.about")}</Link>
+            <Link to="/privacy" className="hover:underline">{t("footer.privacy")}</Link>
+            <Link to="/terms" className="hover:underline">{t("footer.terms")}</Link>
+            <Link to="/help" className="hover:underline">{t("footer.help")}</Link>
           </div>
-          <p className="mt-4">© 2025 Lovaville. All rights reserved.</p>
+          <p className="mt-4">{t("footer.copyright")}</p>
           <div className="mt-4 flex flex-col items-center gap-2">
             <img 
               src="/src/assets/moderering-logo.png" 
               alt="Moderering" 
               className="h-8 w-auto"
             />
-            <p className="text-xs">Created and moderated by moderering.com</p>
+            <p className="text-xs">{t("footer.moderatedBy")}</p>
           </div>
         </div>
       </footer>

@@ -202,6 +202,14 @@ const translations: TranslationRecord = {
     "language.es": "Spanish",
     "language.fr": "French",
     "language.de": "German",
+
+    // Footer
+    "footer.about": "About",
+    "footer.privacy": "Privacy",
+    "footer.terms": "Terms",
+    "footer.help": "Help",
+    "footer.copyright": "© 2025 Lovaville. All rights reserved.",
+    "footer.moderatedBy": "Created and moderated by moderering.com",
   },
   es: {
     // General
@@ -402,6 +410,14 @@ const translations: TranslationRecord = {
     "language.es": "Español",
     "language.fr": "Francés",
     "language.de": "Alemán",
+
+    // Footer
+    "footer.about": "Acerca de",
+    "footer.privacy": "Privacidad",
+    "footer.terms": "Términos",
+    "footer.help": "Ayuda",
+    "footer.copyright": "© 2025 Lovaville. Todos los derechos reservados.",
+    "footer.moderatedBy": "Creado y moderado por moderering.com",
   },
   fr: {
     // General
@@ -602,6 +618,14 @@ const translations: TranslationRecord = {
     "language.es": "Espagnol",
     "language.fr": "Français",
     "language.de": "Allemand",
+
+    // Footer
+    "footer.about": "À propos",
+    "footer.privacy": "Confidentialité",
+    "footer.terms": "Conditions",
+    "footer.help": "Aide",
+    "footer.copyright": "© 2025 Lovaville. Tous droits réservés.",
+    "footer.moderatedBy": "Créé et modéré par moderering.com",
   },
   de: {
     // General
@@ -802,6 +826,14 @@ const translations: TranslationRecord = {
     "language.es": "Spanisch",
     "language.fr": "Französisch",
     "language.de": "Deutsch",
+
+    // Footer
+    "footer.about": "Über uns",
+    "footer.privacy": "Datenschutz",
+    "footer.terms": "Bedingungen",
+    "footer.help": "Hilfe",
+    "footer.copyright": "© 2025 Lovaville. Alle Rechte vorbehalten.",
+    "footer.moderatedBy": "Erstellt und moderiert von moderering.com",
   }
 };
 
