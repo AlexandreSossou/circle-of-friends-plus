@@ -45,7 +45,7 @@ const SettingsTabs = () => {
         {isAdmin && (
           <TabsTrigger value="local-alerts" className="flex items-center">
             <AlertTriangle className="mr-2 h-4 w-4" />
-            <span className="hidden md:inline">Local Alerts</span>
+            <span className="hidden md:inline">{t("settings.localAlerts.title")}</span>
           </TabsTrigger>
         )}
       </TabsList>

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit } from "lucide-react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface ProfileBioProps {
   bio?: string;
@@ -23,12 +24,14 @@ const ProfileBio = ({
   onEditClick, 
   onBioChange 
 }: ProfileBioProps) => {
+  const { t } = useLanguage();
+  
   if (isEditing) {
     return (
       <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
-        <h2 className="text-lg font-semibold mb-2">About Me</h2>
+        <h2 className="text-lg font-semibold mb-2">{t("profile.aboutMe")}</h2>
         <Textarea 
-          placeholder="Tell us about yourself"
+          placeholder={t("profile.addDescriptionPrompt")}
           value={editedBio}
           onChange={(e) => onBioChange(e.target.value)}
           className="min-h-[100px]"
@@ -44,7 +47,7 @@ const ProfileBio = ({
         {/* About Me section */}
         {bio && (
           <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
-            <h2 className="text-lg font-semibold mb-2">About Me</h2>
+            <h2 className="text-lg font-semibold mb-2">{t("profile.aboutMe")}</h2>
             <p className="text-gray-700 whitespace-pre-line break-words">{bio}</p>
           </div>
         )}
@@ -52,7 +55,7 @@ const ProfileBio = ({
         {/* Looking for section */}
         {lookingFor && lookingFor.length > 0 && (
           <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
-            <h2 className="text-lg font-semibold mb-3">What I'm Looking For</h2>
+            <h2 className="text-lg font-semibold mb-3">{t("profile.lookingFor")}</h2>
             <div className="flex flex-wrap gap-2">
               {lookingFor.map((item) => (
                 <span 
@@ -69,11 +72,11 @@ const ProfileBio = ({
         {/* Add bio prompt for own profile when no bio */}
         {isOwnProfile && !bio && (
           <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200 border-dashed text-center">
-            <h2 className="text-lg font-semibold mb-2">About Me</h2>
-            <p className="text-gray-500 mb-3">Add a description to tell people more about yourself.</p>
+            <h2 className="text-lg font-semibold mb-2">{t("profile.aboutMe")}</h2>
+            <p className="text-gray-500 mb-3">{t("profile.addDescriptionPrompt")}</p>
             <Button variant="outline" className="mx-auto" onClick={onEditClick}>
               <Edit className="w-4 h-4 mr-2" />
-              Add Description
+              {t("profile.addDescription")}
             </Button>
           </div>
         )}
@@ -84,11 +87,11 @@ const ProfileBio = ({
   if (isOwnProfile) {
     return (
       <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200 border-dashed text-center">
-        <h2 className="text-lg font-semibold mb-2">About Me</h2>
-        <p className="text-gray-500 mb-3">Add a description to tell people more about yourself and what you're looking for.</p>
+        <h2 className="text-lg font-semibold mb-2">{t("profile.aboutMe")}</h2>
+        <p className="text-gray-500 mb-3">{t("profile.addDescriptionPrompt")}</p>
         <Button variant="outline" className="mx-auto" onClick={onEditClick}>
           <Edit className="w-4 h-4 mr-2" />
-          Add Description
+          {t("profile.addDescription")}
         </Button>
       </div>
     );
