@@ -4,7 +4,6 @@ import LoginForm from "@/components/auth/LoginForm";
 import { useLanguage } from "@/context/LanguageContext";
 import LanguageSelector from "@/components/language/LanguageSelector";
 import { useCalmMode } from "@/context/CalmModeContext";
-import { CalmModeToggle } from "@/components/ui/calm-mode-toggle";
 
 const Login = () => {
   const { t } = useLanguage();
@@ -18,8 +17,7 @@ const Login = () => {
           <Link to="/" className="flex-1 flex justify-center">
             <h1 className="text-heading-lg text-primary hover:text-primary/90 transition-colors">{t("app.name")}</h1>
           </Link>
-          <div className="flex-1 flex justify-end gap-2">
-            <CalmModeToggle />
+          <div className="flex-1 flex justify-end">
             <LanguageSelector variant="minimal" />
           </div>
         </div>
