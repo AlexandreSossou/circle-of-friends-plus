@@ -138,7 +138,7 @@ export const GroupSettingsDialog = ({ groupId, groupName }: GroupSettingsDialogP
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setMemberToRemove(member.id)}
+                          onClick={() => setMemberToRemove(member.user_id)}
                           disabled={removeMemberMutation.isPending}
                         >
                           <Trash2 className="w-4 h-4" />
