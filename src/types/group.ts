@@ -8,6 +8,7 @@ export interface Group {
   created_at: string;
   updated_at: string;
   is_public: boolean;
+  join_policy: 'open' | 'request';
   allowed_genders?: string[] | null;
   member_count?: number;
   user_role?: string | null;
@@ -31,5 +32,23 @@ export interface GroupFormData {
   description: string;
   category: string;
   is_public: boolean;
+  join_policy: 'open' | 'request';
   allowed_genders?: string[] | null;
+}
+
+export interface GroupJoinRequest {
+  id: string;
+  group_id: string;
+  user_id: string;
+  message: string;
+  status: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+  profile?: {
+    id: string;
+    full_name: string;
+    avatar_url: string | null;
+    username: string | null;
+  };
 }

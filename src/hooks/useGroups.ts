@@ -105,6 +105,7 @@ export const useGroups = () => {
           category: data.category,
           created_by: user.id,
           is_public: data.is_public,
+          join_policy: data.join_policy,
           allowed_genders: data.allowed_genders?.length ? data.allowed_genders : null
         })
         .select()

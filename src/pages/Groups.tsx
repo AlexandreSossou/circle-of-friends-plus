@@ -24,6 +24,7 @@ const Groups = () => {
     description: "",
     category: "general",
     is_public: true,
+    join_policy: "open",
     allowed_genders: null
   });
   const { toast } = useToast();
@@ -64,6 +65,7 @@ const Groups = () => {
           description: "",
           category: "general",
           is_public: true,
+          join_policy: "open",
           allowed_genders: null
         });
         setDialogOpen(false);
@@ -165,6 +167,20 @@ const Groups = () => {
                     checked={formData.is_public}
                     onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_public: checked }))}
                   />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="joinPolicy" className="text-right">
+                    Join Policy
+                  </Label>
+                  <Select value={formData.join_policy} onValueChange={(value: 'open' | 'request') => setFormData(prev => ({ ...prev, join_policy: value }))}>
+                    <SelectTrigger className="col-span-3">
+                      <SelectValue placeholder="Select join policy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="open">Open - Anyone can join</SelectItem>
+                      <SelectItem value="request">Request - Approval required</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="grid grid-cols-4 items-start gap-4">
                   <Label className="text-right mt-2">

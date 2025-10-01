@@ -1,8 +1,7 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Users, Settings, MessageCircle } from "lucide-react";
+import { ArrowLeft, Users, Settings, MessageCircle, UserPlus } from "lucide-react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGroups } from "@/hooks/useGroups";
 import { useGroupPosts } from "@/hooks/useGroupPosts";
@@ -10,10 +9,13 @@ import { useGroupMembers } from "@/hooks/useGroupMembers";
 import CreateGroupPost from "@/components/groups/CreateGroupPost";
 import GroupPostCard from "@/components/groups/GroupPostCard";
 import GroupMembersList from "@/components/groups/GroupMembersList";
+import { GroupAvatarUpload } from "@/components/groups/GroupAvatarUpload";
+import { GroupJoinRequestDialog } from "@/components/groups/GroupJoinRequestDialog";
+import { GroupJoinRequestsList } from "@/components/groups/GroupJoinRequestsList";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const { userGroups, publicGroups, isLoadingUserGroups, isLoadingPublicGroups } = useGroups();
+  const { userGroups, publicGroups, isLoadingUserGroups, isLoadingPublicGroups, joinGroupMutation } = useGroups();
   const { posts, isLoading: isLoadingPosts, createPost, deletePost, isCreatingPost } = useGroupPosts(id);
   const { members, isLoading: isLoadingMembers } = useGroupMembers(id);
   
@@ -21,10 +23,7 @@ const GroupDetail = () => {
   const group = userGroups.find(g => g.id === id) || publicGroups.find(g => g.id === id);
   const isLoading = isLoadingUserGroups || isLoadingPublicGroups;
   const isMember = userGroups.some(g => g.id === id);
-  
-  const getGroupInitials = (name: string) => {
-    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
-  };
+  const isAdmin = group?.user_role === 'admin';
 
   const handleCreatePost = (content: string) => {
     createPost({ content });
@@ -75,36 +74,56 @@ const GroupDetail = () => {
             </Button>
           </Link>
           <div className="flex items-center flex-1">
-            <Avatar className="w-20 h-20 mr-6">
-              <AvatarImage src={group.avatar_url || "/placeholder.svg"} alt={group.name} />
-              <AvatarFallback className="text-lg">{getGroupInitials(group.name)}</AvatarFallback>
-            </Avatar>
+            <GroupAvatarUpload 
+              groupId={group.id}
+              currentAvatarUrl={group.avatar_url}
+              groupName={group.name}
+              isAdmin={isAdmin}
+            />
             <div className="flex-1">
               <h1 className="text-3xl font-bold mb-2">{group.name}</h1>
               <p className="text-social-textSecondary capitalize mb-2">{group.category}</p>
-              <div className="flex items-center text-sm text-social-textSecondary">
+              <div className="flex items-center gap-2 text-sm text-social-textSecondary">
                 <Users className="w-4 h-4 mr-1" />
                 <span>{group.member_count || 0} members</span>
-                {group.user_role === 'admin' && (
-                  <span className="ml-4 px-3 py-1 bg-social-blue text-white rounded-full text-xs">
+                {isAdmin && (
+                  <span className="px-3 py-1 bg-social-blue text-white rounded-full text-xs">
                     Admin
                   </span>
                 )}
-                {isMember && group.user_role !== 'admin' && (
-                  <span className="ml-4 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs">
+                {isMember && !isAdmin && (
+                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs">
                     Member
+                  </span>
+                )}
+                {group.join_policy === 'request' && (
+                  <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                    Request to Join
                   </span>
                 )}
               </div>
             </div>
             <div className="flex gap-2">
+              {!isMember && group.join_policy === 'request' && (
+                <GroupJoinRequestDialog groupId={group.id} groupName={group.name} />
+              )}
+              {!isMember && group.join_policy === 'open' && (
+                <Button 
+                  onClick={() => joinGroupMutation.mutate(group.id)}
+                  disabled={joinGroupMutation.isPending}
+                  className="bg-social-blue hover:bg-social-darkblue"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Join Group
+                </Button>
+              )}
               {isMember && (
                 <>
                   <Button variant="outline">
                     <MessageCircle className="w-4 h-4 mr-2" />
                     Chat
                   </Button>
-                  {group.user_role === 'admin' && (
+                  {isAdmin && (
                     <Button variant="outline">
                       <Settings className="w-4 h-4 mr-2" />
                       Settings
@@ -127,6 +146,7 @@ const GroupDetail = () => {
           <TabsList>
             <TabsTrigger value="posts">Posts</TabsTrigger>
             <TabsTrigger value="members">Members</TabsTrigger>
+            {isAdmin && <TabsTrigger value="requests">Join Requests</TabsTrigger>}
             <TabsTrigger value="events">Events</TabsTrigger>
           </TabsList>
           
@@ -177,16 +197,41 @@ const GroupDetail = () => {
               <div className="text-center py-10 text-social-textSecondary">
                 <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-50" />
                 <p>Join this group to view and create posts.</p>
+                {group.join_policy === 'request' ? (
+                  <GroupJoinRequestDialog groupId={group.id} groupName={group.name} />
+                ) : (
+                  <Button 
+                    onClick={() => joinGroupMutation.mutate(group.id)}
+                    disabled={joinGroupMutation.isPending}
+                    className="mt-4 bg-social-blue hover:bg-social-darkblue"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Join Group
+                  </Button>
+                )}
               </div>
             )}
           </TabsContent>
           
           <TabsContent value="members" className="mt-6">
-            <GroupMembersList 
-              members={members}
-              isLoading={isLoadingMembers}
-            />
+            {isMember ? (
+              <GroupMembersList 
+                members={members}
+                isLoading={isLoadingMembers}
+              />
+            ) : (
+              <div className="text-center py-10 text-social-textSecondary">
+                <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>Join this group to see the members.</p>
+              </div>
+            )}
           </TabsContent>
+          
+          {isAdmin && (
+            <TabsContent value="requests" className="mt-6">
+              <GroupJoinRequestsList groupId={group.id} />
+            </TabsContent>
+          )}
           
           <TabsContent value="events" className="mt-6">
             <div className="text-center py-10 text-social-textSecondary">
