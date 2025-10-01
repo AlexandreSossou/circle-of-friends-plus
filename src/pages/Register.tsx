@@ -45,7 +45,9 @@ const Register = () => {
               alt="Moderering" 
               className="h-8 w-auto"
             />
-            <p className="text-xs">Created and moderated by moderering Cybersecurity</p>
+            <p className="text-xs">
+              Created and moderated by <a href="https://moderering.com" target="_blank" rel="noopener noreferrer" className="hover:underline">moderering</a> Cybersecurity
+            </p>
           </div>
         </div>
       </footer>

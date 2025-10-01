@@ -44,7 +44,9 @@ const Login = () => {
               alt="Moderering" 
               className="h-8 w-auto"
             />
-            <p className="text-xs">{t("footer.moderatedBy")}</p>
+            <p className="text-xs">
+              {t("footer.moderatedBy")} <a href="https://moderering.com" target="_blank" rel="noopener noreferrer" className="hover:underline">moderering</a> Cybersecurity
+            </p>
           </div>
         </div>
       </footer>
