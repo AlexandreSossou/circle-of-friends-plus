@@ -38,8 +38,8 @@ const ChatBubble = () => {
   
   const { allFriends } = useFriends();
 
-  // Filter only close friends (relationship type is 'friend'), including temporarily upgraded ones
-  const closeFriends = allFriends.filter(friend => friend.relationshipType === 'friend');
+  // Show all friends (both friends and acquaintances can chat)
+  const availableFriends = allFriends;
 
   const handleBackToFriendSelector = () => {
     resetChat();
@@ -59,7 +59,7 @@ const ChatBubble = () => {
           
           {showFriendSelector ? (
             <FriendSelector 
-              closeFriends={closeFriends}
+              closeFriends={availableFriends}
               onSelectFriend={handleSelectFriend}
               onClose={handleCloseFriendSelector}
               onModeratorChat={handleToggleModeratorSelector}
@@ -67,7 +67,7 @@ const ChatBubble = () => {
             />
           ) : showGroupCreator ? (
             <GroupChatCreator
-              closeFriends={closeFriends}
+              closeFriends={availableFriends}
               selectedMembers={groupMembers}
               groupName={groupName}
               setGroupName={setGroupName}

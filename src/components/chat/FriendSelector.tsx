@@ -32,13 +32,13 @@ const FriendSelector = ({
     <div className="flex flex-col h-96">
       <div className="p-4 border-b border-gray-200">
         <p className="text-center text-sm mb-2">
-          Select a Lovarino to chat with
+          Select a connection to chat with
         </p>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-social-textSecondary h-4 w-4" />
           <Input
             type="text"
-            placeholder="Search Lovarinos..."
+            placeholder="Search connections..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9"
@@ -91,10 +91,10 @@ const FriendSelector = ({
         ) : (
           <div className="text-center py-8 text-social-textSecondary">
             {searchTerm 
-              ? "No Lovarinos found matching your search" 
+              ? "No connections found matching your search" 
               : closeFriends.length === 0 
-                ? "You don't have any Lovarinos to chat with yet. Add some Lovarinos first!" 
-                : "No Lovarinos available for chat"
+                ? "You don't have any connections to chat with yet. Add some friends or acquaintances first!" 
+                : "No connections available for chat"
             }
           </div>
         )}

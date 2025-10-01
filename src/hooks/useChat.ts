@@ -147,18 +147,13 @@ export const useChat = () => {
   };
 
   const handleSelectFriend = (friend: Friend) => {
-    // We already ensure only close friends are displayed in the selector
-    // But as an extra safety check, we confirm here too
-    if (friend.relationshipType !== 'friend') {
-      return;
-    }
-
     setSelectedFriend(friend);
     setSelectedGroupChat(null);
     setIsChatWithModerator(false);
     toast({
       title: "Chat started",
       description: `You can now chat with ${friend.name}.`,
+      duration: 2000,
     });
   };
 
