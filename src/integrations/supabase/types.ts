@@ -1346,14 +1346,11 @@ export type Database = {
           avatar_url: string
           bio: string
           cover_photo_url: string
-          expression: string
           full_name: string
           gender: string
           id: string
           location: string
-          looking_for: string[]
           marital_status: string
-          sexual_orientation: string
           username: string
         }[]
       }
