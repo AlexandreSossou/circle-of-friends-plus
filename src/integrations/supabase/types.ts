@@ -173,6 +173,13 @@ export type Database = {
             foreignKeyName: "comments_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -261,6 +268,13 @@ export type Database = {
             foreignKeyName: "fk_events_user_id"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_events_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -299,7 +313,21 @@ export type Database = {
             foreignKeyName: "friends_friend_id_fkey"
             columns: ["friend_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friends_friend_id_fkey"
+            columns: ["friend_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friends_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -354,6 +382,13 @@ export type Database = {
             foreignKeyName: "group_join_requests_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_join_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -387,6 +422,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_group_members_user_id"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -445,6 +487,13 @@ export type Database = {
             foreignKeyName: "group_posts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -491,6 +540,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_groups_created_by"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fk_groups_created_by"
             columns: ["created_by"]
@@ -599,6 +655,13 @@ export type Database = {
             foreignKeyName: "likes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -664,6 +727,13 @@ export type Database = {
             foreignKeyName: "message_preferences_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "message_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -702,7 +772,21 @@ export type Database = {
             foreignKeyName: "messages_recipient_id_fkey"
             columns: ["recipient_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
             referencedColumns: ["id"]
           },
           {
@@ -982,6 +1066,13 @@ export type Database = {
             foreignKeyName: "posts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1079,6 +1170,13 @@ export type Database = {
           username?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_partner_id_fkey"
             columns: ["partner_id"]
@@ -1234,6 +1332,13 @@ export type Database = {
             foreignKeyName: "travels_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "friend_profiles_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "travels_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1306,7 +1411,48 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      friend_profiles_safe: {
+        Row: {
+          age: number | null
+          avatar_url: string | null
+          bio: string | null
+          cover_photo_url: string | null
+          created_at: string | null
+          full_name: string | null
+          gender: string | null
+          id: string | null
+          location: string | null
+          marital_status: string | null
+          username: string | null
+        }
+        Insert: {
+          age?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          location?: string | null
+          marital_status?: string | null
+          username?: string | null
+        }
+        Update: {
+          age?: number | null
+          avatar_url?: string | null
+          bio?: string | null
+          cover_photo_url?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          gender?: string | null
+          id?: string | null
+          location?: string | null
+          marital_status?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_admin_profile_data: {
