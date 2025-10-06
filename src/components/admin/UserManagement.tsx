@@ -53,15 +53,15 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
+      // Use secure RPC function instead of direct SELECT
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
+        .rpc('get_safe_profiles_list')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      // Fetch roles separately for each user
-      const usersWithRoles = await Promise.all(
+      // Fetch roles and emails for each user
+      const usersWithRolesAndEmails = await Promise.all(
         (data || []).map(async (user) => {
           const { data: roleData } = await supabase
             .from('user_roles')
@@ -71,14 +71,19 @@ const UserManagement = () => {
             .limit(1)
             .maybeSingle();
 
+          // Fetch email from auth.users via secure function (admin-only)
+          const { data: emailData } = await supabase
+            .rpc('get_user_email', { user_id: user.id });
+
           return {
             ...user,
-            role: roleData?.role || 'user'
+            role: roleData?.role || 'user',
+            email: emailData || null
           };
         })
       );
 
-      setUsers(usersWithRoles);
+      setUsers(usersWithRolesAndEmails);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast({

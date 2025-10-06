@@ -997,7 +997,6 @@ export type Database = {
           bio: string | null
           cover_photo_url: string | null
           created_at: string
-          email: string | null
           expression: string | null
           full_name: string | null
           gender: string | null
@@ -1028,7 +1027,6 @@ export type Database = {
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
-          email?: string | null
           expression?: string | null
           full_name?: string | null
           gender?: string | null
@@ -1059,7 +1057,6 @@ export type Database = {
           bio?: string | null
           cover_photo_url?: string | null
           created_at?: string
-          email?: string | null
           expression?: string | null
           full_name?: string | null
           gender?: string | null
@@ -1323,7 +1320,6 @@ export type Database = {
           bio: string
           cover_photo_url: string
           created_at: string
-          email: string
           expression: string
           full_name: string
           gender: string
@@ -1428,7 +1424,6 @@ export type Database = {
           bio: string
           cover_photo_url: string
           created_at: string
-          email: string
           expression: string
           full_name: string
           gender: string
@@ -1458,7 +1453,6 @@ export type Database = {
           banned_until: string
           bio: string
           created_at: string
-          email: string
           full_name: string
           gender: string
           id: string
@@ -1474,6 +1468,10 @@ export type Database = {
           updated_at: string
           username: string
         }[]
+      }
+      get_user_email: {
+        Args: { user_id: string }
+        Returns: string
       }
       get_user_group_memberships: {
         Args: { user_uuid: string }
